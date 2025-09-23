@@ -13,6 +13,10 @@ UdpSender::UdpSender(QObject *parent)
     // 设置默认目标地址（可以根据需要修改）
     targetAddress = QHostAddress("192.168.0.2");
     targetPort = 5000;
+
+    // 设置默认参数值
+    defaultDataNum = 1;
+    defaultDivider = 0;
 }
 
 /**
@@ -64,22 +68,42 @@ void UdpSender::sendChannelSelectCommand(quint8 channel)
  * @brief 发送数据个数设置命令
  *
  * 发送命令地址2，设置要采集的数据个数。
- * @param dataNum 数据个数
  */
-void UdpSender::sendDataNumCommand(quint32 dataNum)
+void UdpSender::sendDataNumCommand()
 {
-    sendUdpPacket(2, dataNum);
+    sendUdpPacket(2, defaultDataNum);
 }
 
 /**
  * @brief 发送分频系数设置命令
  *
  * 发送命令地址3，设置ADC分频系数，50Mhz/分频系数=采样率。
+ */
+void UdpSender::sendDividerCommand()
+{
+    sendUdpPacket(3, defaultDivider);
+}
+
+/**
+ * @brief 设置分频系数
+ *
+ * 设置默认分频系数，用于发送分频系数设置命令。
  * @param divider 分频系数
  */
-void UdpSender::sendDividerCommand(quint32 divider)
+void UdpSender::setDivider(quint32 divider)
 {
-    sendUdpPacket(3, divider);
+    defaultDivider = divider;
+}
+
+/**
+ * @brief 设置采集数据个数
+ *
+ * 设置默认数据个数，用于发送数据个数设置命令。
+ * @param dataNum 数据个数
+ */
+void UdpSender::setDataNum(quint32 dataNum)
+{
+    defaultDataNum = dataNum;
 }
 
 /**
@@ -88,7 +112,8 @@ void UdpSender::sendDividerCommand(quint32 divider)
  * 发送命令地址4，开始循环发送数据。
  */
 void UdpSender::sendStartLoopCommand()
-{
+{   
+    
     sendUdpPacket(4);
 }
 

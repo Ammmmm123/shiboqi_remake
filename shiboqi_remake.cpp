@@ -15,6 +15,7 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::shiboqi_remake)
     , udpReceiver(new UdpReceiver(this))
+    , udpSender(new UdpSender(this))
     , errorDialogShown(false)
 {
     ui->setupUi(this);
@@ -24,6 +25,9 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
 
     // 连接监听按钮的切换信号到槽函数
     connect(ui->listenButton, &QPushButton::toggled, this, &shiboqi_remake::on_listenButton_toggled);
+
+    // 连接循环发送按钮的切换信号到槽函数
+    connect(ui->loopSendButton, &QPushButton::toggled, this, &shiboqi_remake::on_loopSendButton_toggled);
 
     // 连接UDP绑定失败信号到错误处理槽函数
     connect(udpReceiver, &UdpReceiver::bindFailed, this, &shiboqi_remake::onUdpBindFailed);
@@ -69,6 +73,20 @@ void shiboqi_remake::on_setButton_clicked()
 
     // 设置UDP接收器的本地地址和端口
     udpReceiver->setLocalAddress(address, port);
+
+    // 设置UDP发送器的目标地址和端口
+    QString targetIpText = ui->targetIpLineEdit->text();
+    quint16 targetPort = ui->targetPortSpinBox->value();
+    QHostAddress targetAddress(targetIpText);
+    if (!targetAddress.isNull()) {
+        udpSender->setTargetAddress(targetAddress, targetPort);
+    }
+
+    // 设置UDP发送器的数据个数和分频系数
+    quint32 dataNum = ui->dataNumSpinBox->value();
+    quint32 divider = ui->dividerSpinBox->value();
+    udpSender->setDataNum(dataNum);
+    udpSender->setDivider(divider);
 }
 
 /**
@@ -91,6 +109,10 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         ui->setButton->setEnabled(false);
         ui->ipLineEdit->setEnabled(false);
         ui->portSpinBox->setEnabled(false);
+        ui->targetIpLineEdit->setEnabled(false);
+        ui->targetPortSpinBox->setEnabled(false);
+        ui->dataNumSpinBox->setEnabled(false);
+        ui->dividerSpinBox->setEnabled(false);
     } else {
         // 停止监听UDP数据
         udpReceiver->stopListening();
@@ -100,6 +122,10 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         ui->setButton->setEnabled(true);
         ui->ipLineEdit->setEnabled(true);
         ui->portSpinBox->setEnabled(true);
+        ui->targetIpLineEdit->setEnabled(true);
+        ui->targetPortSpinBox->setEnabled(true);
+        ui->dataNumSpinBox->setEnabled(true);
+        ui->dividerSpinBox->setEnabled(true);
     }
 }
 
@@ -142,4 +168,23 @@ void shiboqi_remake::onUdpBindFailed(const QString &errorString)
         // 重置标志位，允许下次显示错误对话框
         errorDialogShown = false;
     });
+}
+
+/**
+ * @brief 循环发送按钮切换处理函数
+ *
+ * 根据按钮状态开始或停止循环发送UDP数据。
+ * @param checked true表示开始循环发送，false表示停止循环发送
+ */
+void shiboqi_remake::on_loopSendButton_toggled(bool checked)
+{
+    if (checked) {
+        // 开始循环发送
+        udpSender->sendStartLoopCommand();
+        ui->loopSendButton->setText("停止循环发送");
+    } else {
+        // 停止循环发送
+        udpSender->sendStopLoopCommand();
+        ui->loopSendButton->setText("循环发送");
+    }
 }

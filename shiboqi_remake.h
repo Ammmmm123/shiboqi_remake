@@ -3,6 +3,7 @@
 
 #include <QMainWindow>
 #include "udp_receive.h"
+#include "udp_send.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -57,6 +58,14 @@ private slots:
     void on_listenButton_toggled(bool checked);
 
     /**
+     * @brief 循环发送按钮切换槽函数
+     *
+     * 当用户点击循环发送按钮时调用，根据按钮状态开始或停止循环发送数据。
+     * @param checked true表示开始循环发送，false表示停止循环发送
+     */
+    void on_loopSendButton_toggled(bool checked);
+
+    /**
      * @brief UDP绑定失败处理槽函数
      *
      * 当UDP套接字绑定失败时弹出错误提示对话框。
@@ -67,6 +76,7 @@ private slots:
 private:
     Ui::shiboqi_remake *ui;      ///< UI界面指针
     UdpReceiver *udpReceiver;    ///< UDP接收器实例指针
+    UdpSender *udpSender;        ///< UDP发送器实例指针
     bool errorDialogShown;       ///< 错误对话框显示标志，防止重复弹出
 };
 #endif // SHIBOQI_REMAKE_H

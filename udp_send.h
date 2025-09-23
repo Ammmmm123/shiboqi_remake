@@ -46,15 +46,25 @@ public:
 
     /**
      * @brief 发送数据个数设置命令
-     * @param dataNum 数据个数
      */
-    void sendDataNumCommand(quint32 dataNum);
+    void sendDataNumCommand();
 
     /**
      * @brief 发送分频系数设置命令
+     */
+    void sendDividerCommand();
+
+    /**
+     * @brief 设置分频系数
      * @param divider 分频系数
      */
-    void sendDividerCommand(quint32 divider);
+    void setDivider(quint32 divider);
+
+    /**
+     * @brief 设置采集数据个数
+     * @param dataNum 数据个数
+     */
+    void setDataNum(quint32 dataNum);
 
     /**
      * @brief 发送开始循环发送命令
@@ -84,6 +94,10 @@ private:
     QUdpSocket *socket;           ///< UDP套接字指针
     QHostAddress targetAddress;   ///< 目标IP地址
     quint16 targetPort;           ///< 目标端口
+
+    // 默认参数值
+    quint32 defaultDataNum;       ///< 默认数据个数
+    quint32 defaultDivider;       ///< 默认分频系数
 
     // 识别码常量
     static const quint8 HEADER_1 = 0x55;  ///< 包头第一个字节
