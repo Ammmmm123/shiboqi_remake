@@ -1,25 +1,36 @@
-QT       += core gui printsupport network
+QT += core gui printsupport network opengl
+
+
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
+# 启用 QCustomPlot 的 OpenGL 支持（在编译时定义）
+DEFINES += QCUSTOMPLOT_USE_OPENGL
+
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
+
+INCLUDEPATH += qcustomplot-source
 
 SOURCES += \
     main.cpp \
     qcustomplot-source/qcustomplot.cpp \
     shiboqi_remake.cpp \
+    siprefixticker.cpp \
     udp_receive.cpp \
-    udp_send.cpp
+    udp_send.cpp \
+    data_processor.cpp
 
 HEADERS += \
     qcustomplot-source/qcustomplot.h \
     shiboqi_remake.h \
+    siprefixticker.h \
     udp_receive.h \
-    udp_send.h
+    udp_send.h \
+    data_processor.h
 
 FORMS += \
     shiboqi_remake.ui
@@ -28,3 +39,14 @@ FORMS += \
 qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
+
+
+
+win32:LIBS += -L$$PWD/freeglut-MinGW-3.0.0-1.mp/freeglut/lib/x64/ -lfreeglut -lopengl32 -lglu32
+else:unix: LIBS += -L$$PWD/freeglut-MinGW-3.0.0-1.mp/freeglut/lib/x64/ -lfreeglut -lopengl32 -lglu32
+
+
+INCLUDEPATH += $$PWD/freeglut-MinGW-3.0.0-1.mp/freeglut/include
+DEPENDPATH += $$PWD/freeglut-MinGW-3.0.0-1.mp/freeglut/include
+
+

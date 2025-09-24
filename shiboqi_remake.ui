@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ui version="4.0">
+ <customwidgets>
+  <customwidget>
+   <class>QCustomPlot</class>
+   <extends>QWidget</extends>
+   <header>qcustomplot.h</header>
+  </customwidget>
+ </customwidgets>
  <class>shiboqi_remake</class>
  <widget class="QMainWindow" name="shiboqi_remake">
   <property name="geometry">
@@ -14,19 +21,16 @@
    <string>shiboqi_remake</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_main" stretch="4,1">
+   <layout class="QHBoxLayout" name="horizontalLayout_main" stretch="3,1">
     <item>
-     <spacer name="horizontalSpacer">
-      <property name="orientation">
-       <enum>Qt::Horizontal</enum>
+     <widget class="QCustomPlot" name="customPlot">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
       </property>
-      <property name="sizeHint" stdset="0">
-       <size>
-        <width>40</width>
-        <height>20</height>
-       </size>
-      </property>
-     </spacer>
+     </widget>
     </item>
     <item>
      <widget class="QGroupBox" name="groupBox">

@@ -18,11 +18,11 @@
 #include <QtWidgets/QMainWindow>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
+#include "qcustomplot.h"
 
 QT_BEGIN_NAMESPACE
 
@@ -31,7 +31,7 @@ class Ui_shiboqi_remake
 public:
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout_main;
-    QSpacerItem *horizontalSpacer;
+    QCustomPlot *customPlot;
     QGroupBox *groupBox;
     QVBoxLayout *verticalLayout;
     QVBoxLayout *verticalLayout_2;
@@ -72,9 +72,15 @@ public:
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         horizontalLayout_main = new QHBoxLayout(centralwidget);
         horizontalLayout_main->setObjectName(QString::fromUtf8("horizontalLayout_main"));
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        customPlot = new QCustomPlot(centralwidget);
+        customPlot->setObjectName(QString::fromUtf8("customPlot"));
+        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(customPlot->sizePolicy().hasHeightForWidth());
+        customPlot->setSizePolicy(sizePolicy);
 
-        horizontalLayout_main->addItem(horizontalSpacer);
+        horizontalLayout_main->addWidget(customPlot);
 
         groupBox = new QGroupBox(centralwidget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
@@ -93,11 +99,11 @@ public:
         label_2 = new QLabel(groupBox);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setEnabled(true);
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
-        label_2->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
+        label_2->setSizePolicy(sizePolicy1);
         label_2->setMinimumSize(QSize(144, 0));
         label_2->setMaximumSize(QSize(144, 16777215));
         label_2->setLineWidth(1);
@@ -107,11 +113,11 @@ public:
 
         portSpinBox = new QSpinBox(groupBox);
         portSpinBox->setObjectName(QString::fromUtf8("portSpinBox"));
-        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(portSpinBox->sizePolicy().hasHeightForWidth());
-        portSpinBox->setSizePolicy(sizePolicy1);
+        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(portSpinBox->sizePolicy().hasHeightForWidth());
+        portSpinBox->setSizePolicy(sizePolicy2);
         portSpinBox->setMinimumSize(QSize(80, 0));
         portSpinBox->setLayoutDirection(Qt::LeftToRight);
         portSpinBox->setStyleSheet(QString::fromUtf8("padding: 0px; margin-left: -0;"));
@@ -138,8 +144,8 @@ public:
 
         channelSpinBox = new QSpinBox(groupBox);
         channelSpinBox->setObjectName(QString::fromUtf8("channelSpinBox"));
-        sizePolicy1.setHeightForWidth(channelSpinBox->sizePolicy().hasHeightForWidth());
-        channelSpinBox->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(channelSpinBox->sizePolicy().hasHeightForWidth());
+        channelSpinBox->setSizePolicy(sizePolicy2);
         channelSpinBox->setMinimumSize(QSize(80, 0));
         channelSpinBox->setFrame(false);
         channelSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -164,8 +170,8 @@ public:
 
         dividerSpinBox = new QSpinBox(groupBox);
         dividerSpinBox->setObjectName(QString::fromUtf8("dividerSpinBox"));
-        sizePolicy1.setHeightForWidth(dividerSpinBox->sizePolicy().hasHeightForWidth());
-        dividerSpinBox->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(dividerSpinBox->sizePolicy().hasHeightForWidth());
+        dividerSpinBox->setSizePolicy(sizePolicy2);
         dividerSpinBox->setMinimumSize(QSize(80, 0));
         dividerSpinBox->setFrame(false);
         dividerSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -190,8 +196,8 @@ public:
 
         dataNumSpinBox = new QSpinBox(groupBox);
         dataNumSpinBox->setObjectName(QString::fromUtf8("dataNumSpinBox"));
-        sizePolicy1.setHeightForWidth(dataNumSpinBox->sizePolicy().hasHeightForWidth());
-        dataNumSpinBox->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(dataNumSpinBox->sizePolicy().hasHeightForWidth());
+        dataNumSpinBox->setSizePolicy(sizePolicy2);
         dataNumSpinBox->setMinimumSize(QSize(80, 0));
         dataNumSpinBox->setFrame(false);
         dataNumSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -216,8 +222,8 @@ public:
 
         targetPortSpinBox = new QSpinBox(groupBox);
         targetPortSpinBox->setObjectName(QString::fromUtf8("targetPortSpinBox"));
-        sizePolicy1.setHeightForWidth(targetPortSpinBox->sizePolicy().hasHeightForWidth());
-        targetPortSpinBox->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(targetPortSpinBox->sizePolicy().hasHeightForWidth());
+        targetPortSpinBox->setSizePolicy(sizePolicy2);
         targetPortSpinBox->setMinimumSize(QSize(80, 0));
         targetPortSpinBox->setFrame(false);
         targetPortSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -241,8 +247,8 @@ public:
 
         targetIpLineEdit = new QLineEdit(groupBox);
         targetIpLineEdit->setObjectName(QString::fromUtf8("targetIpLineEdit"));
-        sizePolicy1.setHeightForWidth(targetIpLineEdit->sizePolicy().hasHeightForWidth());
-        targetIpLineEdit->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(targetIpLineEdit->sizePolicy().hasHeightForWidth());
+        targetIpLineEdit->setSizePolicy(sizePolicy2);
         targetIpLineEdit->setMinimumSize(QSize(120, 0));
 
         horizontalLayout_3->addWidget(targetIpLineEdit);
@@ -261,8 +267,8 @@ public:
 
         ipLineEdit = new QLineEdit(groupBox);
         ipLineEdit->setObjectName(QString::fromUtf8("ipLineEdit"));
-        sizePolicy1.setHeightForWidth(ipLineEdit->sizePolicy().hasHeightForWidth());
-        ipLineEdit->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(ipLineEdit->sizePolicy().hasHeightForWidth());
+        ipLineEdit->setSizePolicy(sizePolicy2);
         ipLineEdit->setMinimumSize(QSize(120, 0));
 
         horizontalLayout->addWidget(ipLineEdit);
@@ -299,7 +305,7 @@ public:
 
         horizontalLayout_main->addWidget(groupBox);
 
-        horizontalLayout_main->setStretch(0, 4);
+        horizontalLayout_main->setStretch(0, 3);
         horizontalLayout_main->setStretch(1, 1);
         shiboqi_remake->setCentralWidget(centralwidget);
         menubar = new QMenuBar(shiboqi_remake);

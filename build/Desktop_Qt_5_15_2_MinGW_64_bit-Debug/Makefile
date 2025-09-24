@@ -278,6 +278,7 @@ Makefile: ../../shiboqi_remake.pro D:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++/qma
 		D:/Qt/5.15.2/mingw81_64/mkspecs/features/lex.prf \
 		../../shiboqi_remake.pro \
 		D:/Qt/5.15.2/mingw81_64/lib/Qt5PrintSupport.prl \
+		D:/Qt/5.15.2/mingw81_64/lib/Qt5OpenGL.prl \
 		D:/Qt/5.15.2/mingw81_64/lib/Qt5Widgets.prl \
 		D:/Qt/5.15.2/mingw81_64/lib/Qt5Gui.prl \
 		D:/Qt/5.15.2/mingw81_64/lib/Qt5Network.prl \
@@ -493,6 +494,7 @@ D:/Qt/5.15.2/mingw81_64/mkspecs/features/yacc.prf:
 D:/Qt/5.15.2/mingw81_64/mkspecs/features/lex.prf:
 ../../shiboqi_remake.pro:
 D:/Qt/5.15.2/mingw81_64/lib/Qt5PrintSupport.prl:
+D:/Qt/5.15.2/mingw81_64/lib/Qt5OpenGL.prl:
 D:/Qt/5.15.2/mingw81_64/lib/Qt5Widgets.prl:
 D:/Qt/5.15.2/mingw81_64/lib/Qt5Gui.prl:
 D:/Qt/5.15.2/mingw81_64/lib/Qt5Network.prl:

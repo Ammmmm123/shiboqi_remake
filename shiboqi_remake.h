@@ -2,6 +2,9 @@
 #define SHIBOQI_REMAKE_H
 
 #include <QMainWindow>
+#include <QTimer>
+#include <QEvent>
+#include "qcustomplot-source/qcustomplot.h"
 #include "udp_receive.h"
 #include "udp_send.h"
 
@@ -73,6 +76,27 @@ private slots:
     void on_restartButton_clicked();
 
     /**
+     * @brief 数据接收槽函数
+     *
+     * 处理UDP接收到的数据，添加到缓冲池并触发更新。
+     * @param voltages 电压值向量
+     * @param times 时间向量
+     */
+    void onDataReceived(const QVector<double> &voltages, const QVector<double> &times);
+
+    /**
+     * @brief 更新波形图
+     *
+     * 从缓冲池获取数据并更新显示。
+     */
+    void updatePlot();
+
+    /**
+     * @brief 事件过滤器，用于处理自定义的滚轮缩放行为
+     */
+    bool eventFilter(QObject *obj, QEvent *event) override;
+
+    /**
      * @brief UDP绑定失败处理槽函数
      *
      * 当UDP套接字绑定失败时弹出错误提示对话框。
@@ -85,5 +109,17 @@ private:
     UdpReceiver *udpReceiver;    ///< UDP接收器实例指针
     UdpSender *udpSender;        ///< UDP发送器实例指针
     bool errorDialogShown;       ///< 错误对话框显示标志，防止重复弹出
+
+    // 示波器相关
+    QCustomPlot *customPlot;     ///< 自定义绘图控件
+    QQueue<QPointF> dataBuffer;  ///< 数据缓冲池，先入先出
+    const int maxBufferSize = 10000; ///< 最大缓冲大小
+    double lastVoltage = 0.0;   ///< 上一个电压值，用于变化检测
+    const double changeThreshold = 0.01; ///< 变化阈值，小于此值则省略
+    QTimer *updateTimer;         ///< 更新定时器
+    // 流式绘图相关（最新点在 x=0，旧点向右移动）
+    QVector<double> streamBuffer;   ///< 环形/流式缓冲：仅保存电压值，索引 0 为最新
+    double streamMaxDuration = 1.0; ///< 流式显示的最长时长（秒），波形长度不超过此值
+    double lastSampleInterval = 0.0; ///< 最近一次计算的采样间隔（秒），用于 x 轴位置计算
 };
 #endif // SHIBOQI_REMAKE_H

@@ -1,6 +1,8 @@
 #include "udp_receive.h"
 #include <QDataStream>
 #include <QHostAddress>
+#include <algorithm>
+#include <array>
 
 /**
  * @brief 构造函数
@@ -159,8 +161,41 @@ void UdpReceiver::processPendingDatagrams()
             times.append(time);
         }
 
-        // 如果有数据，发射信号通知接收者
+        // 如果有数据，先对电压做去毛刺处理（中值滤波，窗口3），然后发射信号通知接收者
         if (!voltages.isEmpty()) {
+            if (voltages.size() >= 5) {
+                QVector<double> filtered = voltages;
+                int m = voltages.size();
+                for (int i = 2; i < m - 2; ++i) {
+                    std::array<double,5> w = {voltages[i-2], voltages[i-1], voltages[i], voltages[i+1], voltages[i+2]};
+                    std::sort(w.begin(), w.end());
+                    filtered[i] = w[2]; // 中位数
+                }
+                // 对于长度为4的情况，仍尽量做中心点中值处理
+                if (voltages.size() == 4) {
+                    // 处理两个中间点 i=1,i=2
+                    for (int i = 1; i <= 2; ++i) {
+                        std::array<double,5> w = {voltages[0], voltages[1], voltages[2], voltages[3], voltages[3]};
+                        std::sort(w.begin(), w.end());
+                        filtered[i] = w[2];
+                    }
+                }
+                voltages = std::move(filtered);
+            } else if (voltages.size() >= 3) {
+                // 回退到窗口3的中值滤波
+                QVector<double> filtered = voltages;
+                for (int i = 1; i < voltages.size() - 1; ++i) {
+                    double a = voltages[i-1];
+                    double b = voltages[i];
+                    double c = voltages[i+1];
+                    double med;
+                    if ((a <= b && b <= c) || (c <= b && b <= a)) med = b;
+                    else if ((b <= a && a <= c) || (c <= a && a <= b)) med = a;
+                    else med = c;
+                    filtered[i] = med;
+                }
+                voltages = std::move(filtered);
+            }
             emit dataReceived(voltages, times);
         }
     }

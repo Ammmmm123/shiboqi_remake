@@ -24,7 +24,7 @@
 ****************************************************************************/
 
 #include "qcustomplot.h"
-
+#include <GL/freeglut.h>
 
 /* including file 'src/vector2d.cpp'       */
 /* modified 2022-11-06T12:45:56, size 7973 */
@@ -908,6 +908,7 @@ void QCPPaintBufferGlFbo::draw(QCPPainter *painter) const
     qDebug() << Q_FUNC_INFO << "OpenGL frame buffer object doesn't exist, reallocateBuffer was not called?";
     return;
   }
+
   painter->drawImage(0, 0, mGlFrameBuffer->toImage());
 }
 
@@ -20619,6 +20620,8 @@ void QCPColorScaleAxisRectPrivate::draw(QCPPainter *painter)
     mirrorVert = mParentColorScale->mColorAxis.data()->rangeReversed() && (mParentColorScale->type() == QCPAxis::atLeft || mParentColorScale->type() == QCPAxis::atRight);
   }
   
+
+
   painter->drawImage(rect().adjusted(0, -1, 0, -1), mGradientImage.mirrored(mirrorHorz, mirrorVert));
   QCPAxisRect::draw(painter);
 }
