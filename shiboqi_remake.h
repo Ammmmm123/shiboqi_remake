@@ -66,6 +66,13 @@ private slots:
     void on_loopSendButton_toggled(bool checked);
 
     /**
+     * @brief 发送采集命令按钮点击槽函数
+     *
+     * 当用户点击发送采集命令按钮时调用，发送重新启动采集命令。
+     */
+    void on_restartButton_clicked();
+
+    /**
      * @brief UDP绑定失败处理槽函数
      *
      * 当UDP套接字绑定失败时弹出错误提示对话框。

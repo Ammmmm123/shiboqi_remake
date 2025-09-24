@@ -40,9 +40,14 @@ public:
 
     /**
      * @brief 发送通道选择设置命令
+     */
+    void sendChannelSelectCommand();
+
+    /**
+     * @brief 设置通道选择
      * @param channel 通道选择 (0-2)
      */
-    void sendChannelSelectCommand(quint8 channel);
+    void setChannel(quint8 channel);
 
     /**
      * @brief 发送数据个数设置命令
@@ -98,6 +103,7 @@ private:
     // 默认参数值
     quint32 defaultDataNum;       ///< 默认数据个数
     quint32 defaultDivider;       ///< 默认分频系数
+    quint8 channel;               ///< 默认通道选择
 
     // 识别码常量
     static const quint8 HEADER_1 = 0x55;  ///< 包头第一个字节

@@ -22,8 +22,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_shiboqi_remake_t {
-    QByteArrayData data[8];
-    char stringdata0[123];
+    QByteArrayData data[9];
+    char stringdata0[148];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -38,13 +38,15 @@ QT_MOC_LITERAL(2, 36, 0), // ""
 QT_MOC_LITERAL(3, 37, 23), // "on_listenButton_toggled"
 QT_MOC_LITERAL(4, 61, 7), // "checked"
 QT_MOC_LITERAL(5, 69, 25), // "on_loopSendButton_toggled"
-QT_MOC_LITERAL(6, 95, 15), // "onUdpBindFailed"
-QT_MOC_LITERAL(7, 111, 11) // "errorString"
+QT_MOC_LITERAL(6, 95, 24), // "on_restartButton_clicked"
+QT_MOC_LITERAL(7, 120, 15), // "onUdpBindFailed"
+QT_MOC_LITERAL(8, 136, 11) // "errorString"
 
     },
     "shiboqi_remake\0on_setButton_clicked\0"
     "\0on_listenButton_toggled\0checked\0"
-    "on_loopSendButton_toggled\0onUdpBindFailed\0"
+    "on_loopSendButton_toggled\0"
+    "on_restartButton_clicked\0onUdpBindFailed\0"
     "errorString"
 };
 #undef QT_MOC_LITERAL
@@ -55,7 +57,7 @@ static const uint qt_meta_data_shiboqi_remake[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       4,   14, // methods
+       5,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -63,16 +65,18 @@ static const uint qt_meta_data_shiboqi_remake[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   34,    2, 0x08 /* Private */,
-       3,    1,   35,    2, 0x08 /* Private */,
-       5,    1,   38,    2, 0x08 /* Private */,
-       6,    1,   41,    2, 0x08 /* Private */,
+       1,    0,   39,    2, 0x08 /* Private */,
+       3,    1,   40,    2, 0x08 /* Private */,
+       5,    1,   43,    2, 0x08 /* Private */,
+       6,    0,   46,    2, 0x08 /* Private */,
+       7,    1,   47,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
     QMetaType::Void, QMetaType::Bool,    4,
     QMetaType::Void, QMetaType::Bool,    4,
-    QMetaType::Void, QMetaType::QString,    7,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::QString,    8,
 
        0        // eod
 };
@@ -86,7 +90,8 @@ void shiboqi_remake::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 0: _t->on_setButton_clicked(); break;
         case 1: _t->on_listenButton_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
         case 2: _t->on_loopSendButton_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 3: _t->onUdpBindFailed((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 3: _t->on_restartButton_clicked(); break;
+        case 4: _t->onUdpBindFailed((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         default: ;
         }
     }
@@ -121,13 +126,13 @@ int shiboqi_remake::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 4)
+        if (_id < 5)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 4;
+        _id -= 5;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 4)
+        if (_id < 5)
             *reinterpret_cast<int*>(_a[0]) = -1;
-        _id -= 4;
+        _id -= 5;
     }
     return _id;
 }

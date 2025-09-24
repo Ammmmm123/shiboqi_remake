@@ -29,6 +29,9 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     // 连接循环发送按钮的切换信号到槽函数
     connect(ui->loopSendButton, &QPushButton::toggled, this, &shiboqi_remake::on_loopSendButton_toggled);
 
+    // 连接发送采集命令按钮的点击信号到槽函数
+    connect(ui->restartButton, &QPushButton::clicked, this, &shiboqi_remake::on_restartButton_clicked);
+
     // 连接UDP绑定失败信号到错误处理槽函数
     connect(udpReceiver, &UdpReceiver::bindFailed, this, &shiboqi_remake::onUdpBindFailed);
 }
@@ -85,8 +88,10 @@ void shiboqi_remake::on_setButton_clicked()
     // 设置UDP发送器的数据个数和分频系数
     quint32 dataNum = ui->dataNumSpinBox->value();
     quint32 divider = ui->dividerSpinBox->value();
+    quint8 channel = ui->channelSpinBox->value();
     udpSender->setDataNum(dataNum);
     udpSender->setDivider(divider);
+    udpSender->setChannel(channel);
 }
 
 /**
@@ -113,6 +118,7 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         ui->targetPortSpinBox->setEnabled(false);
         ui->dataNumSpinBox->setEnabled(false);
         ui->dividerSpinBox->setEnabled(false);
+        ui->channelSpinBox->setEnabled(false);
     } else {
         // 停止监听UDP数据
         udpReceiver->stopListening();
@@ -126,6 +132,7 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         ui->targetPortSpinBox->setEnabled(true);
         ui->dataNumSpinBox->setEnabled(true);
         ui->dividerSpinBox->setEnabled(true);
+        ui->channelSpinBox->setEnabled(true);
     }
 }
 
@@ -187,4 +194,14 @@ void shiboqi_remake::on_loopSendButton_toggled(bool checked)
         udpSender->sendStopLoopCommand();
         ui->loopSendButton->setText("循环发送");
     }
+}
+
+/**
+ * @brief 发送采集命令按钮点击处理函数
+ *
+ * 发送重新启动采集命令。
+ */
+void shiboqi_remake::on_restartButton_clicked()
+{
+    udpSender->sendRestartCommand();
 }

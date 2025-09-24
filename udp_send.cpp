@@ -17,6 +17,7 @@ UdpSender::UdpSender(QObject *parent)
     // 设置默认参数值
     defaultDataNum = 1;
     defaultDivider = 0;
+    channel = 0;
 }
 
 /**
@@ -48,7 +49,10 @@ void UdpSender::setTargetAddress(const QHostAddress &address, quint16 port)
  * 发送命令地址0，重新启动数据采集。
  */
 void UdpSender::sendRestartCommand()
-{
+{   
+    sendChannelSelectCommand();
+    sendDataNumCommand();
+    sendDividerCommand();
     sendUdpPacket(0);
 }
 
@@ -56,9 +60,8 @@ void UdpSender::sendRestartCommand()
  * @brief 发送通道选择设置命令
  *
  * 发送命令地址1，设置数据采集通道。
- * @param channel 通道选择 (0-2)
  */
-void UdpSender::sendChannelSelectCommand(quint8 channel)
+void UdpSender::sendChannelSelectCommand()
 {
     // 通道选择使用低2位
     sendUdpPacket(1, channel & 0x03);
@@ -107,13 +110,26 @@ void UdpSender::setDataNum(quint32 dataNum)
 }
 
 /**
+ * @brief 设置通道选择
+ *
+ * 设置默认通道选择，用于发送通道选择设置命令。
+ * @param channel 通道选择 (0-2)
+ */
+void UdpSender::setChannel(quint8 channel)
+{
+    this->channel = channel;
+}
+
+/**
  * @brief 发送开始循环发送命令
  *
  * 发送命令地址4，开始循环发送数据。
  */
 void UdpSender::sendStartLoopCommand()
 {   
-    
+    sendChannelSelectCommand();
+    sendDataNumCommand();
+    sendDividerCommand();
     sendUdpPacket(4);
 }
 
