@@ -5,7 +5,9 @@ release/siprefixticker.o
 release/udp_receive.o
 release/udp_send.o
 release/data_processor.o
+release/UdpWorker.o
 release/moc_qcustomplot.o
 release/moc_shiboqi_remake.o
 release/moc_udp_receive.o
 release/moc_udp_send.o
+release/moc_UdpWorker.o

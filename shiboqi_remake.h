@@ -7,6 +7,7 @@
 #include "qcustomplot-source/qcustomplot.h"
 #include "udp_receive.h"
 #include "udp_send.h"
+#include "UdpWorker.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -84,6 +85,9 @@ private slots:
      */
     void onDataReceived(const QVector<double> &voltages, const QVector<double> &times);
 
+    // 新增：来自后台Worker的批量数据槽
+    void onWorkerBatchReady(const QVector<double> &voltages, const QVector<double> &times);
+
     /**
      * @brief 更新波形图
      *
@@ -117,6 +121,9 @@ private:
     double lastVoltage = 0.0;   ///< 上一个电压值，用于变化检测
     const double changeThreshold = 0.01; ///< 变化阈值，小于此值则省略
     QTimer *updateTimer;         ///< 更新定时器
+    // 后台Worker线程（用于高吞吐UDP接收与预处理）
+    QThread *udpThread = nullptr;
+    UdpWorker *udpWorker = nullptr;
     // 流式绘图相关（最新点在 x=0，旧点向右移动）
     QVector<double> streamBuffer;   ///< 环形/流式缓冲：仅保存电压值，索引 0 为最新
     double streamMaxDuration = 1.0; ///< 流式显示的最长时长（秒），波形长度不超过此值

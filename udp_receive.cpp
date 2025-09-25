@@ -87,7 +87,7 @@ double UdpReceiver::getSampleRate() const
  * 设置UDP套接字要绑定的本地IP地址和端口号。
  * 必须在调用startListening之前设置。
  * @param address 本地IP地址，默认为QHostAddress::Any
- * @param port 本地端口号，默认为12345
+ * @param port 本地端口号，默认为6102
  */
 void UdpReceiver::setLocalAddress(const QHostAddress &address, quint16 port)
 {

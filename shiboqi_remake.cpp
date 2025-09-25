@@ -5,14 +5,10 @@
 #include <cmath>
 #include <memory>
 #include "siprefixticker.h"
-#include <QOpenGLWidget>
 
-/**
- * @brief 构造函数实现
- *
- * 创建主窗口，初始化UI界面和UDP接收器。
- * 设置窗口的父对象，并连接UI控件信号到相应的槽函数。
- *
+#include <QThread>
+
+
 /**
  * @brief 构造函数实现
  *
@@ -44,6 +40,7 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     customPlot = ui->customPlot;
 
     customPlot->setOpenGl(true);
+    qDebug() << customPlot->openGl();
     customPlot->addGraph(); // 添加一个图层
     customPlot->graph(0)->setPen(QPen(Qt::blue)); // 设置线条颜色
     customPlot->xAxis->setLabel("Time (us)");
@@ -105,6 +102,16 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
  */
 shiboqi_remake::~shiboqi_remake()
 {
+    // Ensure worker thread is stopped cleanly if still running
+    if (udpWorker) {
+        QMetaObject::invokeMethod(udpWorker, "stop", Qt::QueuedConnection);
+    }
+    if (udpThread) {
+        udpThread->quit();
+        udpThread->wait(200);
+        delete udpThread;
+        udpThread = nullptr;
+    }
     delete ui;
 }
 
@@ -138,6 +145,11 @@ void shiboqi_remake::on_setButton_clicked()
 
     // 设置UDP接收器的本地地址和端口
     udpReceiver->setLocalAddress(address, port);
+    // 若正在使用后台 worker，将设置也传给 worker（使用 queued connection 安全跨线程）
+    if (udpWorker) {
+        QMetaObject::invokeMethod(udpWorker, "setLocalAddress", Qt::QueuedConnection,
+                                  Q_ARG(QString, ipText), Q_ARG(quint16, port));
+    }
 
     // 设置UDP发送器的目标地址和端口
     QString targetIpText = ui->targetIpLineEdit->text();
@@ -168,11 +180,36 @@ void shiboqi_remake::on_setButton_clicked()
 void shiboqi_remake::on_listenButton_toggled(bool checked)
 {
     if (checked) {
-        // 开始监听UDP数据
+        // 使用后台 UdpWorker 进行高吞吐接收与预处理
         udpSender->sendStopLoopCommand();
-        udpReceiver->startListening();
+
+        // 创建线程与 worker（如果尚未创建）
+        if (!udpThread) {
+            udpThread = new QThread(this);
+        }
+        if (!udpWorker) {
+            quint16 port = static_cast<quint16>(ui->portSpinBox->value());
+            udpWorker = new UdpWorker(port);
+            udpWorker->moveToThread(udpThread);
+
+            // 绑定失败时把消息反馈到主线程处理（显示对话框）
+            connect(udpWorker, &UdpWorker::bindFailed, this, &shiboqi_remake::onUdpBindFailed, Qt::QueuedConnection);
+
+            // 当线程结束时清理 worker
+            connect(udpThread, &QThread::finished, udpWorker, &QObject::deleteLater);
+
+            // 将批量数据信号连接到主线程槽（排队连接）
+            connect(udpWorker, &UdpWorker::batchReady, this, &shiboqi_remake::onWorkerBatchReady, Qt::QueuedConnection);
+
+            // 启动 worker 的 start() 槽
+            connect(udpThread, &QThread::started, udpWorker, &UdpWorker::start);
+        }
+
+        // 启动线程
+        if (!udpThread->isRunning()) udpThread->start();
+
         ui->listenButton->setText("停止监听");
-        
+
         // 禁用设置按钮，防止在监听期间修改参数
         ui->setButton->setEnabled(false);
         ui->ipLineEdit->setEnabled(false);
@@ -183,11 +220,23 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         ui->dividerSpinBox->setEnabled(false);
         ui->channelSpinBox->setEnabled(false);
     } else {
-        // 停止监听UDP数据
+        // 停止后台 worker 并清理线程
         udpSender->sendStopLoopCommand();
-        udpReceiver->stopListening();
+        if (udpWorker) {
+            QMetaObject::invokeMethod(udpWorker, "stop", Qt::QueuedConnection);
+            // 断开信号以避免重复调用
+            disconnect(udpWorker, nullptr, this, nullptr);
+            udpWorker = nullptr; // 被 deleteLater() 在线程结束时清理
+        }
+        if (udpThread) {
+            udpThread->quit();
+            udpThread->wait(200);
+            delete udpThread;
+            udpThread = nullptr;
+        }
+
         ui->listenButton->setText("开始监听");
-        
+
         // 重新启用设置按钮和输入控件
         ui->setButton->setEnabled(true);
         ui->ipLineEdit->setEnabled(true);
@@ -198,6 +247,12 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         ui->dividerSpinBox->setEnabled(true);
         ui->channelSpinBox->setEnabled(true);
     }
+}
+
+void shiboqi_remake::onWorkerBatchReady(const QVector<double> &voltages, const QVector<double> &times)
+{
+    // 将后台批量数据桥接到现有的单次数据接收处理逻辑
+    onDataReceived(voltages, times);
 }
 
 /**
