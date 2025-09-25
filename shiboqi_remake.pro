@@ -1,6 +1,7 @@
-QT       += core gui printsupport network
+QT       += core gui printsupport network opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
+
 
 CONFIG += c++17
 
@@ -12,12 +13,14 @@ SOURCES += \
     main.cpp \
     shiboqi_remake.cpp \
     udp_receive.cpp \
-    udp_send.cpp
+    udp_send.cpp\
+    voltageglwidget.cpp
 
 HEADERS += \
     shiboqi_remake.h \
     udp_receive.h \
-    udp_send.h
+    udp_send.h\
+    voltageglwidget.h
 
 FORMS += \
     shiboqi_remake.ui

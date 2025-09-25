@@ -1,5 +1,6 @@
 #include "shiboqi_remake.h"
 #include "ui_shiboqi_remake.h"
+#include "voltageglwidget.h"
 #include <QMessageBox>
 #include <QTimer>
 
@@ -19,6 +20,15 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     , errorDialogShown(false)
 {
     ui->setupUi(this);
+
+    // 创建 OpenGL 电压绘图控件并插入到主布局左侧
+    voltageWidget = new VoltageGLWidget(this);
+    // 在 horizontalLayout_main 的最左侧插入（index 0 较靠左的 spacer 后面）
+    ui->horizontalLayout_main->insertWidget(1, voltageWidget, /*stretch=*/4);
+
+    // 连接 UDP 数据到绘图控件
+    connect(udpReceiver, &UdpReceiver::dataReceived,
+            voltageWidget, &VoltageGLWidget::onDataReceived);
 
     // 连接设置按钮的点击信号到槽函数
     connect(ui->setButton, &QPushButton::clicked, this, &shiboqi_remake::on_setButton_clicked);

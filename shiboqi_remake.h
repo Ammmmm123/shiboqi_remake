@@ -4,6 +4,7 @@
 #include <QMainWindow>
 #include "udp_receive.h"
 #include "udp_send.h"
+class VoltageGLWidget; // Forward declaration of VoltageGLWidget
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -85,5 +86,6 @@ private:
     UdpReceiver *udpReceiver;    ///< UDP接收器实例指针
     UdpSender *udpSender;        ///< UDP发送器实例指针
     bool errorDialogShown;       ///< 错误对话框显示标志，防止重复弹出
+    VoltageGLWidget *voltageWidget; ///< 左侧 OpenGL 波形显示控件
 };
 #endif // SHIBOQI_REMAKE_H
