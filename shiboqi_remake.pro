@@ -10,13 +10,11 @@ CONFIG += c++17
 
 SOURCES += \
     main.cpp \
-    qcustomplot-source/qcustomplot.cpp \
     shiboqi_remake.cpp \
     udp_receive.cpp \
     udp_send.cpp
 
 HEADERS += \
-    qcustomplot-source/qcustomplot.h \
     shiboqi_remake.h \
     udp_receive.h \
     udp_send.h
