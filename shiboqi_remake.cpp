@@ -22,9 +22,18 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     ui->setupUi(this);
 
     // 创建 OpenGL 电压绘图控件并插入到主布局左侧
-    voltageWidget = new VoltageGLWidget(this);
-    // 在 horizontalLayout_main 的最左侧插入（index 0 较靠左的 spacer 后面）
-    ui->horizontalLayout_main->insertWidget(1, voltageWidget, /*stretch=*/4);
+        // remove the left spacer from the UI so the waveform can occupy the left area
+        if (ui->horizontalSpacer) {
+            ui->horizontalLayout_main->removeItem(ui->horizontalSpacer);
+            delete ui->horizontalSpacer;
+            ui->horizontalSpacer = nullptr;
+        }
+
+        voltageWidget = new VoltageGLWidget(this);
+        // make it expand to fill available left-side space
+        voltageWidget->setSizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        // insert as the left-most widget
+        ui->horizontalLayout_main->insertWidget(0, voltageWidget, /*stretch=*/8);
 
     // 连接 UDP 数据到绘图控件
     connect(udpReceiver, &UdpReceiver::dataReceived,

@@ -525,6 +525,17 @@ debug/moc_voltageglwidget.cpp: ../../voltageglwidget.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QScopedPointer \
 		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglversionfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QOpenGLBuffer \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglbuffer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QOpenGLVertexArrayObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglvertexarrayobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QOpenGLShaderProgram \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglshaderprogram.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qvector3d.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qvector4d.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qmatrix4x4.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qquaternion.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qgenericmatrix.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QMutex \
 		debug/moc_predefs.h \
@@ -861,6 +872,17 @@ debug/shiboqi_remake.o: ../../shiboqi_remake.cpp ../../shiboqi_remake.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglcontext.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QScopedPointer \
 		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglversionfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QOpenGLBuffer \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglbuffer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QOpenGLVertexArrayObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglvertexarrayobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QOpenGLShaderProgram \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglshaderprogram.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qvector3d.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qvector4d.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qmatrix4x4.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qquaternion.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qgenericmatrix.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QMutex \
 		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QMessageBox \
 		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/qmessagebox.h \
@@ -1148,12 +1170,27 @@ debug/voltageglwidget.o: ../../voltageglwidget.cpp ../../voltageglwidget.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QScopedPointer \
 		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglversionfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QOpenGLBuffer \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglbuffer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QOpenGLVertexArrayObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglvertexarrayobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QOpenGLShaderProgram \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qopenglshaderprogram.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qvector3d.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qvector4d.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qmatrix4x4.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qquaternion.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qgenericmatrix.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QMutex \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QVector2D \
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/QVector4D \
 		D:/Qt/5.15.2/mingw81_64/include/QtGui/QPainter \
 		D:/Qt/5.15.2/mingw81_64/include/QtGui/qpainter.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtGui/qtextoption.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtGui/qpen.h
+		D:/Qt/5.15.2/mingw81_64/include/QtGui/qpen.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QtMath \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmath.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\voltageglwidget.o ..\..\voltageglwidget.cpp
 
 debug/moc_shiboqi_remake.o: debug/moc_shiboqi_remake.cpp 
