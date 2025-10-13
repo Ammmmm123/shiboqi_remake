@@ -9,6 +9,7 @@
 #ifndef UI_SHIBOQI_REMAKE_H
 #define UI_SHIBOQI_REMAKE_H
 
+#include <OBW.h>
 #include <QtCore/QVariant>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
@@ -20,7 +21,6 @@
 #include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
-#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStatusBar>
 #include <QtWidgets/QVBoxLayout>
@@ -33,7 +33,7 @@ class Ui_shiboqi_remake
 public:
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout_main;
-    QSpacerItem *horizontalSpacer;
+    TestOpenGLWidget *openGLWidget;
     QGroupBox *groupBox;
     QVBoxLayout *verticalLayout;
     QVBoxLayout *verticalLayout_2;
@@ -70,7 +70,7 @@ public:
     {
         if (shiboqi_remake->objectName().isEmpty())
             shiboqi_remake->setObjectName(QString::fromUtf8("shiboqi_remake"));
-        shiboqi_remake->resize(784, 541);
+        shiboqi_remake->resize(994, 578);
         centralwidget = new QWidget(shiboqi_remake);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         centralwidget->setEnabled(true);
@@ -81,9 +81,15 @@ public:
         centralwidget->setSizePolicy(sizePolicy);
         horizontalLayout_main = new QHBoxLayout(centralwidget);
         horizontalLayout_main->setObjectName(QString::fromUtf8("horizontalLayout_main"));
-        horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
+        openGLWidget = new TestOpenGLWidget(centralwidget);
+        openGLWidget->setObjectName(QString::fromUtf8("openGLWidget"));
+        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(openGLWidget->sizePolicy().hasHeightForWidth());
+        openGLWidget->setSizePolicy(sizePolicy1);
 
-        horizontalLayout_main->addItem(horizontalSpacer);
+        horizontalLayout_main->addWidget(openGLWidget);
 
         groupBox = new QGroupBox(centralwidget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
@@ -102,9 +108,6 @@ public:
         label_2 = new QLabel(groupBox);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setEnabled(true);
-        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
         sizePolicy1.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
         label_2->setSizePolicy(sizePolicy1);
         label_2->setMinimumSize(QSize(144, 0));
@@ -308,12 +311,12 @@ public:
 
         horizontalLayout_main->addWidget(groupBox);
 
-        horizontalLayout_main->setStretch(0, 4);
+        horizontalLayout_main->setStretch(0, 3);
         horizontalLayout_main->setStretch(1, 1);
         shiboqi_remake->setCentralWidget(centralwidget);
         menubar = new QMenuBar(shiboqi_remake);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 784, 21));
+        menubar->setGeometry(QRect(0, 0, 994, 21));
         menu = new QMenu(menubar);
         menu->setObjectName(QString::fromUtf8("menu"));
         shiboqi_remake->setMenuBar(menubar);

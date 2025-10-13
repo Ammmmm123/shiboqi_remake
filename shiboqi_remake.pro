@@ -1,4 +1,4 @@
-QT       += core gui printsupport network
+QT       += core gui printsupport network opengl
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -13,13 +13,15 @@ SOURCES += \
     qcustomplot-source/qcustomplot.cpp \
     shiboqi_remake.cpp \
     udp_receive.cpp \
-    udp_send.cpp
+    udp_send.cpp\
+    OBW.cpp
 
 HEADERS += \
     qcustomplot-source/qcustomplot.h \
     shiboqi_remake.h \
     udp_receive.h \
-    udp_send.h
+    udp_send.h\
+    OBW.h
 
 FORMS += \
     shiboqi_remake.ui
