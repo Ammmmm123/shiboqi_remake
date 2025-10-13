@@ -10,12 +10,14 @@
 #define UI_SHIBOQI_REMAKE_H
 
 #include <QtCore/QVariant>
+#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
+#include <QtWidgets/QMenu>
 #include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
 #include <QtWidgets/QSpacerItem>
@@ -61,15 +63,22 @@ public:
     QPushButton *loopSendButton;
     QPushButton *restartButton;
     QMenuBar *menubar;
+    QMenu *menu;
     QStatusBar *statusbar;
 
     void setupUi(QMainWindow *shiboqi_remake)
     {
         if (shiboqi_remake->objectName().isEmpty())
             shiboqi_remake->setObjectName(QString::fromUtf8("shiboqi_remake"));
-        shiboqi_remake->resize(1100, 600);
+        shiboqi_remake->resize(784, 541);
         centralwidget = new QWidget(shiboqi_remake);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
+        centralwidget->setEnabled(true);
+        QSizePolicy sizePolicy(QSizePolicy::Maximum, QSizePolicy::MinimumExpanding);
+        sizePolicy.setHorizontalStretch(0);
+        sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(centralwidget->sizePolicy().hasHeightForWidth());
+        centralwidget->setSizePolicy(sizePolicy);
         horizontalLayout_main = new QHBoxLayout(centralwidget);
         horizontalLayout_main->setObjectName(QString::fromUtf8("horizontalLayout_main"));
         horizontalSpacer = new QSpacerItem(40, 20, QSizePolicy::Expanding, QSizePolicy::Minimum);
@@ -93,11 +102,11 @@ public:
         label_2 = new QLabel(groupBox);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setEnabled(true);
-        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        sizePolicy.setHorizontalStretch(0);
-        sizePolicy.setVerticalStretch(0);
-        sizePolicy.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
-        label_2->setSizePolicy(sizePolicy);
+        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
+        label_2->setSizePolicy(sizePolicy1);
         label_2->setMinimumSize(QSize(144, 0));
         label_2->setMaximumSize(QSize(144, 16777215));
         label_2->setLineWidth(1);
@@ -107,11 +116,11 @@ public:
 
         portSpinBox = new QSpinBox(groupBox);
         portSpinBox->setObjectName(QString::fromUtf8("portSpinBox"));
-        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(portSpinBox->sizePolicy().hasHeightForWidth());
-        portSpinBox->setSizePolicy(sizePolicy1);
+        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy2.setHorizontalStretch(0);
+        sizePolicy2.setVerticalStretch(0);
+        sizePolicy2.setHeightForWidth(portSpinBox->sizePolicy().hasHeightForWidth());
+        portSpinBox->setSizePolicy(sizePolicy2);
         portSpinBox->setMinimumSize(QSize(80, 0));
         portSpinBox->setLayoutDirection(Qt::LeftToRight);
         portSpinBox->setStyleSheet(QString::fromUtf8("padding: 0px; margin-left: -0;"));
@@ -138,8 +147,8 @@ public:
 
         channelSpinBox = new QSpinBox(groupBox);
         channelSpinBox->setObjectName(QString::fromUtf8("channelSpinBox"));
-        sizePolicy1.setHeightForWidth(channelSpinBox->sizePolicy().hasHeightForWidth());
-        channelSpinBox->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(channelSpinBox->sizePolicy().hasHeightForWidth());
+        channelSpinBox->setSizePolicy(sizePolicy2);
         channelSpinBox->setMinimumSize(QSize(80, 0));
         channelSpinBox->setFrame(false);
         channelSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -164,8 +173,8 @@ public:
 
         dividerSpinBox = new QSpinBox(groupBox);
         dividerSpinBox->setObjectName(QString::fromUtf8("dividerSpinBox"));
-        sizePolicy1.setHeightForWidth(dividerSpinBox->sizePolicy().hasHeightForWidth());
-        dividerSpinBox->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(dividerSpinBox->sizePolicy().hasHeightForWidth());
+        dividerSpinBox->setSizePolicy(sizePolicy2);
         dividerSpinBox->setMinimumSize(QSize(80, 0));
         dividerSpinBox->setFrame(false);
         dividerSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -190,8 +199,8 @@ public:
 
         dataNumSpinBox = new QSpinBox(groupBox);
         dataNumSpinBox->setObjectName(QString::fromUtf8("dataNumSpinBox"));
-        sizePolicy1.setHeightForWidth(dataNumSpinBox->sizePolicy().hasHeightForWidth());
-        dataNumSpinBox->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(dataNumSpinBox->sizePolicy().hasHeightForWidth());
+        dataNumSpinBox->setSizePolicy(sizePolicy2);
         dataNumSpinBox->setMinimumSize(QSize(80, 0));
         dataNumSpinBox->setFrame(false);
         dataNumSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -216,8 +225,8 @@ public:
 
         targetPortSpinBox = new QSpinBox(groupBox);
         targetPortSpinBox->setObjectName(QString::fromUtf8("targetPortSpinBox"));
-        sizePolicy1.setHeightForWidth(targetPortSpinBox->sizePolicy().hasHeightForWidth());
-        targetPortSpinBox->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(targetPortSpinBox->sizePolicy().hasHeightForWidth());
+        targetPortSpinBox->setSizePolicy(sizePolicy2);
         targetPortSpinBox->setMinimumSize(QSize(80, 0));
         targetPortSpinBox->setFrame(false);
         targetPortSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -241,8 +250,8 @@ public:
 
         targetIpLineEdit = new QLineEdit(groupBox);
         targetIpLineEdit->setObjectName(QString::fromUtf8("targetIpLineEdit"));
-        sizePolicy1.setHeightForWidth(targetIpLineEdit->sizePolicy().hasHeightForWidth());
-        targetIpLineEdit->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(targetIpLineEdit->sizePolicy().hasHeightForWidth());
+        targetIpLineEdit->setSizePolicy(sizePolicy2);
         targetIpLineEdit->setMinimumSize(QSize(120, 0));
 
         horizontalLayout_3->addWidget(targetIpLineEdit);
@@ -261,8 +270,8 @@ public:
 
         ipLineEdit = new QLineEdit(groupBox);
         ipLineEdit->setObjectName(QString::fromUtf8("ipLineEdit"));
-        sizePolicy1.setHeightForWidth(ipLineEdit->sizePolicy().hasHeightForWidth());
-        ipLineEdit->setSizePolicy(sizePolicy1);
+        sizePolicy2.setHeightForWidth(ipLineEdit->sizePolicy().hasHeightForWidth());
+        ipLineEdit->setSizePolicy(sizePolicy2);
         ipLineEdit->setMinimumSize(QSize(120, 0));
 
         horizontalLayout->addWidget(ipLineEdit);
@@ -304,11 +313,15 @@ public:
         shiboqi_remake->setCentralWidget(centralwidget);
         menubar = new QMenuBar(shiboqi_remake);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1100, 24));
+        menubar->setGeometry(QRect(0, 0, 784, 21));
+        menu = new QMenu(menubar);
+        menu->setObjectName(QString::fromUtf8("menu"));
         shiboqi_remake->setMenuBar(menubar);
         statusbar = new QStatusBar(shiboqi_remake);
         statusbar->setObjectName(QString::fromUtf8("statusbar"));
         shiboqi_remake->setStatusBar(statusbar);
+
+        menubar->addAction(menu->menuAction());
 
         retranslateUi(shiboqi_remake);
 
@@ -345,6 +358,7 @@ public:
         listenButton->setText(QCoreApplication::translate("shiboqi_remake", "\345\274\200\345\247\213\347\233\221\345\220\254", nullptr));
         loopSendButton->setText(QCoreApplication::translate("shiboqi_remake", "\345\276\252\347\216\257\345\217\221\351\200\201", nullptr));
         restartButton->setText(QCoreApplication::translate("shiboqi_remake", "\345\217\221\351\200\201\351\207\207\351\233\206\345\221\275\344\273\244", nullptr));
+        menu->setTitle(QCoreApplication::translate("shiboqi_remake", "\347\244\272\346\263\242\345\231\250", nullptr));
     } // retranslateUi
 
 };
