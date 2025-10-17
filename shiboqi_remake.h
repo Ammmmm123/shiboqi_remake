@@ -7,6 +7,7 @@
 #include "qcustomplot-source/qcustomplot.h"
 #include "udp_receive.h"
 #include "udp_send.h"
+#include "data_processor.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -104,22 +105,33 @@ private slots:
      */
     void onUdpBindFailed(const QString &errorString);
 
+    /**
+     * @brief 分析结果就绪的槽（由 DataProcessor 发射）
+     *
+     * 留空以便用户自行实现处理逻辑。
+     */
+    void onAnalysisReady(const WaveformAnalysisResult &result);
+
+    /**
+     * @brief 降采样数据就绪的槽（用于绘图）
+     * @param voltages 降采样后的电压数据
+     * @param times 降采样后的时间戳（微秒）
+     */
+    void onDownsampledDataReady(const QVector<double> &voltages, const QVector<double> &times);
+
 private:
     Ui::shiboqi_remake *ui;      ///< UI界面指针
     UdpReceiver *udpReceiver;    ///< UDP接收器实例指针
     UdpSender *udpSender;        ///< UDP发送器实例指针
     bool errorDialogShown;       ///< 错误对话框显示标志，防止重复弹出
+    DataProcessor *dataProcessor; ///< 波形数据处理器
 
     // 示波器相关
     QCustomPlot *customPlot;     ///< 自定义绘图控件
-    QQueue<QPointF> dataBuffer;  ///< 数据缓冲池，先入先出
-    const int maxBufferSize = 10000; ///< 最大缓冲大小
-    double lastVoltage = 0.0;   ///< 上一个电压值，用于变化检测
-    const double changeThreshold = 0.01; ///< 变化阈值，小于此值则省略
     QTimer *updateTimer;         ///< 更新定时器
-    // 流式绘图相关（最新点在 x=0，旧点向右移动）
-    QVector<double> streamBuffer;   ///< 环形/流式缓冲：仅保存电压值，索引 0 为最新
-    double streamMaxDuration = 1.0; ///< 流式显示的最长时长（秒），波形长度不超过此值
-    double lastSampleInterval = 0.0; ///< 最近一次计算的采样间隔（秒），用于 x 轴位置计算
+    
+    // 降采样后的绘图数据（由 DataProcessor 提供）
+    QVector<double> plotVoltages; ///< 用于绘图的电压数据
+    QVector<double> plotTimes;    ///< 用于绘图的时间戳数据
 };
 #endif // SHIBOQI_REMAKE_H

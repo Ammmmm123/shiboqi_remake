@@ -5,6 +5,7 @@
 #include <QUdpSocket>
 #include <QVector>
 
+
 /**
  * @brief UdpReceiver类
  *
@@ -93,7 +94,7 @@ private:
     QUdpSocket *socket;              ///< UDP套接字指针
     const int ADC_DATA_WIDTH = 10;   ///< ADC数据位宽（10位）
     const double VOL_RANGE = 5.0;    ///< ADC电压范围（±5V）
-    double sampleRate = 200000.0;    ///< 采样率（Hz），可动态设置
+    double sampleRate = 50000000.0;    ///< 采样率（Hz），可动态设置
     double LSB;                      ///< ADC电压分辨率（LSB）
     int sampleIndex = 0;             ///< 样本索引，用于时间计算
     QHostAddress localAddress = QHostAddress("192.168.0.3"); ///< 本地绑定IP地址

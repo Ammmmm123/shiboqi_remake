@@ -3,6 +3,7 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <cmath>
+#include <algorithm>
 #include "siprefixticker.h"
 #include <QOpenGLWidget>
 
@@ -23,21 +24,20 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     , errorDialogShown(false)
     , customPlot(nullptr)
     , updateTimer(new QTimer(this))
+    , dataProcessor(new DataProcessor(this)) // 创建数据处理器对象
 {
     ui->setupUi(this);
-    /**
-     * @brief 构造函数实现
-     *
-     * 创建主窗口，初始化UI界面和UDP接收器。
-     * 设置窗口的父对象，并连接UI控件信号到相应的槽函数。
-     *
-     * @param parent 父窗口指针
-     */
+
+    // 创建数据处理器并连接信号
+    connect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::analyzeWaveform);
+    connect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
+    connect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
 
     // 初始化示波器
     customPlot = ui->customPlot;
 
     customPlot->setOpenGl(true);
+    qDebug()<<"opengle="<<customPlot->openGl();
     customPlot->addGraph(); // 添加一个图层
     customPlot->graph(0)->setPen(QPen(Qt::blue)); // 设置线条颜色
     customPlot->xAxis->setLabel("Time (us)");
@@ -69,9 +69,9 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
             customPlot->yAxis->setLabel(QString("Voltage (%1)").arg(unit));
         });
 
-    // 连接数据接收信号
-    connect(udpReceiver, &UdpReceiver::dataReceived, this, &shiboqi_remake::onDataReceived);
-
+    // 连接数据接收信号到本地槽函数（如果还需要其他处理）
+    // connect(udpReceiver, &UdpReceiver::dataReceived, this, &shiboqi_remake::onDataReceived);
+    
     // 设置更新定时器
     connect(updateTimer, &QTimer::timeout, this, &shiboqi_remake::updatePlot);
     updateTimer->start(50); // 20fps更新
@@ -148,6 +148,9 @@ void shiboqi_remake::on_setButton_clicked()
     udpSender->setDataNum(dataNum);
     udpSender->setDivider(divider);
     udpSender->setChannel(channel);
+    udpSender->sendChannelSelectCommand(); // 发送通道选择命令
+    udpSender->sendDataNumCommand(); // 发送数据个数设置命令
+    udpSender->sendDividerCommand(); // 发送分频系数设置命令
 }
 
 /**
@@ -162,8 +165,10 @@ void shiboqi_remake::on_setButton_clicked()
 void shiboqi_remake::on_listenButton_toggled(bool checked)
 {
     if (checked) {
+        on_setButton_clicked();//预先设置参数
         // 开始监听UDP数据
         udpSender->sendStopLoopCommand();
+
         udpReceiver->startListening();
         ui->listenButton->setText("停止监听");
         
@@ -180,6 +185,10 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         // 停止监听UDP数据
         udpSender->sendStopLoopCommand();
         udpReceiver->stopListening();
+        
+        // 重置数据处理器状态，清空累积的数据缓冲区
+        dataProcessor->reset();
+        
         ui->listenButton->setText("开始监听");
         
         // 重新启用设置按钮和输入控件
@@ -254,6 +263,7 @@ void shiboqi_remake::on_loopSendButton_toggled(bool checked)
         ui->loopSendButton->setText("停止循环发送");
     } else {
         // 停止循环发送
+        dataProcessor->reset();
         udpSender->sendStopLoopCommand();
         ui->loopSendButton->setText("循环发送");
     }
@@ -265,119 +275,79 @@ void shiboqi_remake::on_loopSendButton_toggled(bool checked)
  * 发送重新启动采集命令。
  */
 void shiboqi_remake::on_restartButton_clicked()
-{
+{   
+
     udpSender->sendRestartCommand();
 }
 
 /**
- * @brief 数据接收槽函数
+ * @brief 数据接收槽函数（已废弃 - 现在使用 DataProcessor 的降采样数据）
  *
- * 处理接收到的UDP数据，进行抽样和缓冲。
+ * 此函数保留用于兼容性，实际绘图数据由 onDownsampledDataReady 处理
  * @param voltages 电压值向量
  * @param times 时间向量
  */
 void shiboqi_remake::onDataReceived(const QVector<double> &voltages, const QVector<double> &times)
 {
-    // 从接收到的时间估算采样间隔（times 假定为微秒）
-    double estimatedDtSec = 0.0;
-    if (times.size() >= 2) {
-        double sumDiff = 0.0;
-        for (int i = 0; i < times.size() - 1; ++i) {
-            sumDiff += (times[i+1] - times[i]);
-        }
-        double avgDiff = sumDiff / (times.size() - 1);
-        // times are in microseconds in this project, convert to seconds
-        estimatedDtSec = avgDiff * 1e-6;
-        if (estimatedDtSec > 0) lastSampleInterval = estimatedDtSec;
-    }
-
-    // 将样本同时插入历史缓冲和流式缓冲。
-    // 对于 streamBuffer，我们希望索引 0 存放最新样本，因此按顺序在前端插入（prepend）。
-    for (int i = 0; i < voltages.size(); ++i) {
-        double voltage = voltages[i];
-        double time = times[i];
-
-        // 检查波形变化幅度，若小于阈值则忽略该采样
-        // if (qAbs(voltage - lastVoltage) < changeThreshold) {
-        //     continue;
-        // }
-        // lastVoltage = voltage;
-
-        // 历史 FIFO 缓冲（保持现有行为）
-        dataBuffer.enqueue(QPointF(time, voltage));
-        if (dataBuffer.size() > maxBufferSize) {
-            dataBuffer.dequeue();
-        }
-
-        // 流式缓冲：将最新样本放到 index 0（队首）
-        streamBuffer.prepend(voltage);
-    }
-
-    // 修剪流式缓冲，确保其表示的总时长不超过 streamMaxDuration（以秒为单位）
-    if (lastSampleInterval > 0.0) {
-        int maxSamples = qMax(1, int(streamMaxDuration / lastSampleInterval));
-        while (streamBuffer.size() > maxSamples) {
-            streamBuffer.removeLast();
-        }
-    } else {
-        // 若未能估计出有效的采样间隔，使用 maxBufferSize 作为上限以避免无限增长
-        while (streamBuffer.size() > maxBufferSize) {
-            streamBuffer.removeLast();
-        }
-    }
+    // 原始数据接收逻辑已移至 DataProcessor
+    // 不再需要本地缓冲和抽样
+    Q_UNUSED(voltages);
+    Q_UNUSED(times);
 }
 
 /**
- * @brief 更新波形图
+ * @brief 接收降采样后的数据用于绘图
+ * @param voltages 降采样后的电压数据
+ * @param times 降采样后的时间戳（微秒）
+ * 
+ * 由 DataProcessor 在完成分析和降采样后发射，直接用于高效绘图
+ */
+void shiboqi_remake::onDownsampledDataReady(const QVector<double> &voltages, const QVector<double> &times)
+{
+    // 保存降采样后的数据供绘图使用
+    plotVoltages = voltages;
+    plotTimes = times;
+    
+    // 可选：立即触发一次绘图更新（或等待定时器）
+    // updatePlot();
+}
+
+/**
+ * @brief 更新波形图（使用降采样数据）
  *
- * 从缓冲池获取数据并更新显示。
+ * 使用 DataProcessor 提供的降采样数据进行高效绘图
+ * 波形起点固定在坐标原点(0,0)，不自动调整坐标轴范围
  */
 void shiboqi_remake::updatePlot()
 {
-    if (dataBuffer.isEmpty()) {
+    // 检查是否有有效的绘图数据
+    if (plotVoltages.isEmpty() || plotTimes.isEmpty()) {
         return;
     }
 
-    // 如果存在 streamBuffer 数据，按流式方式绘制：索引 0 为最新（x=0）
-    if (!streamBuffer.isEmpty()) {
-        QVector<double> xData, yData;
-
-        // Determine delta in microseconds for plotting (axis uses microseconds)
-        double dtSec = lastSampleInterval;
-        if (dtSec <= 0.0) {
-            // 回退：使用更新定时器间隔估算采样间隔
-            dtSec = updateTimer->interval() / 1000.0;
+    // 将时间戳平移，使第一个点的时间为0（波形从原点开始）
+    QVector<double> adjustedTimes = plotTimes;
+    if (!adjustedTimes.isEmpty()) {
+        double timeOffset = adjustedTimes.first();
+        for (int i = 0; i < adjustedTimes.size(); ++i) {
+            adjustedTimes[i] -= timeOffset;
         }
-        double dtUs = dtSec * 1e6; // 将秒转换为微秒以匹配当前 X 轴单位
-
-        int n = streamBuffer.size();
-        xData.reserve(n);
-        yData.reserve(n);
-        for (int i = 0; i < n; ++i) {
-            // 最新样本对应 x = 0，越旧的样本 x 值越大（向右延伸）
-            xData.append(i * dtUs);
-            yData.append(streamBuffer.at(i));
-        }
-
-        customPlot->graph(0)->setData(xData, yData);
-
-        // 将 X 轴显示窗口固定为 streamMaxDuration（这里注释了 setRange，以保留轴自动缩放的灵活性）
-        customPlot->replot();
-        return;
     }
-
-    // 否则回退到历史缓冲的绘制（保持原行为）
-    QVector<double> xData, yData;
-    for (const QPointF &point : dataBuffer) {
-        xData.append(point.x());
-        yData.append(point.y());
-    }
-    customPlot->graph(0)->setData(xData, yData);
+    
+    // 使用调整后的时间数据绘图
+    customPlot->graph(0)->setData(adjustedTimes, plotVoltages);
+    
+    // 不自动调整坐标轴范围，保持用户设置的范围
+    // 注释掉 rescale() 调用
+    // customPlot->xAxis->rescale();
+    // customPlot->yAxis->rescale();
+    
+    // 重绘图表
     customPlot->replot();
 }
 
 /**
- * @brief 按因子缩放 Y 轴范围
+ * @brief 按因子缩放 Y 轴范围（无限制）
  *
  * @param plot 指定的 QCustomPlot
  * @param factor 缩放因子（<1 放大，>1 缩小）
@@ -391,24 +361,53 @@ void scaleYAxis(QCustomPlot *plot, double factor, const QPoint &/*pos*/) {
 }
 
 /**
- * @brief 按因子缩放 X 轴，保持左边界为 0
+ * @brief 按因子缩放 X 轴，保持左边界为 0（限制在波形数据范围内）
  *
  * 该函数根据当前 X 轴范围计算新的跨度并将左边界固定为 0（或新下界为 0），
  * 以保持时间轴从 0 开始展示历史数据滚动窗口。
+ * 缩放范围被限制在实际波形数据的时间范围内。
  * @param plot 指定的 QCustomPlot
  * @param factor 缩放因子
  * @param pos 鼠标位置（当前实现未使用）
+ * @param plotTimes 当前波形的时间数据（已调整为从0开始），用于限制缩放范围
  */
-void scaleXAxis(QCustomPlot *plot, double factor, const QPoint &/*pos*/) {
+void scaleXAxis(QCustomPlot *plot, double factor, const QPoint &/*pos*/, const QVector<double> &plotTimes) {
+    // 如果没有数据，不进行缩放
+    if (plotTimes.isEmpty()) {
+        return;
+    }
+    
+    // 计算数据的实际时间范围（已经是从0开始的调整后时间）
+    double dataMin = 0.0; // 时间起点始终为0
+    double dataMax = *std::max_element(plotTimes.begin(), plotTimes.end());
+    
+    // 添加2%的右边距
+    double margin = (dataMax - dataMin) * 0.02;
+    double limitMax = dataMax + margin;
+    
+    // 计算新的范围
     auto range = plot->xAxis->range();
-    double lower = range.lower;
-    double upper = range.upper;
-    double span = (upper - lower) * factor;
+    double span = (range.upper - range.lower) * factor;
 
-    // 始终将左侧固定为0（确保程序启动时0位于左侧角落不会改变）
+    // 始终将左侧固定为0
     double newLower = 0.0;
     double newUpper = newLower + span;
-    // 若原始范围并非从0开始，也仍按保持0为左边缘的策略处理
+    
+    // 限制右边界不超过数据最大值
+    if (newUpper > limitMax) {
+        newUpper = limitMax;
+    }
+    
+    // 确保最小显示范围（至少显示数据范围的5%）
+    double minSpan = (dataMax - dataMin) * 0.05;
+    if (newUpper - newLower < minSpan) {
+        newUpper = newLower + minSpan;
+        // 再次检查是否超出限制
+        if (newUpper > limitMax) {
+            newUpper = limitMax;
+        }
+    }
+    
     plot->xAxis->setRange(newLower, newUpper);
 }
 
@@ -425,12 +424,44 @@ bool shiboqi_remake::eventFilter(QObject *obj, QEvent *event)
 
         // 根据修饰键决定缩放轴：Shift->Y, Ctrl->X, none->both
         Qt::KeyboardModifiers mods = we->modifiers();
+        
+        // 如果有波形数据，计算调整后的时间数据（用于X轴缩放限制）
+        QVector<double> adjustedTimes;
+        if (!plotTimes.isEmpty()) {
+            adjustedTimes = plotTimes;
+            double timeOffset = adjustedTimes.first();
+            for (int i = 0; i < adjustedTimes.size(); ++i) {
+                adjustedTimes[i] -= timeOffset;
+            }
+        }
+
         if (mods & Qt::ShiftModifier) {
+            // Y轴缩放：无限制
             scaleYAxis(customPlot, factor, we->position().toPoint());
         } else if (mods & Qt::ControlModifier) {
-            scaleXAxis(customPlot, factor, we->position().toPoint());
+            // X轴缩放：有数据时限制范围，无数据时不限制
+            if (!adjustedTimes.isEmpty()) {
+                scaleXAxis(customPlot, factor, we->position().toPoint(), adjustedTimes);
+            } else {
+                // 无数据时，使用简单的无限制缩放
+                auto range = customPlot->xAxis->range();
+                double span = (range.upper - range.lower) * factor;
+                double newLower = 0.0;
+                double newUpper = newLower + span;
+                customPlot->xAxis->setRange(newLower, newUpper);
+            }
         } else {
-            scaleXAxis(customPlot, factor, we->position().toPoint());
+            // 同时缩放X和Y轴
+            if (!adjustedTimes.isEmpty()) {
+                scaleXAxis(customPlot, factor, we->position().toPoint(), adjustedTimes);
+            } else {
+                // 无数据时，X轴使用简单的无限制缩放
+                auto range = customPlot->xAxis->range();
+                double span = (range.upper - range.lower) * factor;
+                double newLower = 0.0;
+                double newUpper = newLower + span;
+                customPlot->xAxis->setRange(newLower, newUpper);
+            }
             scaleYAxis(customPlot, factor, we->position().toPoint());
         }
 
@@ -439,4 +470,31 @@ bool shiboqi_remake::eventFilter(QObject *obj, QEvent *event)
     }
 
     return QMainWindow::eventFilter(obj, event);
+}
+
+/**
+ * @brief 分析结果就绪槽（空实现，供用户自行填充）
+ * @param result 波形分析结果
+ */
+void shiboqi_remake::onAnalysisReady(const WaveformAnalysisResult &result)
+{
+    // 更新UI上显示的分析结果（频率、幅度、峰峰值、最大值）
+    // 频率：Hz，保留2位小数；幅度/峰峰值/最大值：V，保留3位小数
+    if (!ui) return;
+
+    // frequency
+    QString freqText = QString("%1 Hz").arg(QString::number(result.frequency, 'f', 2));
+    ui->Frequency_in->setText(freqText);
+
+    // amplitude (label_12 在 UI 中用于显示幅度)
+    QString ampText = QString("%1 V").arg(QString::number(result.amplitude, 'f', 3));
+    ui->Amplitude_in->setText(ampText);
+
+    // peak-to-peak
+    QString vppText = QString("%1 V").arg(QString::number(result.peakToPeak, 'f', 3));
+    ui->VPP_in->setText(vppText);
+
+    // Vmax
+    QString vmaxText = QString("%1 V").arg(QString::number(result.maxValue, 'f', 3));
+    ui->V_MAX_in->setText(vmaxText);
 }

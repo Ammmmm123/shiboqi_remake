@@ -4,6 +4,7 @@
 #include <algorithm>
 #include <array>
 
+
 /**
  * @brief 构造函数
  *
@@ -47,6 +48,7 @@ void UdpReceiver::startListening()
         emit bindFailed(socket->errorString());
         qDebug() << "Bind failed:" << socket->errorString();
     }
+    sampleIndex = 0; // 重置样本索引
 }
 
 /**
@@ -196,7 +198,8 @@ void UdpReceiver::processPendingDatagrams()
                 }
                 voltages = std::move(filtered);
             }
-            emit dataReceived(voltages, times);
+            emit dataReceived(voltages, times); // 发射数据接收信号
         }
     }
 }
+

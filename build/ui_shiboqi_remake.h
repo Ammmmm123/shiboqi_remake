@@ -31,7 +31,17 @@ class Ui_shiboqi_remake
 public:
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout_main;
+    QVBoxLayout *verticalLayout_5;
     QCustomPlot *customPlot;
+    QHBoxLayout *horizontalLayout_9;
+    QLabel *Frequency;
+    QLabel *Frequency_in;
+    QLabel *Amplitude;
+    QLabel *Amplitude_in;
+    QLabel *VPP;
+    QLabel *VPP_in;
+    QLabel *V_MAX;
+    QLabel *V_MAX_in;
     QGroupBox *groupBox;
     QVBoxLayout *verticalLayout;
     QVBoxLayout *verticalLayout_2;
@@ -67,20 +77,72 @@ public:
     {
         if (shiboqi_remake->objectName().isEmpty())
             shiboqi_remake->setObjectName(QString::fromUtf8("shiboqi_remake"));
-        shiboqi_remake->resize(1100, 600);
+        shiboqi_remake->resize(1100, 599);
         centralwidget = new QWidget(shiboqi_remake);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         horizontalLayout_main = new QHBoxLayout(centralwidget);
         horizontalLayout_main->setObjectName(QString::fromUtf8("horizontalLayout_main"));
+        verticalLayout_5 = new QVBoxLayout();
+        verticalLayout_5->setObjectName(QString::fromUtf8("verticalLayout_5"));
         customPlot = new QCustomPlot(centralwidget);
         customPlot->setObjectName(QString::fromUtf8("customPlot"));
-        QSizePolicy sizePolicy(QSizePolicy::Expanding, QSizePolicy::Expanding);
+        QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
         sizePolicy.setHeightForWidth(customPlot->sizePolicy().hasHeightForWidth());
         customPlot->setSizePolicy(sizePolicy);
 
-        horizontalLayout_main->addWidget(customPlot);
+        verticalLayout_5->addWidget(customPlot);
+
+        horizontalLayout_9 = new QHBoxLayout();
+        horizontalLayout_9->setObjectName(QString::fromUtf8("horizontalLayout_9"));
+        horizontalLayout_9->setContentsMargins(60, -1, -1, -1);
+        Frequency = new QLabel(centralwidget);
+        Frequency->setObjectName(QString::fromUtf8("Frequency"));
+
+        horizontalLayout_9->addWidget(Frequency, 0, Qt::AlignRight);
+
+        Frequency_in = new QLabel(centralwidget);
+        Frequency_in->setObjectName(QString::fromUtf8("Frequency_in"));
+
+        horizontalLayout_9->addWidget(Frequency_in, 0, Qt::AlignLeft);
+
+        Amplitude = new QLabel(centralwidget);
+        Amplitude->setObjectName(QString::fromUtf8("Amplitude"));
+
+        horizontalLayout_9->addWidget(Amplitude, 0, Qt::AlignRight);
+
+        Amplitude_in = new QLabel(centralwidget);
+        Amplitude_in->setObjectName(QString::fromUtf8("Amplitude_in"));
+
+        horizontalLayout_9->addWidget(Amplitude_in, 0, Qt::AlignLeft);
+
+        VPP = new QLabel(centralwidget);
+        VPP->setObjectName(QString::fromUtf8("VPP"));
+
+        horizontalLayout_9->addWidget(VPP, 0, Qt::AlignRight);
+
+        VPP_in = new QLabel(centralwidget);
+        VPP_in->setObjectName(QString::fromUtf8("VPP_in"));
+
+        horizontalLayout_9->addWidget(VPP_in, 0, Qt::AlignLeft);
+
+        V_MAX = new QLabel(centralwidget);
+        V_MAX->setObjectName(QString::fromUtf8("V_MAX"));
+
+        horizontalLayout_9->addWidget(V_MAX, 0, Qt::AlignRight);
+
+        V_MAX_in = new QLabel(centralwidget);
+        V_MAX_in->setObjectName(QString::fromUtf8("V_MAX_in"));
+
+        horizontalLayout_9->addWidget(V_MAX_in, 0, Qt::AlignLeft);
+
+
+        verticalLayout_5->addLayout(horizontalLayout_9);
+
+        verticalLayout_5->setStretch(0, 9);
+
+        horizontalLayout_main->addLayout(verticalLayout_5);
 
         groupBox = new QGroupBox(centralwidget);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
@@ -99,11 +161,8 @@ public:
         label_2 = new QLabel(groupBox);
         label_2->setObjectName(QString::fromUtf8("label_2"));
         label_2->setEnabled(true);
-        QSizePolicy sizePolicy1(QSizePolicy::Preferred, QSizePolicy::Preferred);
-        sizePolicy1.setHorizontalStretch(0);
-        sizePolicy1.setVerticalStretch(0);
-        sizePolicy1.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
-        label_2->setSizePolicy(sizePolicy1);
+        sizePolicy.setHeightForWidth(label_2->sizePolicy().hasHeightForWidth());
+        label_2->setSizePolicy(sizePolicy);
         label_2->setMinimumSize(QSize(144, 0));
         label_2->setMaximumSize(QSize(144, 16777215));
         label_2->setLineWidth(1);
@@ -113,11 +172,11 @@ public:
 
         portSpinBox = new QSpinBox(groupBox);
         portSpinBox->setObjectName(QString::fromUtf8("portSpinBox"));
-        QSizePolicy sizePolicy2(QSizePolicy::Fixed, QSizePolicy::Fixed);
-        sizePolicy2.setHorizontalStretch(0);
-        sizePolicy2.setVerticalStretch(0);
-        sizePolicy2.setHeightForWidth(portSpinBox->sizePolicy().hasHeightForWidth());
-        portSpinBox->setSizePolicy(sizePolicy2);
+        QSizePolicy sizePolicy1(QSizePolicy::Fixed, QSizePolicy::Fixed);
+        sizePolicy1.setHorizontalStretch(0);
+        sizePolicy1.setVerticalStretch(0);
+        sizePolicy1.setHeightForWidth(portSpinBox->sizePolicy().hasHeightForWidth());
+        portSpinBox->setSizePolicy(sizePolicy1);
         portSpinBox->setMinimumSize(QSize(80, 0));
         portSpinBox->setLayoutDirection(Qt::LeftToRight);
         portSpinBox->setStyleSheet(QString::fromUtf8("padding: 0px; margin-left: -0;"));
@@ -144,8 +203,8 @@ public:
 
         channelSpinBox = new QSpinBox(groupBox);
         channelSpinBox->setObjectName(QString::fromUtf8("channelSpinBox"));
-        sizePolicy2.setHeightForWidth(channelSpinBox->sizePolicy().hasHeightForWidth());
-        channelSpinBox->setSizePolicy(sizePolicy2);
+        sizePolicy1.setHeightForWidth(channelSpinBox->sizePolicy().hasHeightForWidth());
+        channelSpinBox->setSizePolicy(sizePolicy1);
         channelSpinBox->setMinimumSize(QSize(80, 0));
         channelSpinBox->setFrame(false);
         channelSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -170,8 +229,8 @@ public:
 
         dividerSpinBox = new QSpinBox(groupBox);
         dividerSpinBox->setObjectName(QString::fromUtf8("dividerSpinBox"));
-        sizePolicy2.setHeightForWidth(dividerSpinBox->sizePolicy().hasHeightForWidth());
-        dividerSpinBox->setSizePolicy(sizePolicy2);
+        sizePolicy1.setHeightForWidth(dividerSpinBox->sizePolicy().hasHeightForWidth());
+        dividerSpinBox->setSizePolicy(sizePolicy1);
         dividerSpinBox->setMinimumSize(QSize(80, 0));
         dividerSpinBox->setFrame(false);
         dividerSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -196,8 +255,8 @@ public:
 
         dataNumSpinBox = new QSpinBox(groupBox);
         dataNumSpinBox->setObjectName(QString::fromUtf8("dataNumSpinBox"));
-        sizePolicy2.setHeightForWidth(dataNumSpinBox->sizePolicy().hasHeightForWidth());
-        dataNumSpinBox->setSizePolicy(sizePolicy2);
+        sizePolicy1.setHeightForWidth(dataNumSpinBox->sizePolicy().hasHeightForWidth());
+        dataNumSpinBox->setSizePolicy(sizePolicy1);
         dataNumSpinBox->setMinimumSize(QSize(80, 0));
         dataNumSpinBox->setFrame(false);
         dataNumSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -222,8 +281,8 @@ public:
 
         targetPortSpinBox = new QSpinBox(groupBox);
         targetPortSpinBox->setObjectName(QString::fromUtf8("targetPortSpinBox"));
-        sizePolicy2.setHeightForWidth(targetPortSpinBox->sizePolicy().hasHeightForWidth());
-        targetPortSpinBox->setSizePolicy(sizePolicy2);
+        sizePolicy1.setHeightForWidth(targetPortSpinBox->sizePolicy().hasHeightForWidth());
+        targetPortSpinBox->setSizePolicy(sizePolicy1);
         targetPortSpinBox->setMinimumSize(QSize(80, 0));
         targetPortSpinBox->setFrame(false);
         targetPortSpinBox->setButtonSymbols(QAbstractSpinBox::NoButtons);
@@ -247,8 +306,8 @@ public:
 
         targetIpLineEdit = new QLineEdit(groupBox);
         targetIpLineEdit->setObjectName(QString::fromUtf8("targetIpLineEdit"));
-        sizePolicy2.setHeightForWidth(targetIpLineEdit->sizePolicy().hasHeightForWidth());
-        targetIpLineEdit->setSizePolicy(sizePolicy2);
+        sizePolicy1.setHeightForWidth(targetIpLineEdit->sizePolicy().hasHeightForWidth());
+        targetIpLineEdit->setSizePolicy(sizePolicy1);
         targetIpLineEdit->setMinimumSize(QSize(120, 0));
 
         horizontalLayout_3->addWidget(targetIpLineEdit);
@@ -267,8 +326,8 @@ public:
 
         ipLineEdit = new QLineEdit(groupBox);
         ipLineEdit->setObjectName(QString::fromUtf8("ipLineEdit"));
-        sizePolicy2.setHeightForWidth(ipLineEdit->sizePolicy().hasHeightForWidth());
-        ipLineEdit->setSizePolicy(sizePolicy2);
+        sizePolicy1.setHeightForWidth(ipLineEdit->sizePolicy().hasHeightForWidth());
+        ipLineEdit->setSizePolicy(sizePolicy1);
         ipLineEdit->setMinimumSize(QSize(120, 0));
 
         horizontalLayout->addWidget(ipLineEdit);
@@ -324,6 +383,14 @@ public:
     void retranslateUi(QMainWindow *shiboqi_remake)
     {
         shiboqi_remake->setWindowTitle(QCoreApplication::translate("shiboqi_remake", "shiboqi_remake", nullptr));
+        Frequency->setText(QCoreApplication::translate("shiboqi_remake", "Frequency :", nullptr));
+        Frequency_in->setText(QCoreApplication::translate("shiboqi_remake", "0 Hz", nullptr));
+        Amplitude->setText(QCoreApplication::translate("shiboqi_remake", "Amplitude :", nullptr));
+        Amplitude_in->setText(QCoreApplication::translate("shiboqi_remake", "0 V", nullptr));
+        VPP->setText(QCoreApplication::translate("shiboqi_remake", "vp-p :", nullptr));
+        VPP_in->setText(QCoreApplication::translate("shiboqi_remake", "0 V", nullptr));
+        V_MAX->setText(QCoreApplication::translate("shiboqi_remake", "Vmax :", nullptr));
+        V_MAX_in->setText(QCoreApplication::translate("shiboqi_remake", "0 V", nullptr));
         groupBox->setTitle(QCoreApplication::translate("shiboqi_remake", "UDP\350\256\276\347\275\256", nullptr));
         label_2->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
         label_2->setText(QCoreApplication::translate("shiboqi_remake", " \347\253\257\345\217\243:", nullptr));

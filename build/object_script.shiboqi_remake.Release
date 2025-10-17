@@ -9,3 +9,4 @@ release/moc_qcustomplot.o
 release/moc_shiboqi_remake.o
 release/moc_udp_receive.o
 release/moc_udp_send.o
+release/moc_data_processor.o

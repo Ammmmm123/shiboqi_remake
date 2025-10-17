@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_shiboqi_remake_t {
-    QByteArrayData data[18];
-    char stringdata0[235];
+    QByteArrayData data[22];
+    char stringdata0[304];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -50,7 +50,11 @@ QT_MOC_LITERAL(13, 189, 3), // "obj"
 QT_MOC_LITERAL(14, 193, 7), // "QEvent*"
 QT_MOC_LITERAL(15, 201, 5), // "event"
 QT_MOC_LITERAL(16, 207, 15), // "onUdpBindFailed"
-QT_MOC_LITERAL(17, 223, 11) // "errorString"
+QT_MOC_LITERAL(17, 223, 11), // "errorString"
+QT_MOC_LITERAL(18, 235, 15), // "onAnalysisReady"
+QT_MOC_LITERAL(19, 251, 22), // "WaveformAnalysisResult"
+QT_MOC_LITERAL(20, 274, 6), // "result"
+QT_MOC_LITERAL(21, 281, 22) // "onDownsampledDataReady"
 
     },
     "shiboqi_remake\0on_setButton_clicked\0"
@@ -59,7 +63,9 @@ QT_MOC_LITERAL(17, 223, 11) // "errorString"
     "on_restartButton_clicked\0onDataReceived\0"
     "QVector<double>\0voltages\0times\0"
     "updatePlot\0eventFilter\0obj\0QEvent*\0"
-    "event\0onUdpBindFailed\0errorString"
+    "event\0onUdpBindFailed\0errorString\0"
+    "onAnalysisReady\0WaveformAnalysisResult\0"
+    "result\0onDownsampledDataReady"
 };
 #undef QT_MOC_LITERAL
 
@@ -69,7 +75,7 @@ static const uint qt_meta_data_shiboqi_remake[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       8,   14, // methods
+      10,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -77,14 +83,16 @@ static const uint qt_meta_data_shiboqi_remake[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   54,    2, 0x08 /* Private */,
-       3,    1,   55,    2, 0x08 /* Private */,
-       5,    1,   58,    2, 0x08 /* Private */,
-       6,    0,   61,    2, 0x08 /* Private */,
-       7,    2,   62,    2, 0x08 /* Private */,
-      11,    0,   67,    2, 0x08 /* Private */,
-      12,    2,   68,    2, 0x08 /* Private */,
-      16,    1,   73,    2, 0x08 /* Private */,
+       1,    0,   64,    2, 0x08 /* Private */,
+       3,    1,   65,    2, 0x08 /* Private */,
+       5,    1,   68,    2, 0x08 /* Private */,
+       6,    0,   71,    2, 0x08 /* Private */,
+       7,    2,   72,    2, 0x08 /* Private */,
+      11,    0,   77,    2, 0x08 /* Private */,
+      12,    2,   78,    2, 0x08 /* Private */,
+      16,    1,   83,    2, 0x08 /* Private */,
+      18,    1,   86,    2, 0x08 /* Private */,
+      21,    2,   89,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -95,6 +103,8 @@ static const uint qt_meta_data_shiboqi_remake[] = {
     QMetaType::Void,
     QMetaType::Bool, QMetaType::QObjectStar, 0x80000000 | 14,   13,   15,
     QMetaType::Void, QMetaType::QString,   17,
+    QMetaType::Void, 0x80000000 | 19,   20,
+    QMetaType::Void, 0x80000000 | 8, 0x80000000 | 8,    9,   10,
 
        0        // eod
 };
@@ -114,12 +124,22 @@ void shiboqi_remake::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 6: { bool _r = _t->eventFilter((*reinterpret_cast< QObject*(*)>(_a[1])),(*reinterpret_cast< QEvent*(*)>(_a[2])));
             if (_a[0]) *reinterpret_cast< bool*>(_a[0]) = std::move(_r); }  break;
         case 7: _t->onUdpBindFailed((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 8: _t->onAnalysisReady((*reinterpret_cast< const WaveformAnalysisResult(*)>(_a[1]))); break;
+        case 9: _t->onDownsampledDataReady((*reinterpret_cast< const QVector<double>(*)>(_a[1])),(*reinterpret_cast< const QVector<double>(*)>(_a[2]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         switch (_id) {
         default: *reinterpret_cast<int*>(_a[0]) = -1; break;
         case 4:
+            switch (*reinterpret_cast<int*>(_a[1])) {
+            default: *reinterpret_cast<int*>(_a[0]) = -1; break;
+            case 1:
+            case 0:
+                *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< QVector<double> >(); break;
+            }
+            break;
+        case 9:
             switch (*reinterpret_cast<int*>(_a[1])) {
             default: *reinterpret_cast<int*>(_a[0]) = -1; break;
             case 1:
@@ -160,13 +180,13 @@ int shiboqi_remake::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 8)
+        if (_id < 10)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 10;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 8)
+        if (_id < 10)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 8;
+        _id -= 10;
     }
     return _id;
 }

@@ -9,3 +9,4 @@ debug/moc_qcustomplot.o
 debug/moc_shiboqi_remake.o
 debug/moc_udp_receive.o
 debug/moc_udp_send.o
+debug/moc_data_processor.o
