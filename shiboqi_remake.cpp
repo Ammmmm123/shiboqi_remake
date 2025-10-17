@@ -3,16 +3,10 @@
 #include <QMessageBox>
 #include <QTimer>
 #include <cmath>
-#include <memory>
 #include "siprefixticker.h"
 #include <QOpenGLWidget>
 
-/**
- * @brief 构造函数实现
- *
- * 创建主窗口，初始化UI界面和UDP接收器。
- * 设置窗口的父对象，并连接UI控件信号到相应的槽函数。
- *
+
 /**
  * @brief 构造函数实现
  *

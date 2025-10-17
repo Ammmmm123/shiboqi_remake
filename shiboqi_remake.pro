@@ -1,5 +1,4 @@
-QT += core gui printsupport network opengl
-
+QT += core gui printsupport network opengl 
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -8,6 +7,7 @@ CONFIG += c++17
 
 # 启用 QCustomPlot 的 OpenGL 支持（在编译时定义）
 DEFINES += QCUSTOMPLOT_USE_OPENGL
+
 
 # You can make your code fail to compile if it uses deprecated APIs.
 # In order to do so, uncomment the following line.
@@ -43,7 +43,7 @@ else: unix:!android: target.path = /opt/$${TARGET}/bin
 
 
 win32:LIBS += -L$$PWD/freeglut-MinGW-3.0.0-1.mp/freeglut/lib/x64/ -lfreeglut -lopengl32 -lglu32
-else:unix: LIBS += -L$$PWD/freeglut-MinGW-3.0.0-1.mp/freeglut/lib/x64/ -lfreeglut -lopengl32 -lglu32
+
 
 
 INCLUDEPATH += $$PWD/freeglut-MinGW-3.0.0-1.mp/freeglut/include
