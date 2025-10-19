@@ -18,6 +18,7 @@ UdpSender::UdpSender(QObject *parent)
     defaultDataNum = 1;
     defaultDivider = 0;
     channel = 0;
+    waveformType = 0;  // 默认锯齿波
 }
 
 /**
@@ -142,6 +143,83 @@ void UdpSender::sendStopLoopCommand()
 {
     sendUdpPacket(5);
 }
+
+/**
+ * @brief 设置波形类型
+ *
+ * 设置波形类型，用于发送波形设置命令。
+ * @param waveformType 波形类型 (0-3)
+ *        0: 锯齿波
+ *        1: 正弦波
+ *        2: 方波
+ *        3: 三角波
+ */
+void UdpSender::setWaveformType(quint8 waveformType)
+{
+    // 限制波形类型在有效范围内 (0-3)
+    this->waveformType = waveformType & 0x03;
+}
+
+/**
+ * @brief 发送波形设置命令
+ *
+ * 发送命令设置波形类型，低三位表示波形类型：
+ * 3'b000: 锯齿波 (0)
+ * 3'b001: 正弦波 (1)
+ * 3'b010: 方波   (2)
+ * 3'b011: 三角波 (3)
+ */
+void UdpSender::sendWaveformCommand()
+{
+    // 发送波形设置命令，地址6，参数为波形类型
+    sendUdpPacket(6, waveformType);
+}
+
+/**
+ * @brief 发送频率增加命令
+ */
+void UdpSender::sendFrequencyUpCommand()
+{
+    // cmd_dds_key_temp = 100 (位5:1, 位4:0, 位3:0) - 调整频率，增加
+    // 参数 = (控制码 << 3) | 当前波形类型
+    quint32 param = (4 << 3) | waveformType;
+    sendUdpPacket(6, param);
+}
+
+/**
+ * @brief 发送频率减少命令
+ */
+void UdpSender::sendFrequencyDownCommand()
+{
+    // cmd_dds_key_temp = 010 (位5:0, 位4:1, 位3:0) - 调整频率，减少
+    // 参数 = (控制码 << 3) | 当前波形类型
+    quint32 param = (2 << 3) | waveformType;
+    sendUdpPacket(6, param);
+}
+
+/**
+ * @brief 发送幅度增加命令
+ */
+void UdpSender::sendAmplitudeUpCommand()
+{
+    // cmd_dds_key_temp = 101 (位5:1, 位4:0, 位3:0) - 调整幅度，增加
+    // 参数 = (控制码 << 3) | 当前波形类型
+    quint32 param = (5 << 3) | waveformType;
+    sendUdpPacket(6, param);
+}
+
+
+/**
+ * @brief 发送幅度减少命令
+ */
+void UdpSender::sendAmplitudeDownCommand()
+{
+    // cmd_dds_key_temp = 011 (位5:0, 位4:1, 位3:1) - 调整幅度，减少
+    // 参数 = (控制码 << 3) | 当前波形类型
+    quint32 param = (3 << 3) | waveformType;
+    sendUdpPacket(6, param);
+}
+
 
 /**
  * @brief 发送UDP数据包

@@ -81,6 +81,41 @@ public:
      */
     void sendStopLoopCommand();
 
+    /**
+     * @brief 设置波形类型
+     * @param waveformType 波形类型 (0-3)
+     *        0: 锯齿波
+     *        1: 正弦波
+     *        2: 方波
+     *        3: 三角波
+     */
+    void setWaveformType(quint8 waveformType);
+
+    /**
+     * @brief 发送波形设置命令
+     */
+    void sendWaveformCommand();
+
+    /**
+     * @brief 发送频率增加命令
+     */
+    void sendFrequencyUpCommand();
+
+    /**
+     * @brief 发送频率减少命令
+     */
+    void sendFrequencyDownCommand();
+
+    /**
+     * @brief 发送幅度增加命令
+     */
+    void sendAmplitudeUpCommand();
+
+    /**
+     * @brief 发送幅度减少命令
+     */
+    void sendAmplitudeDownCommand();
+
 signals:
     /**
      * @brief 发送完成信号
@@ -104,6 +139,7 @@ private:
     quint32 defaultDataNum;       ///< 默认数据个数
     quint32 defaultDivider;       ///< 默认分频系数
     quint8 channel;               ///< 默认通道选择
+    quint8 waveformType;          ///< 默认波形类型 (0-3)
 
     // 识别码常量
     static const quint8 HEADER_1 = 0x55;  ///< 包头第一个字节

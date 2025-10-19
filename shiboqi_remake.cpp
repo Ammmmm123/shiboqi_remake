@@ -4,6 +4,9 @@
 #include <QTimer>
 #include <cmath>
 #include <algorithm>
+#include <QAction>
+#include <QLabel>
+#include <QVBoxLayout>
 #include "siprefixticker.h"
 #include <QOpenGLWidget>
 
@@ -25,6 +28,7 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     , customPlot(nullptr)
     , updateTimer(new QTimer(this))
     , dataProcessor(new DataProcessor(this)) // 创建数据处理器对象
+    , currentWaveformType(0) // 初始化为锯齿波
 {
     ui->setupUi(this);
 
@@ -34,7 +38,7 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     connect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
 
     // 初始化示波器
-    customPlot = ui->customPlot;
+    customPlot = ui->customPlot_2;
 
     customPlot->setOpenGl(true);
     qDebug()<<"opengle="<<customPlot->openGl();
@@ -77,19 +81,51 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     updateTimer->start(50); // 20fps更新
 
     // 连接设置按钮的点击信号到槽函数
-    connect(ui->setButton, &QPushButton::clicked, this, &shiboqi_remake::on_setButton_clicked);
+    connect(ui->setButton_4, &QPushButton::clicked, this, &shiboqi_remake::on_setButton_clicked);
 
     // 连接监听按钮的切换信号到槽函数
-    connect(ui->listenButton, &QPushButton::toggled, this, &shiboqi_remake::on_listenButton_toggled);
+    connect(ui->listenButton_4, &QPushButton::toggled, this, &shiboqi_remake::on_listenButton_toggled);
 
     // 连接循环发送按钮的切换信号到槽函数
-    connect(ui->loopSendButton, &QPushButton::toggled, this, &shiboqi_remake::on_loopSendButton_toggled);
+    connect(ui->loopSendButton_4, &QPushButton::toggled, this, &shiboqi_remake::on_loopSendButton_toggled);
 
     // 连接发送采集命令按钮的点击信号到槽函数
-    connect(ui->restartButton, &QPushButton::clicked, this, &shiboqi_remake::on_restartButton_clicked);
+    connect(ui->restartButton_4, &QPushButton::clicked, this, &shiboqi_remake::on_restartButton_clicked);
 
     // 连接UDP绑定失败信号到错误处理槽函数
     connect(udpReceiver, &UdpReceiver::bindFailed, this, &shiboqi_remake::onUdpBindFailed);
+
+    // 连接波形控制按钮信号到槽函数
+    // 注意：需要在UI文件中添加相应的按钮控件，并确保名称匹配
+    // connect(ui->waveformSwitchButton, &QPushButton::clicked, this, &shiboqi_remake::on_waveformSwitchButton_clicked);
+    // connect(ui->frequencyUpButton, &QPushButton::clicked, this, &shiboqi_remake::on_frequencyUpButton_clicked);
+    // connect(ui->frequencyDownButton, &QPushButton::clicked, this, &shiboqi_remake::on_frequencyDownButton_clicked);
+    // connect(ui->amplitudeUpButton, &QPushButton::clicked, this, &shiboqi_remake::on_amplitudeUpButton_clicked);
+    // connect(ui->amplitudeDownButton, &QPushButton::clicked, this, &shiboqi_remake::on_amplitudeDownButton_clicked);
+
+    // --- 菜单项：切换不同页面（示波器 / DDS 设置 / 数字信号测量）
+
+    // 点击菜单标签直接切换到对应页面（无需子菜单项）
+    // 当菜单即将显示时（aboutToShow），切换页面并立即隐藏菜单。
+    if (ui->menu) {
+        connect(ui->menu, &QMenu::aboutToShow, this, [this]() {
+            ui->stackedWidget->setCurrentIndex(0); // 示波器 -> page_5
+            ui->menu->hide();
+        });
+    }
+    if (ui->menuDDS) {
+        connect(ui->menuDDS, &QMenu::aboutToShow, this, [this]() {
+            ui->stackedWidget->setCurrentIndex(1); // DDS设置 -> page_6
+            ui->menuDDS->hide();
+        });
+    }
+    // 有些 UI 文件把第三个菜单命名为 menu_2（兼容性处理）
+    if (ui->menu_2) {
+        connect(ui->menu_2, &QMenu::aboutToShow, this, [this]() {
+            ui->stackedWidget->setCurrentIndex(2); // 数字信号测量 -> page_7
+            ui->menu_2->hide();
+        });
+    }
 }
 
 /**
@@ -115,10 +151,10 @@ shiboqi_remake::~shiboqi_remake()
 void shiboqi_remake::on_setButton_clicked()
 {
     // 获取用户输入的IP地址文本
-    QString ipText = ui->ipLineEdit->text();
+    QString ipText = ui->ipLineEdit_4->text();
 
     // 获取用户选择的端口号
-    quint16 port = ui->portSpinBox->value();
+    quint16 port = ui->portSpinBox_4->value();
 
     // 将IP地址字符串转换为QHostAddress对象
     QHostAddress address(ipText);
@@ -134,17 +170,17 @@ void shiboqi_remake::on_setButton_clicked()
     udpReceiver->setLocalAddress(address, port);
 
     // 设置UDP发送器的目标地址和端口
-    QString targetIpText = ui->targetIpLineEdit->text();
-    quint16 targetPort = ui->targetPortSpinBox->value();
+    QString targetIpText = ui->targetIpLineEdit_4->text();
+    quint16 targetPort = ui->targetPortSpinBox_4->value();
     QHostAddress targetAddress(targetIpText);
     if (!targetAddress.isNull()) {
         udpSender->setTargetAddress(targetAddress, targetPort);
     }
 
     // 设置UDP发送器的数据个数和分频系数
-    quint32 dataNum = ui->dataNumSpinBox->value();
-    quint32 divider = ui->dividerSpinBox->value();
-    quint8 channel = ui->channelSpinBox->value();
+    quint32 dataNum = ui->dataNumSpinBox_4->value();
+    quint32 divider = ui->dividerSpinBox_4->value();
+    quint8 channel = ui->channelSpinBox_4->value();
     udpSender->setDataNum(dataNum);
     udpSender->setDivider(divider);
     udpSender->setChannel(channel);
@@ -170,17 +206,17 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         udpSender->sendStopLoopCommand();
 
         udpReceiver->startListening();
-        ui->listenButton->setText("停止监听");
+        ui->listenButton_4->setText("停止监听");
         
         // 禁用设置按钮，防止在监听期间修改参数
-        ui->setButton->setEnabled(false);
-        ui->ipLineEdit->setEnabled(false);
-        ui->portSpinBox->setEnabled(false);
-        ui->targetIpLineEdit->setEnabled(false);
-        ui->targetPortSpinBox->setEnabled(false);
-        ui->dataNumSpinBox->setEnabled(false);
-        ui->dividerSpinBox->setEnabled(false);
-        ui->channelSpinBox->setEnabled(false);
+        ui->setButton_4->setEnabled(false);
+        ui->ipLineEdit_4->setEnabled(false);
+        ui->portSpinBox_4->setEnabled(false);
+        ui->targetIpLineEdit_4->setEnabled(false);
+        ui->targetPortSpinBox_4->setEnabled(false);
+        ui->dataNumSpinBox_4->setEnabled(false);
+        ui->dividerSpinBox_4->setEnabled(false);
+        ui->channelSpinBox_4->setEnabled(false);
     } else {
         // 停止监听UDP数据
         udpSender->sendStopLoopCommand();
@@ -189,17 +225,17 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         // 重置数据处理器状态，清空累积的数据缓冲区
         dataProcessor->reset();
         
-        ui->listenButton->setText("开始监听");
+        ui->listenButton_4->setText("开始监听");
         
         // 重新启用设置按钮和输入控件
-        ui->setButton->setEnabled(true);
-        ui->ipLineEdit->setEnabled(true);
-        ui->portSpinBox->setEnabled(true);
-        ui->targetIpLineEdit->setEnabled(true);
-        ui->targetPortSpinBox->setEnabled(true);
-        ui->dataNumSpinBox->setEnabled(true);
-        ui->dividerSpinBox->setEnabled(true);
-        ui->channelSpinBox->setEnabled(true);
+        ui->setButton_4->setEnabled(true);
+        ui->ipLineEdit_4->setEnabled(true);
+        ui->portSpinBox_4->setEnabled(true);
+        ui->targetIpLineEdit_4->setEnabled(true);
+        ui->targetPortSpinBox_4->setEnabled(true);
+        ui->dataNumSpinBox_4->setEnabled(true);
+        ui->dividerSpinBox_4->setEnabled(true);
+        ui->channelSpinBox_4->setEnabled(true);
     }
 }
 
@@ -229,20 +265,20 @@ void shiboqi_remake::onUdpBindFailed(const QString &errorString)
                              QMessageBox::Ok);
 
         // 阻止信号发射，安全地重置按钮状态和文字
-        ui->listenButton->blockSignals(true);
-        ui->listenButton->setChecked(false);
-        ui->listenButton->setText("开始监听");
-        ui->listenButton->blockSignals(false);
+        ui->listenButton_4->blockSignals(true);
+        ui->listenButton_4->setChecked(false);
+        ui->listenButton_4->setText("开始监听");
+        ui->listenButton_4->blockSignals(false);
 
         // 重新启用设置控件，因为监听失败了
-        ui->setButton->setEnabled(true);
-        ui->ipLineEdit->setEnabled(true);
-        ui->portSpinBox->setEnabled(true);
-        ui->targetIpLineEdit->setEnabled(true);
-        ui->targetPortSpinBox->setEnabled(true);
-        ui->dataNumSpinBox->setEnabled(true);
-        ui->dividerSpinBox->setEnabled(true);
-        ui->channelSpinBox->setEnabled(true);
+        ui->setButton_4->setEnabled(true);
+        ui->ipLineEdit_4->setEnabled(true);
+        ui->portSpinBox_4->setEnabled(true);
+        ui->targetIpLineEdit_4->setEnabled(true);
+        ui->targetPortSpinBox_4->setEnabled(true);
+        ui->dataNumSpinBox_4->setEnabled(true);
+        ui->dividerSpinBox_4->setEnabled(true);
+        ui->channelSpinBox_4->setEnabled(true);
 
         // 重置标志位，允许下次显示错误对话框
         errorDialogShown = false;
@@ -260,12 +296,12 @@ void shiboqi_remake::on_loopSendButton_toggled(bool checked)
     if (checked) {
         // 开始循环发送
         udpSender->sendStartLoopCommand();
-        ui->loopSendButton->setText("停止循环发送");
+        ui->loopSendButton_4->setText("停止循环发送");
     } else {
         // 停止循环发送
         dataProcessor->reset();
         udpSender->sendStopLoopCommand();
-        ui->loopSendButton->setText("循环发送");
+        ui->loopSendButton_4->setText("循环发送");
     }
 }
 
@@ -484,17 +520,70 @@ void shiboqi_remake::onAnalysisReady(const WaveformAnalysisResult &result)
 
     // frequency
     QString freqText = QString("%1 Hz").arg(QString::number(result.frequency, 'f', 2));
-    ui->Frequency_in->setText(freqText);
+    ui->Frequency_in_2->setText(freqText);
 
     // amplitude (label_12 在 UI 中用于显示幅度)
     QString ampText = QString("%1 V").arg(QString::number(result.amplitude, 'f', 3));
-    ui->Amplitude_in->setText(ampText);
+    ui->Amplitude_in_2->setText(ampText);
 
     // peak-to-peak
     QString vppText = QString("%1 V").arg(QString::number(result.peakToPeak, 'f', 3));
-    ui->VPP_in->setText(vppText);
+    ui->VPP_in_2->setText(vppText);
 
     // Vmax
     QString vmaxText = QString("%1 V").arg(QString::number(result.maxValue, 'f', 3));
-    ui->V_MAX_in->setText(vmaxText);
+    ui->V_MAX_in_2->setText(vmaxText);
+}
+
+/**
+ * @brief 波形切换按钮点击槽函数
+ */
+void shiboqi_remake::on_waveformSwitchButton_clicked()
+{
+    // 循环切换波形类型：0->1->2->3->0...
+    currentWaveformType = (currentWaveformType + 1) % 4;
+    
+    // 设置波形类型并发送命令
+    udpSender->setWaveformType(currentWaveformType);
+    udpSender->sendWaveformCommand();
+    
+    // 显示当前波形类型（可选，用于调试）
+    QString waveformNames[] = {"锯齿波", "正弦波", "方波", "三角波"};
+    qDebug() << "切换到波形：" << waveformNames[currentWaveformType] << "(" << currentWaveformType << ")";
+}
+
+/**
+ * @brief 频率加按钮点击槽函数
+ */
+void shiboqi_remake::on_frequencyUpButton_clicked()
+{
+    udpSender->sendFrequencyUpCommand();
+    qDebug() << "发送频率增加命令";
+}
+
+/**
+ * @brief 频率减按钮点击槽函数
+ */
+void shiboqi_remake::on_frequencyDownButton_clicked()
+{
+    udpSender->sendFrequencyDownCommand();
+    qDebug() << "发送频率减少命令";
+}
+
+/**
+ * @brief 幅度加按钮点击槽函数
+ */
+void shiboqi_remake::on_amplitudeUpButton_clicked()
+{
+    udpSender->sendAmplitudeUpCommand();
+    qDebug() << "发送幅度增加命令";
+}
+
+/**
+ * @brief 幅度减按钮点击槽函数
+ */
+void shiboqi_remake::on_amplitudeDownButton_clicked()
+{
+    udpSender->sendAmplitudeDownCommand();
+    qDebug() << "发送幅度减少命令";
 }

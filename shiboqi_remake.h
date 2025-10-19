@@ -119,6 +119,31 @@ private slots:
      */
     void onDownsampledDataReady(const QVector<double> &voltages, const QVector<double> &times);
 
+    /**
+     * @brief 波形切换按钮点击槽函数
+     */
+    void on_waveformSwitchButton_clicked();
+
+    /**
+     * @brief 频率加按钮点击槽函数
+     */
+    void on_frequencyUpButton_clicked();
+
+    /**
+     * @brief 频率减按钮点击槽函数
+     */
+    void on_frequencyDownButton_clicked();
+
+    /**
+     * @brief 幅度加按钮点击槽函数
+     */
+    void on_amplitudeUpButton_clicked();
+
+    /**
+     * @brief 幅度减按钮点击槽函数
+     */
+    void on_amplitudeDownButton_clicked();
+
 private:
     Ui::shiboqi_remake *ui;      ///< UI界面指针
     UdpReceiver *udpReceiver;    ///< UDP接收器实例指针
@@ -133,5 +158,8 @@ private:
     // 降采样后的绘图数据（由 DataProcessor 提供）
     QVector<double> plotVoltages; ///< 用于绘图的电压数据
     QVector<double> plotTimes;    ///< 用于绘图的时间戳数据
+    
+    // 波形控制相关
+    quint8 currentWaveformType;   ///< 当前波形类型 (0-3)
 };
 #endif // SHIBOQI_REMAKE_H
