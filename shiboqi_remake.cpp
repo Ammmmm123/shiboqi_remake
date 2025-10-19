@@ -550,6 +550,47 @@ void shiboqi_remake::on_waveformSwitchButton_clicked()
     // 显示当前波形类型（可选，用于调试）
     QString waveformNames[] = {"锯齿波", "正弦波", "方波", "三角波"};
     qDebug() << "切换到波形：" << waveformNames[currentWaveformType] << "(" << currentWaveformType << ")";
+
+    // 在 ui->boxingxianshi 上绘制一个示意波形（单周期，范围 0..1）
+    if (ui && ui->boxingxianshi) {
+        QCustomPlot *preview = ui->boxingxianshi;
+
+        // 确保至少有一个 graph
+        if (preview->graphCount() == 0) {
+            preview->addGraph();
+        }
+
+        // 生成示意数据
+        const int N = 200;
+        QVector<double> xs(N), ys(N);
+        for (int i = 0; i < N; ++i) {
+            double t = double(i) / double(N - 1); // 0..1
+            xs[i] = t;
+            switch (currentWaveformType) {
+                case 0: // 锯齿波: 从 1 到 -1 的线性下降
+                    ys[i] = 1.0 - 2.0 * t;
+                    break;
+                case 1: // 正弦波
+                    ys[i] = std::sin(2.0 * M_PI * t);
+                    break;
+                case 2: // 方波
+                    ys[i] = (std::sin(2.0 * M_PI * t) >= 0.0) ? 1.0 : -1.0;
+                    break;
+                case 3: // 三角波: 上升到 1 再下降到 -1
+                    if (t < 0.5) ys[i] = 4.0 * t - 1.0; else ys[i] = -4.0 * t + 3.0;
+                    break;
+                default:
+                    ys[i] = 0.0;
+            }
+        }
+
+        // 设置 graph
+        preview->graph(0)->setData(xs, ys);
+        preview->graph(0)->setPen(QPen(Qt::red));
+        preview->xAxis->setRange(0.0, 1.0);
+        preview->yAxis->setRange(-1.2, 1.2);
+        preview->replot();
+    }
 }
 
 /**
