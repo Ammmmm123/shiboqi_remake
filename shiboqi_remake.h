@@ -8,6 +8,7 @@
 #include "udp_receive.h"
 #include "udp_send.h"
 #include "data_processor.h"
+#include "UART_receive.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -144,6 +145,21 @@ private slots:
      */
     void on_amplitudeDownButton_clicked();
 
+    /**
+     * @brief 串口连接按钮切换槽函数
+     * @param checked true表示连接串口，false表示断开串口
+     */
+    void on_pushButton_2_toggled(bool checked);
+
+    /**
+     * @brief 串口解析后数据到达槽函数
+     * @param duty 占空比
+     * @param highTime 高电平时间（us）
+     * @param lowTime 低电平时间（us）
+     * @param frequency 频率（Hz）
+     */
+    void onParsedSerialData(int duty, int highTime, int lowTime, double frequency);
+
 private:
     Ui::shiboqi_remake *ui;      ///< UI界面指针
     UdpReceiver *udpReceiver;    ///< UDP接收器实例指针
@@ -161,5 +177,6 @@ private:
     
     // 波形控制相关
     quint8 currentWaveformType;   ///< 当前波形类型 (0-3)
+    UARTReceiver *uartReceiver;   ///< UART接收器实例指针
 };
 #endif // SHIBOQI_REMAKE_H

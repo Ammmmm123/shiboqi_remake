@@ -1,3 +1,4 @@
+release/UART_receive.o
 release/main.o
 release/qcustomplot.o
 release/shiboqi_remake.o
@@ -5,6 +6,7 @@ release/siprefixticker.o
 release/udp_receive.o
 release/udp_send.o
 release/data_processor.o
+release/moc_UART_receive.o
 release/moc_qcustomplot.o
 release/moc_shiboqi_remake.o
 release/moc_udp_receive.o

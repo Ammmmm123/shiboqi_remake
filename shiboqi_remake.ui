@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1118</width>
-    <height>644</height>
+    <width>987</width>
+    <height>632</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,6 +17,9 @@
    <layout class="QHBoxLayout" name="horizontalLayout_main" stretch="0">
     <property name="spacing">
      <number>0</number>
+    </property>
+    <property name="sizeConstraint">
+     <enum>QLayout::SetMaximumSize</enum>
     </property>
     <property name="leftMargin">
      <number>0</number>
@@ -32,690 +35,722 @@
     </property>
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
+      <property name="sizePolicy">
+       <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+        <horstretch>0</horstretch>
+        <verstretch>0</verstretch>
+       </sizepolicy>
+      </property>
+      <property name="layoutDirection">
+       <enum>Qt::LeftToRight</enum>
+      </property>
       <property name="currentIndex">
        <number>0</number>
       </property>
       <widget class="QWidget" name="page_5">
-       <widget class="QWidget" name="horizontalLayoutWidget">
-        <property name="geometry">
-         <rect>
-          <x>10</x>
-          <y>10</y>
-          <width>1101</width>
-          <height>581</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="3,0">
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_9" stretch="9,0">
-           <item>
-            <widget class="QCustomPlot" name="customPlot_2" native="true">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
+       <property name="layoutDirection">
+        <enum>Qt::LeftToRight</enum>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_3">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="3,0">
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_9" stretch="9,0">
+            <item>
+             <widget class="QCustomPlot" name="customPlot_2" native="true">
+              <property name="sizePolicy">
+               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                <horstretch>0</horstretch>
+                <verstretch>0</verstretch>
+               </sizepolicy>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_27">
+              <property name="leftMargin">
+               <number>60</number>
+              </property>
+              <item alignment="Qt::AlignRight">
+               <widget class="QLabel" name="Frequency_2">
+                <property name="text">
+                 <string>Frequency :</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignLeft">
+               <widget class="QLabel" name="Frequency_in_2">
+                <property name="text">
+                 <string>0 Hz</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignRight">
+               <widget class="QLabel" name="Amplitude_2">
+                <property name="text">
+                 <string>Amplitude :</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignLeft">
+               <widget class="QLabel" name="Amplitude_in_2">
+                <property name="text">
+                 <string>0 V</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignRight">
+               <widget class="QLabel" name="VPP_2">
+                <property name="text">
+                 <string>vp-p :</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignLeft">
+               <widget class="QLabel" name="VPP_in_2">
+                <property name="text">
+                 <string>0 V</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignRight">
+               <widget class="QLabel" name="V_MAX_2">
+                <property name="text">
+                 <string>Vmax :</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignLeft">
+               <widget class="QLabel" name="V_MAX_in_2">
+                <property name="text">
+                 <string>0 V</string>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox">
+            <property name="title">
+             <string>UDP设置</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_10" stretch="0,0,2,0,0">
+             <property name="spacing">
+              <number>10</number>
              </property>
-            </widget>
-           </item>
-           <item>
-            <layout class="QHBoxLayout" name="horizontalLayout_27">
-             <property name="leftMargin">
-              <number>60</number>
-             </property>
-             <item alignment="Qt::AlignRight">
-              <widget class="QLabel" name="Frequency_2">
+             <item>
+              <layout class="QVBoxLayout" name="verticalLayout_11" stretch="0,0,0,0,0,0,0">
+               <property name="spacing">
+                <number>20</number>
+               </property>
+               <property name="sizeConstraint">
+                <enum>QLayout::SetDefaultConstraint</enum>
+               </property>
+               <property name="leftMargin">
+                <number>0</number>
+               </property>
+               <property name="rightMargin">
+                <number>0</number>
+               </property>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_28" stretch="0,0">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>30</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_22">
+                   <property name="enabled">
+                    <bool>true</bool>
+                   </property>
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>144</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="maximumSize">
+                    <size>
+                     <width>144</width>
+                     <height>16777215</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string>margin: 0px; padding: 0px;</string>
+                   </property>
+                   <property name="lineWidth">
+                    <number>1</number>
+                   </property>
+                   <property name="text">
+                    <string> 端口:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="portSpinBox_4">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="layoutDirection">
+                    <enum>Qt::LeftToRight</enum>
+                   </property>
+                   <property name="styleSheet">
+                    <string notr="true">padding: 0px; margin-left: -0;</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
+                   </property>
+                   <property name="buttonSymbols">
+                    <enum>QAbstractSpinBox::NoButtons</enum>
+                   </property>
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>65535</number>
+                   </property>
+                   <property name="value">
+                    <number>6102</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_29">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>30</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_23">
+                   <property name="styleSheet">
+                    <string>margin: 0px; padding: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string>通道选择:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="channelSpinBox_4">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string>padding: 0px;</string>
+                   </property>
+                   <property name="frame">
+                    <bool>false</bool>
+                   </property>
+                   <property name="buttonSymbols">
+                    <enum>QAbstractSpinBox::NoButtons</enum>
+                   </property>
+                   <property name="minimum">
+                    <number>0</number>
+                   </property>
+                   <property name="maximum">
+                    <number>2</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_30">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>30</number>
+                 </property>
+                 <item alignment="Qt::AlignVCenter">
+                  <widget class="QLabel" name="label_24">
+                   <property name="styleSheet">
+                    <string>margin: 0px; padding: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string>分频系数:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="dividerSpinBox_4">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string>padding: 0px;</string>
+                   </property>
+                   <property name="frame">
+                    <bool>false</bool>
+                   </property>
+                   <property name="buttonSymbols">
+                    <enum>QAbstractSpinBox::NoButtons</enum>
+                   </property>
+                   <property name="minimum">
+                    <number>0</number>
+                   </property>
+                   <property name="maximum">
+                    <number>1000000</number>
+                   </property>
+                   <property name="value">
+                    <number>0</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_31">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>30</number>
+                 </property>
+                 <item alignment="Qt::AlignVCenter">
+                  <widget class="QLabel" name="label_25">
+                   <property name="styleSheet">
+                    <string>margin: 0px; padding: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string>数据个数:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="dataNumSpinBox_4">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string>padding: 0px;</string>
+                   </property>
+                   <property name="frame">
+                    <bool>false</bool>
+                   </property>
+                   <property name="buttonSymbols">
+                    <enum>QAbstractSpinBox::NoButtons</enum>
+                   </property>
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>1000000</number>
+                   </property>
+                   <property name="value">
+                    <number>1</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_32">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
+                 <property name="rightMargin">
+                  <number>30</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_26">
+                   <property name="styleSheet">
+                    <string>margin: 0px; padding: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string>目标端口:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="targetPortSpinBox_4">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>80</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string>padding: 0px;</string>
+                   </property>
+                   <property name="frame">
+                    <bool>false</bool>
+                   </property>
+                   <property name="buttonSymbols">
+                    <enum>QAbstractSpinBox::NoButtons</enum>
+                   </property>
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>65535</number>
+                   </property>
+                   <property name="value">
+                    <number>5000</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_33">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_27">
+                   <property name="styleSheet">
+                    <string>margin: 0px; padding: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string>目标IP地址:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="targetIpLineEdit_4">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string>padding: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string>192.168.0.2</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QHBoxLayout" name="horizontalLayout_34">
+                 <property name="spacing">
+                  <number>5</number>
+                 </property>
+                 <item>
+                  <widget class="QLabel" name="label_28">
+                   <property name="styleSheet">
+                    <string>margin: 0px; padding: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string>本机IP地址:</string>
+                   </property>
+                   <property name="alignment">
+                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QLineEdit" name="ipLineEdit_4">
+                   <property name="sizePolicy">
+                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
+                     <horstretch>0</horstretch>
+                     <verstretch>0</verstretch>
+                    </sizepolicy>
+                   </property>
+                   <property name="minimumSize">
+                    <size>
+                     <width>120</width>
+                     <height>0</height>
+                    </size>
+                   </property>
+                   <property name="styleSheet">
+                    <string>padding: 0px;</string>
+                   </property>
+                   <property name="text">
+                    <string>192.168.0.3</string>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QPushButton" name="setButton_4">
                <property name="text">
-                <string>Frequency :</string>
+                <string>设置UDP连接参数</string>
                </property>
               </widget>
              </item>
-             <item alignment="Qt::AlignLeft">
-              <widget class="QLabel" name="Frequency_in_2">
+             <item>
+              <widget class="QPushButton" name="listenButton_4">
                <property name="text">
-                <string>0 Hz</string>
+                <string>开始监听</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
-             <item alignment="Qt::AlignRight">
-              <widget class="QLabel" name="Amplitude_2">
+             <item>
+              <widget class="QPushButton" name="loopSendButton_4">
                <property name="text">
-                <string>Amplitude :</string>
+                <string>循环发送</string>
+               </property>
+               <property name="checkable">
+                <bool>true</bool>
                </property>
               </widget>
              </item>
-             <item alignment="Qt::AlignLeft">
-              <widget class="QLabel" name="Amplitude_in_2">
+             <item>
+              <widget class="QPushButton" name="restartButton_4">
                <property name="text">
-                <string>0 V</string>
-               </property>
-              </widget>
-             </item>
-             <item alignment="Qt::AlignRight">
-              <widget class="QLabel" name="VPP_2">
-               <property name="text">
-                <string>vp-p :</string>
-               </property>
-              </widget>
-             </item>
-             <item alignment="Qt::AlignLeft">
-              <widget class="QLabel" name="VPP_in_2">
-               <property name="text">
-                <string>0 V</string>
-               </property>
-              </widget>
-             </item>
-             <item alignment="Qt::AlignRight">
-              <widget class="QLabel" name="V_MAX_2">
-               <property name="text">
-                <string>Vmax :</string>
-               </property>
-              </widget>
-             </item>
-             <item alignment="Qt::AlignLeft">
-              <widget class="QLabel" name="V_MAX_in_2">
-               <property name="text">
-                <string>0 V</string>
+                <string>发送采集命令</string>
                </property>
               </widget>
              </item>
             </layout>
-           </item>
-          </layout>
-         </item>
-         <item>
-          <widget class="QGroupBox" name="groupBox">
-           <property name="title">
-            <string>UDP设置</string>
-           </property>
-           <layout class="QVBoxLayout" name="verticalLayout_10" stretch="0,0,2,0,0">
-            <property name="spacing">
-             <number>10</number>
-            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_6">
+       <layout class="QHBoxLayout" name="horizontalLayout_4">
+        <item>
+         <layout class="QHBoxLayout" name="horizontalLayout_36" stretch="2,0">
+          <item>
+           <widget class="QCustomPlot" name="boxingxianshi" native="true"/>
+          </item>
+          <item>
+           <layout class="QVBoxLayout" name="verticalLayout_12">
             <item>
-             <layout class="QVBoxLayout" name="verticalLayout_11" stretch="0,0,0,0,0,0,0">
-              <property name="spacing">
-               <number>20</number>
-              </property>
-              <property name="sizeConstraint">
-               <enum>QLayout::SetDefaultConstraint</enum>
-              </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_28" stretch="0,0">
-                <property name="spacing">
-                 <number>5</number>
-                </property>
-                <property name="rightMargin">
-                 <number>30</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_22">
-                  <property name="enabled">
-                   <bool>true</bool>
-                  </property>
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>144</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>144</width>
-                    <height>16777215</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string>margin: 0px; padding: 0px;</string>
-                  </property>
-                  <property name="lineWidth">
-                   <number>1</number>
-                  </property>
-                  <property name="text">
-                   <string> 端口:</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSpinBox" name="portSpinBox_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>80</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="layoutDirection">
-                   <enum>Qt::LeftToRight</enum>
-                  </property>
-                  <property name="styleSheet">
-                   <string notr="true">padding: 0px; margin-left: -0;</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                  </property>
-                  <property name="buttonSymbols">
-                   <enum>QAbstractSpinBox::NoButtons</enum>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>65535</number>
-                  </property>
-                  <property name="value">
-                   <number>6102</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_29">
-                <property name="spacing">
-                 <number>5</number>
-                </property>
-                <property name="rightMargin">
-                 <number>30</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_23">
-                  <property name="styleSheet">
-                   <string>margin: 0px; padding: 0px;</string>
-                  </property>
-                  <property name="text">
-                   <string>通道选择:</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSpinBox" name="channelSpinBox_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>80</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string>padding: 0px;</string>
-                  </property>
-                  <property name="frame">
-                   <bool>false</bool>
-                  </property>
-                  <property name="buttonSymbols">
-                   <enum>QAbstractSpinBox::NoButtons</enum>
-                  </property>
-                  <property name="minimum">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <number>2</number>
-                  </property>
-                  <property name="value">
-                   <number>0</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_30">
-                <property name="spacing">
-                 <number>5</number>
-                </property>
-                <property name="rightMargin">
-                 <number>30</number>
-                </property>
-                <item alignment="Qt::AlignVCenter">
-                 <widget class="QLabel" name="label_24">
-                  <property name="styleSheet">
-                   <string>margin: 0px; padding: 0px;</string>
-                  </property>
-                  <property name="text">
-                   <string>分频系数:</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSpinBox" name="dividerSpinBox_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>80</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string>padding: 0px;</string>
-                  </property>
-                  <property name="frame">
-                   <bool>false</bool>
-                  </property>
-                  <property name="buttonSymbols">
-                   <enum>QAbstractSpinBox::NoButtons</enum>
-                  </property>
-                  <property name="minimum">
-                   <number>0</number>
-                  </property>
-                  <property name="maximum">
-                   <number>1000000</number>
-                  </property>
-                  <property name="value">
-                   <number>0</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_31">
-                <property name="spacing">
-                 <number>5</number>
-                </property>
-                <property name="rightMargin">
-                 <number>30</number>
-                </property>
-                <item alignment="Qt::AlignVCenter">
-                 <widget class="QLabel" name="label_25">
-                  <property name="styleSheet">
-                   <string>margin: 0px; padding: 0px;</string>
-                  </property>
-                  <property name="text">
-                   <string>数据个数:</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSpinBox" name="dataNumSpinBox_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>80</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string>padding: 0px;</string>
-                  </property>
-                  <property name="frame">
-                   <bool>false</bool>
-                  </property>
-                  <property name="buttonSymbols">
-                   <enum>QAbstractSpinBox::NoButtons</enum>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>1000000</number>
-                  </property>
-                  <property name="value">
-                   <number>1</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_32">
-                <property name="spacing">
-                 <number>5</number>
-                </property>
-                <property name="rightMargin">
-                 <number>30</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_26">
-                  <property name="styleSheet">
-                   <string>margin: 0px; padding: 0px;</string>
-                  </property>
-                  <property name="text">
-                   <string>目标端口:</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QSpinBox" name="targetPortSpinBox_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>80</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string>padding: 0px;</string>
-                  </property>
-                  <property name="frame">
-                   <bool>false</bool>
-                  </property>
-                  <property name="buttonSymbols">
-                   <enum>QAbstractSpinBox::NoButtons</enum>
-                  </property>
-                  <property name="minimum">
-                   <number>1</number>
-                  </property>
-                  <property name="maximum">
-                   <number>65535</number>
-                  </property>
-                  <property name="value">
-                   <number>5000</number>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_33">
-                <property name="spacing">
-                 <number>5</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_27">
-                  <property name="styleSheet">
-                   <string>margin: 0px; padding: 0px;</string>
-                  </property>
-                  <property name="text">
-                   <string>目标IP地址:</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="targetIpLineEdit_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>120</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string>padding: 0px;</string>
-                  </property>
-                  <property name="text">
-                   <string>192.168.0.2</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_34">
-                <property name="spacing">
-                 <number>5</number>
-                </property>
-                <item>
-                 <widget class="QLabel" name="label_28">
-                  <property name="styleSheet">
-                   <string>margin: 0px; padding: 0px;</string>
-                  </property>
-                  <property name="text">
-                   <string>本机IP地址:</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QLineEdit" name="ipLineEdit_4">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="minimumSize">
-                   <size>
-                    <width>120</width>
-                    <height>0</height>
-                   </size>
-                  </property>
-                  <property name="styleSheet">
-                   <string>padding: 0px;</string>
-                  </property>
-                  <property name="text">
-                   <string>192.168.0.3</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <widget class="QPushButton" name="setButton_4">
+             <widget class="QPushButton" name="waveformSwitchButton">
               <property name="text">
-               <string>设置UDP连接参数</string>
+               <string>切换波形</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="listenButton_4">
+             <widget class="QPushButton" name="frequencyUpButton">
               <property name="text">
-               <string>开始监听</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
+               <string>频率+</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="loopSendButton_4">
+             <widget class="QPushButton" name="frequencyDownButton">
               <property name="text">
-               <string>循环发送</string>
-              </property>
-              <property name="checkable">
-               <bool>true</bool>
+               <string>频率-</string>
               </property>
              </widget>
             </item>
             <item>
-             <widget class="QPushButton" name="restartButton_4">
+             <widget class="QPushButton" name="amplitudeUpButton">
               <property name="text">
-               <string>发送采集命令</string>
+               <string>幅度+</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="amplitudeDownButton">
+              <property name="text">
+               <string>幅度-</string>
               </property>
              </widget>
             </item>
            </layout>
-          </widget>
-         </item>
-        </layout>
-       </widget>
-      </widget>
-      <widget class="QWidget" name="page_6">
-       <widget class="QWidget" name="horizontalLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>9</x>
-          <y>9</y>
-          <width>1101</width>
-          <height>581</height>
-         </rect>
-        </property>
-        <layout class="QHBoxLayout" name="horizontalLayout_36" stretch="2,0">
-         <item>
-          <widget class="QCustomPlot" name="boxingxianshi" native="true"/>
-         </item>
-         <item>
-          <layout class="QVBoxLayout" name="verticalLayout_12">
-           <item>
-            <widget class="QPushButton" name="waveformSwitchButton">
-             <property name="text">
-              <string>切换波形</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="frequencyUpButton">
-             <property name="text">
-              <string>频率+</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="frequencyDownButton">
-             <property name="text">
-              <string>频率-</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="amplitudeUpButton">
-             <property name="text">
-              <string>幅度+</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QPushButton" name="amplitudeDownButton">
-             <property name="text">
-              <string>幅度-</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
       <widget class="QWidget" name="page_7">
-       <widget class="QWidget" name="verticalLayoutWidget_2">
-        <property name="geometry">
-         <rect>
-          <x>9</x>
-          <y>9</y>
-          <width>1091</width>
-          <height>581</height>
-         </rect>
-        </property>
-        <layout class="QVBoxLayout" name="verticalLayout_13" stretch="3,0">
-         <item>
-          <widget class="QCustomPlot" name="shuzixinhaoboxing" native="true"/>
-         </item>
-         <item>
-          <layout class="QHBoxLayout" name="horizontalLayout_37">
-           <item>
-            <widget class="QLabel" name="pinglv">
-             <property name="text">
-              <string>频率：</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="pinglv_in">
-             <property name="text">
-              <string>0 Hz</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="zhankongbi">
-             <property name="text">
-              <string>占空比：</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="zhankongbi_in">
-             <property name="text">
-              <string>0</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="Hvolt_t">
-             <property name="text">
-              <string>高电平时间：</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="Hvolt_t_in">
-             <property name="text">
-              <string>0 us</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="Lvolt_t">
-             <property name="text">
-              <string>低电平时间：</string>
-             </property>
-            </widget>
-           </item>
-           <item>
-            <widget class="QLabel" name="Lvolt_t_in">
-             <property name="text">
-              <string>0 us</string>
-             </property>
-            </widget>
-           </item>
-          </layout>
-         </item>
-        </layout>
-       </widget>
+       <layout class="QHBoxLayout" name="horizontalLayout_5">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_13" stretch="3,0,0">
+          <item>
+           <widget class="QCustomPlot" name="shuzixinhaoboxing" native="true"/>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_37">
+            <item>
+             <widget class="QLabel" name="pinglv">
+              <property name="text">
+               <string>频率：</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="pinglv_in">
+              <property name="text">
+               <string>0 Hz</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="zhankongbi">
+              <property name="text">
+               <string>占空比：</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="zhankongbi_in">
+              <property name="text">
+               <string>0</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="Hvolt_t">
+              <property name="text">
+               <string>高电平时间：</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="Hvolt_t_in">
+              <property name="text">
+               <string>0 us</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="Lvolt_t">
+              <property name="text">
+               <string>低电平时间：</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="Lvolt_t_in">
+              <property name="text">
+               <string>0 us</string>
+              </property>
+             </widget>
+            </item>
+           </layout>
+          </item>
+          <item>
+           <layout class="QHBoxLayout" name="horizontalLayout_2" stretch="1,1">
+            <property name="spacing">
+             <number>50</number>
+            </property>
+            <property name="sizeConstraint">
+             <enum>QLayout::SetDefaultConstraint</enum>
+            </property>
+            <property name="leftMargin">
+             <number>50</number>
+            </property>
+            <property name="rightMargin">
+             <number>50</number>
+            </property>
+            <item>
+             <widget class="QPushButton" name="pushButton_2">
+              <property name="text">
+               <string>开启连接</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+              <property name="autoDefault">
+               <bool>false</bool>
+              </property>
+              <property name="default">
+               <bool>false</bool>
+              </property>
+              <property name="flat">
+               <bool>false</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QComboBox" name="comboBox"/>
+            </item>
+           </layout>
+          </item>
+         </layout>
+        </item>
+       </layout>
       </widget>
      </widget>
     </item>
@@ -726,8 +761,8 @@
     <rect>
      <x>0</x>
      <y>0</y>
-     <width>1118</width>
-     <height>24</height>
+     <width>987</width>
+     <height>21</height>
     </rect>
    </property>
    <widget class="QMenu" name="menu">

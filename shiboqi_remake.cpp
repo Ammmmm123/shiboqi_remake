@@ -9,6 +9,7 @@
 #include <QVBoxLayout>
 #include "siprefixticker.h"
 #include <QOpenGLWidget>
+#include <QSerialPortInfo>
 
 
 /**
@@ -29,6 +30,7 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     , updateTimer(new QTimer(this))
     , dataProcessor(new DataProcessor(this)) // 创建数据处理器对象
     , currentWaveformType(0) // 初始化为锯齿波
+    , uartReceiver(new UARTReceiver(this)) // 创建UART接收器对象
 {
     ui->setupUi(this);
 
@@ -126,6 +128,17 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
             ui->menu_2->hide();
         });
     }
+
+    // 初始化串口comboBox
+    foreach (const QSerialPortInfo &info, QSerialPortInfo::availablePorts()) {
+        ui->comboBox->addItem(info.portName());
+    }
+
+    // 连接串口连接按钮的切换信号到槽函数
+    // connect(ui->pushButton_2, &QPushButton::toggled, this, &shiboqi_remake::on_pushButton_2_toggled);
+
+    // 连接UART解析后信号到界面刷新槽（每200ms）
+    connect(uartReceiver, &UARTReceiver::parsedDataReady, this, &shiboqi_remake::onParsedSerialData);
 }
 
 /**
@@ -627,4 +640,77 @@ void shiboqi_remake::on_amplitudeDownButton_clicked()
 {
     udpSender->sendAmplitudeDownCommand();
     qDebug() << "发送幅度减少命令";
+}
+
+/**
+ * @brief 串口连接按钮切换槽函数
+ * @param checked true表示连接串口，false表示断开串口
+ */
+void shiboqi_remake::on_pushButton_2_toggled(bool checked)
+{
+    if (checked) {
+        // 获取选中的串口名称
+        QString portName = ui->comboBox->currentText();
+        if (!portName.isEmpty()) {
+            if (uartReceiver->openPort(portName, 115200)) {
+                qDebug() << "串口" << portName << "连接成功";
+            } else {
+                qDebug() << "串口" << portName << "连接失败";
+                // 连接失败时，将按钮状态设置为未按下
+                ui->pushButton_2->blockSignals(true);
+                ui->pushButton_2->setChecked(false);
+                ui->pushButton_2->blockSignals(false);
+            }
+        }
+    } else {
+        // 断开串口连接
+        uartReceiver->closePort();
+        qDebug() << "串口连接已断开";
+    }
+}
+
+/**
+ * @brief 串口解析后数据到达槽函数
+ */
+void shiboqi_remake::onParsedSerialData(int duty, int highTime, int lowTime, double frequency)
+{
+    if (!ui) return;
+
+    // 更新频率文本，保留0位小数（Hz）
+    ui->pinglv_in->setText(QString("%1 Hz").arg(QString::number(frequency, 'f', 0)));
+
+    // 占空比直接显示
+    ui->zhankongbi_in->setText(QString::number(duty));
+
+    // 高/低电平时间显示为 us
+    ui->Hvolt_t_in->setText(QString("%1 us").arg(QString::number(highTime)));
+    ui->Lvolt_t_in->setText(QString("%1 us").arg(QString::number(lowTime)));
+
+    // 在 shuzixinhaoboxing 上绘制一周期数字波形（以高/低时间为微秒单位）
+    if (ui->shuzixinhaoboxing) {
+        QCustomPlot *plot = ui->shuzixinhaoboxing;
+
+        // 计算周期（微秒）
+        double period = static_cast<double>(highTime + lowTime);
+        if (period <= 0.0) {
+            // 清空数据
+            if (plot->graphCount() > 0) plot->graph(0)->setData(QVector<double>(), QVector<double>());
+            plot->replot();
+        } else {
+            // 构造阶跃波形点：0->highTime (高), highTime->period (低)
+            QVector<double> xs, ys;
+            // Start high at t=0
+            xs << 0.0 << static_cast<double>(highTime) << static_cast<double>(highTime) << period;
+            ys << 1.0 << 1.0 << 0.0 << 0.0;
+
+            if (plot->graphCount() == 0) plot->addGraph();
+            plot->graph(0)->setData(xs, ys);
+            plot->graph(0)->setPen(QPen(Qt::green));
+            plot->xAxis->setLabel("Time (us)");
+            plot->yAxis->setLabel("Logic");
+            plot->xAxis->setRange(0, period);
+            plot->yAxis->setRange(-0.2, 1.2);
+            plot->replot();
+        }
+    }
 }

@@ -1,4 +1,4 @@
-QT += core gui printsupport network opengl 
+QT += core gui printsupport network opengl serialport
 
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
@@ -16,6 +16,7 @@ DEFINES += QCUSTOMPLOT_USE_OPENGL
 INCLUDEPATH += qcustomplot-source
 
 SOURCES += \
+    UART_receive.cpp \
     main.cpp \
     qcustomplot-source/qcustomplot.cpp \
     shiboqi_remake.cpp \
@@ -25,6 +26,7 @@ SOURCES += \
     data_processor.cpp
 
 HEADERS += \
+    UART_receive.h \
     qcustomplot-source/qcustomplot.h \
     shiboqi_remake.h \
     siprefixticker.h \

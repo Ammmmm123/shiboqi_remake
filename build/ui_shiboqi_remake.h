@@ -12,6 +12,7 @@
 #include <QtCore/QVariant>
 #include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QComboBox>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
@@ -36,7 +37,7 @@ public:
     QHBoxLayout *horizontalLayout_main;
     QStackedWidget *stackedWidget;
     QWidget *page_5;
-    QWidget *horizontalLayoutWidget;
+    QHBoxLayout *horizontalLayout_3;
     QHBoxLayout *horizontalLayout_26;
     QVBoxLayout *verticalLayout_9;
     QCustomPlot *customPlot_2;
@@ -78,7 +79,7 @@ public:
     QPushButton *loopSendButton_4;
     QPushButton *restartButton_4;
     QWidget *page_6;
-    QWidget *horizontalLayoutWidget_2;
+    QHBoxLayout *horizontalLayout_4;
     QHBoxLayout *horizontalLayout_36;
     QCustomPlot *boxingxianshi;
     QVBoxLayout *verticalLayout_12;
@@ -88,7 +89,7 @@ public:
     QPushButton *amplitudeUpButton;
     QPushButton *amplitudeDownButton;
     QWidget *page_7;
-    QWidget *verticalLayoutWidget_2;
+    QHBoxLayout *horizontalLayout_5;
     QVBoxLayout *verticalLayout_13;
     QCustomPlot *shuzixinhaoboxing;
     QHBoxLayout *horizontalLayout_37;
@@ -100,6 +101,9 @@ public:
     QLabel *Hvolt_t_in;
     QLabel *Lvolt_t;
     QLabel *Lvolt_t_in;
+    QHBoxLayout *horizontalLayout_2;
+    QPushButton *pushButton_2;
+    QComboBox *comboBox;
     QMenuBar *menubar;
     QMenu *menu;
     QMenu *menuDDS;
@@ -111,30 +115,33 @@ public:
     {
         if (shiboqi_remake->objectName().isEmpty())
             shiboqi_remake->setObjectName(QString::fromUtf8("shiboqi_remake"));
-        shiboqi_remake->resize(1118, 644);
+        shiboqi_remake->resize(987, 632);
         centralwidget = new QWidget(shiboqi_remake);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         horizontalLayout_main = new QHBoxLayout(centralwidget);
         horizontalLayout_main->setSpacing(0);
         horizontalLayout_main->setObjectName(QString::fromUtf8("horizontalLayout_main"));
+        horizontalLayout_main->setSizeConstraint(QLayout::SetMaximumSize);
         horizontalLayout_main->setContentsMargins(0, 0, 0, 0);
         stackedWidget = new QStackedWidget(centralwidget);
         stackedWidget->setObjectName(QString::fromUtf8("stackedWidget"));
-        page_5 = new QWidget();
-        page_5->setObjectName(QString::fromUtf8("page_5"));
-        horizontalLayoutWidget = new QWidget(page_5);
-        horizontalLayoutWidget->setObjectName(QString::fromUtf8("horizontalLayoutWidget"));
-        horizontalLayoutWidget->setGeometry(QRect(10, 10, 1101, 581));
-        horizontalLayout_26 = new QHBoxLayout(horizontalLayoutWidget);
-        horizontalLayout_26->setObjectName(QString::fromUtf8("horizontalLayout_26"));
-        horizontalLayout_26->setContentsMargins(0, 0, 0, 0);
-        verticalLayout_9 = new QVBoxLayout();
-        verticalLayout_9->setObjectName(QString::fromUtf8("verticalLayout_9"));
-        customPlot_2 = new QCustomPlot(horizontalLayoutWidget);
-        customPlot_2->setObjectName(QString::fromUtf8("customPlot_2"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
         sizePolicy.setHorizontalStretch(0);
         sizePolicy.setVerticalStretch(0);
+        sizePolicy.setHeightForWidth(stackedWidget->sizePolicy().hasHeightForWidth());
+        stackedWidget->setSizePolicy(sizePolicy);
+        stackedWidget->setLayoutDirection(Qt::LeftToRight);
+        page_5 = new QWidget();
+        page_5->setObjectName(QString::fromUtf8("page_5"));
+        page_5->setLayoutDirection(Qt::LeftToRight);
+        horizontalLayout_3 = new QHBoxLayout(page_5);
+        horizontalLayout_3->setObjectName(QString::fromUtf8("horizontalLayout_3"));
+        horizontalLayout_26 = new QHBoxLayout();
+        horizontalLayout_26->setObjectName(QString::fromUtf8("horizontalLayout_26"));
+        verticalLayout_9 = new QVBoxLayout();
+        verticalLayout_9->setObjectName(QString::fromUtf8("verticalLayout_9"));
+        customPlot_2 = new QCustomPlot(page_5);
+        customPlot_2->setObjectName(QString::fromUtf8("customPlot_2"));
         sizePolicy.setHeightForWidth(customPlot_2->sizePolicy().hasHeightForWidth());
         customPlot_2->setSizePolicy(sizePolicy);
 
@@ -143,42 +150,42 @@ public:
         horizontalLayout_27 = new QHBoxLayout();
         horizontalLayout_27->setObjectName(QString::fromUtf8("horizontalLayout_27"));
         horizontalLayout_27->setContentsMargins(60, -1, -1, -1);
-        Frequency_2 = new QLabel(horizontalLayoutWidget);
+        Frequency_2 = new QLabel(page_5);
         Frequency_2->setObjectName(QString::fromUtf8("Frequency_2"));
 
         horizontalLayout_27->addWidget(Frequency_2, 0, Qt::AlignRight);
 
-        Frequency_in_2 = new QLabel(horizontalLayoutWidget);
+        Frequency_in_2 = new QLabel(page_5);
         Frequency_in_2->setObjectName(QString::fromUtf8("Frequency_in_2"));
 
         horizontalLayout_27->addWidget(Frequency_in_2, 0, Qt::AlignLeft);
 
-        Amplitude_2 = new QLabel(horizontalLayoutWidget);
+        Amplitude_2 = new QLabel(page_5);
         Amplitude_2->setObjectName(QString::fromUtf8("Amplitude_2"));
 
         horizontalLayout_27->addWidget(Amplitude_2, 0, Qt::AlignRight);
 
-        Amplitude_in_2 = new QLabel(horizontalLayoutWidget);
+        Amplitude_in_2 = new QLabel(page_5);
         Amplitude_in_2->setObjectName(QString::fromUtf8("Amplitude_in_2"));
 
         horizontalLayout_27->addWidget(Amplitude_in_2, 0, Qt::AlignLeft);
 
-        VPP_2 = new QLabel(horizontalLayoutWidget);
+        VPP_2 = new QLabel(page_5);
         VPP_2->setObjectName(QString::fromUtf8("VPP_2"));
 
         horizontalLayout_27->addWidget(VPP_2, 0, Qt::AlignRight);
 
-        VPP_in_2 = new QLabel(horizontalLayoutWidget);
+        VPP_in_2 = new QLabel(page_5);
         VPP_in_2->setObjectName(QString::fromUtf8("VPP_in_2"));
 
         horizontalLayout_27->addWidget(VPP_in_2, 0, Qt::AlignLeft);
 
-        V_MAX_2 = new QLabel(horizontalLayoutWidget);
+        V_MAX_2 = new QLabel(page_5);
         V_MAX_2->setObjectName(QString::fromUtf8("V_MAX_2"));
 
         horizontalLayout_27->addWidget(V_MAX_2, 0, Qt::AlignRight);
 
-        V_MAX_in_2 = new QLabel(horizontalLayoutWidget);
+        V_MAX_in_2 = new QLabel(page_5);
         V_MAX_in_2->setObjectName(QString::fromUtf8("V_MAX_in_2"));
 
         horizontalLayout_27->addWidget(V_MAX_in_2, 0, Qt::AlignLeft);
@@ -190,7 +197,7 @@ public:
 
         horizontalLayout_26->addLayout(verticalLayout_9);
 
-        groupBox = new QGroupBox(horizontalLayoutWidget);
+        groupBox = new QGroupBox(page_5);
         groupBox->setObjectName(QString::fromUtf8("groupBox"));
         verticalLayout_10 = new QVBoxLayout(groupBox);
         verticalLayout_10->setSpacing(10);
@@ -411,43 +418,44 @@ public:
         horizontalLayout_26->addWidget(groupBox);
 
         horizontalLayout_26->setStretch(0, 3);
+
+        horizontalLayout_3->addLayout(horizontalLayout_26);
+
         stackedWidget->addWidget(page_5);
         page_6 = new QWidget();
         page_6->setObjectName(QString::fromUtf8("page_6"));
-        horizontalLayoutWidget_2 = new QWidget(page_6);
-        horizontalLayoutWidget_2->setObjectName(QString::fromUtf8("horizontalLayoutWidget_2"));
-        horizontalLayoutWidget_2->setGeometry(QRect(9, 9, 1101, 581));
-        horizontalLayout_36 = new QHBoxLayout(horizontalLayoutWidget_2);
+        horizontalLayout_4 = new QHBoxLayout(page_6);
+        horizontalLayout_4->setObjectName(QString::fromUtf8("horizontalLayout_4"));
+        horizontalLayout_36 = new QHBoxLayout();
         horizontalLayout_36->setObjectName(QString::fromUtf8("horizontalLayout_36"));
-        horizontalLayout_36->setContentsMargins(0, 0, 0, 0);
-        boxingxianshi = new QCustomPlot(horizontalLayoutWidget_2);
+        boxingxianshi = new QCustomPlot(page_6);
         boxingxianshi->setObjectName(QString::fromUtf8("boxingxianshi"));
 
         horizontalLayout_36->addWidget(boxingxianshi);
 
         verticalLayout_12 = new QVBoxLayout();
         verticalLayout_12->setObjectName(QString::fromUtf8("verticalLayout_12"));
-        waveformSwitchButton = new QPushButton(horizontalLayoutWidget_2);
+        waveformSwitchButton = new QPushButton(page_6);
         waveformSwitchButton->setObjectName(QString::fromUtf8("waveformSwitchButton"));
 
         verticalLayout_12->addWidget(waveformSwitchButton);
 
-        frequencyUpButton = new QPushButton(horizontalLayoutWidget_2);
+        frequencyUpButton = new QPushButton(page_6);
         frequencyUpButton->setObjectName(QString::fromUtf8("frequencyUpButton"));
 
         verticalLayout_12->addWidget(frequencyUpButton);
 
-        frequencyDownButton = new QPushButton(horizontalLayoutWidget_2);
+        frequencyDownButton = new QPushButton(page_6);
         frequencyDownButton->setObjectName(QString::fromUtf8("frequencyDownButton"));
 
         verticalLayout_12->addWidget(frequencyDownButton);
 
-        amplitudeUpButton = new QPushButton(horizontalLayoutWidget_2);
+        amplitudeUpButton = new QPushButton(page_6);
         amplitudeUpButton->setObjectName(QString::fromUtf8("amplitudeUpButton"));
 
         verticalLayout_12->addWidget(amplitudeUpButton);
 
-        amplitudeDownButton = new QPushButton(horizontalLayoutWidget_2);
+        amplitudeDownButton = new QPushButton(page_6);
         amplitudeDownButton->setObjectName(QString::fromUtf8("amplitudeDownButton"));
 
         verticalLayout_12->addWidget(amplitudeDownButton);
@@ -456,58 +464,59 @@ public:
         horizontalLayout_36->addLayout(verticalLayout_12);
 
         horizontalLayout_36->setStretch(0, 2);
+
+        horizontalLayout_4->addLayout(horizontalLayout_36);
+
         stackedWidget->addWidget(page_6);
         page_7 = new QWidget();
         page_7->setObjectName(QString::fromUtf8("page_7"));
-        verticalLayoutWidget_2 = new QWidget(page_7);
-        verticalLayoutWidget_2->setObjectName(QString::fromUtf8("verticalLayoutWidget_2"));
-        verticalLayoutWidget_2->setGeometry(QRect(9, 9, 1091, 581));
-        verticalLayout_13 = new QVBoxLayout(verticalLayoutWidget_2);
+        horizontalLayout_5 = new QHBoxLayout(page_7);
+        horizontalLayout_5->setObjectName(QString::fromUtf8("horizontalLayout_5"));
+        verticalLayout_13 = new QVBoxLayout();
         verticalLayout_13->setObjectName(QString::fromUtf8("verticalLayout_13"));
-        verticalLayout_13->setContentsMargins(0, 0, 0, 0);
-        shuzixinhaoboxing = new QCustomPlot(verticalLayoutWidget_2);
+        shuzixinhaoboxing = new QCustomPlot(page_7);
         shuzixinhaoboxing->setObjectName(QString::fromUtf8("shuzixinhaoboxing"));
 
         verticalLayout_13->addWidget(shuzixinhaoboxing);
 
         horizontalLayout_37 = new QHBoxLayout();
         horizontalLayout_37->setObjectName(QString::fromUtf8("horizontalLayout_37"));
-        pinglv = new QLabel(verticalLayoutWidget_2);
+        pinglv = new QLabel(page_7);
         pinglv->setObjectName(QString::fromUtf8("pinglv"));
 
         horizontalLayout_37->addWidget(pinglv);
 
-        pinglv_in = new QLabel(verticalLayoutWidget_2);
+        pinglv_in = new QLabel(page_7);
         pinglv_in->setObjectName(QString::fromUtf8("pinglv_in"));
 
         horizontalLayout_37->addWidget(pinglv_in);
 
-        zhankongbi = new QLabel(verticalLayoutWidget_2);
+        zhankongbi = new QLabel(page_7);
         zhankongbi->setObjectName(QString::fromUtf8("zhankongbi"));
 
         horizontalLayout_37->addWidget(zhankongbi);
 
-        zhankongbi_in = new QLabel(verticalLayoutWidget_2);
+        zhankongbi_in = new QLabel(page_7);
         zhankongbi_in->setObjectName(QString::fromUtf8("zhankongbi_in"));
 
         horizontalLayout_37->addWidget(zhankongbi_in);
 
-        Hvolt_t = new QLabel(verticalLayoutWidget_2);
+        Hvolt_t = new QLabel(page_7);
         Hvolt_t->setObjectName(QString::fromUtf8("Hvolt_t"));
 
         horizontalLayout_37->addWidget(Hvolt_t);
 
-        Hvolt_t_in = new QLabel(verticalLayoutWidget_2);
+        Hvolt_t_in = new QLabel(page_7);
         Hvolt_t_in->setObjectName(QString::fromUtf8("Hvolt_t_in"));
 
         horizontalLayout_37->addWidget(Hvolt_t_in);
 
-        Lvolt_t = new QLabel(verticalLayoutWidget_2);
+        Lvolt_t = new QLabel(page_7);
         Lvolt_t->setObjectName(QString::fromUtf8("Lvolt_t"));
 
         horizontalLayout_37->addWidget(Lvolt_t);
 
-        Lvolt_t_in = new QLabel(verticalLayoutWidget_2);
+        Lvolt_t_in = new QLabel(page_7);
         Lvolt_t_in->setObjectName(QString::fromUtf8("Lvolt_t_in"));
 
         horizontalLayout_37->addWidget(Lvolt_t_in);
@@ -515,7 +524,33 @@ public:
 
         verticalLayout_13->addLayout(horizontalLayout_37);
 
+        horizontalLayout_2 = new QHBoxLayout();
+        horizontalLayout_2->setSpacing(50);
+        horizontalLayout_2->setObjectName(QString::fromUtf8("horizontalLayout_2"));
+        horizontalLayout_2->setSizeConstraint(QLayout::SetDefaultConstraint);
+        horizontalLayout_2->setContentsMargins(50, -1, 50, -1);
+        pushButton_2 = new QPushButton(page_7);
+        pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        pushButton_2->setCheckable(true);
+        pushButton_2->setAutoDefault(false);
+        pushButton_2->setFlat(false);
+
+        horizontalLayout_2->addWidget(pushButton_2);
+
+        comboBox = new QComboBox(page_7);
+        comboBox->setObjectName(QString::fromUtf8("comboBox"));
+
+        horizontalLayout_2->addWidget(comboBox);
+
+        horizontalLayout_2->setStretch(0, 1);
+        horizontalLayout_2->setStretch(1, 1);
+
+        verticalLayout_13->addLayout(horizontalLayout_2);
+
         verticalLayout_13->setStretch(0, 3);
+
+        horizontalLayout_5->addLayout(verticalLayout_13);
+
         stackedWidget->addWidget(page_7);
 
         horizontalLayout_main->addWidget(stackedWidget);
@@ -523,7 +558,7 @@ public:
         shiboqi_remake->setCentralWidget(centralwidget);
         menubar = new QMenuBar(shiboqi_remake);
         menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1118, 24));
+        menubar->setGeometry(QRect(0, 0, 987, 21));
         menu = new QMenu(menubar);
         menu->setObjectName(QString::fromUtf8("menu"));
         menuDDS = new QMenu(menubar);
@@ -545,6 +580,7 @@ public:
         retranslateUi(shiboqi_remake);
 
         stackedWidget->setCurrentIndex(0);
+        pushButton_2->setDefault(false);
 
 
         QMetaObject::connectSlotsByName(shiboqi_remake);
@@ -601,6 +637,7 @@ public:
         Hvolt_t_in->setText(QCoreApplication::translate("shiboqi_remake", "0 us", nullptr));
         Lvolt_t->setText(QCoreApplication::translate("shiboqi_remake", "\344\275\216\347\224\265\345\271\263\346\227\266\351\227\264\357\274\232", nullptr));
         Lvolt_t_in->setText(QCoreApplication::translate("shiboqi_remake", "0 us", nullptr));
+        pushButton_2->setText(QCoreApplication::translate("shiboqi_remake", "\345\274\200\345\220\257\350\277\236\346\216\245", nullptr));
         menu->setTitle(QCoreApplication::translate("shiboqi_remake", "\347\244\272\346\263\242\345\231\250", nullptr));
         menuDDS->setTitle(QCoreApplication::translate("shiboqi_remake", "DDS\350\256\276\347\275\256", nullptr));
         menu_2->setTitle(QCoreApplication::translate("shiboqi_remake", "\346\225\260\345\255\227\344\277\241\345\217\267\346\265\213\351\207\217", nullptr));
