@@ -23,7 +23,8 @@ SOURCES += \
     siprefixticker.cpp \
     udp_receive.cpp \
     udp_send.cpp \
-    data_processor.cpp
+    data_processor.cpp \
+    spectrum_analyzer.cpp
 
 HEADERS += \
     UART_receive.h \
@@ -32,7 +33,8 @@ HEADERS += \
     siprefixticker.h \
     udp_receive.h \
     udp_send.h \
-    data_processor.h
+    data_processor.h \
+    spectrum_analyzer.h
 
 FORMS += \
     shiboqi_remake.ui

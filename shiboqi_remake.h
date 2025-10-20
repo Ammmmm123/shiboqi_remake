@@ -9,6 +9,7 @@
 #include "udp_send.h"
 #include "data_processor.h"
 #include "UART_receive.h"
+#include "spectrum_analyzer.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -150,6 +151,10 @@ private slots:
      * @param checked true表示连接串口，false表示断开串口
      */
     void on_pushButton_2_toggled(bool checked);
+    /**
+     * @brief 周期刷新可用串口列表（每秒）
+     */
+    void refreshSerialPorts();
 
     /**
      * @brief 串口解析后数据到达槽函数
@@ -159,6 +164,19 @@ private slots:
      * @param frequency 频率（Hz）
      */
     void onParsedSerialData(int duty, int highTime, int lowTime, double frequency);
+
+    // ===== page_8 频谱页面的槽函数（复制自page_5） =====
+    void on_setButton_5_clicked();
+    void on_listenButton_5_toggled(bool checked);
+    void on_loopSendButton_5_toggled(bool checked);
+    void on_restartButton_5_clicked();
+    void onUdpBindFailed_page8(const QString &errorString);
+    
+    /**
+     * @brief 频谱分析结果就绪槽函数
+     * @param result 频谱分析结果
+     */
+    void onSpectrumReady(const SpectrumAnalysisResult &result);
 
 private:
     Ui::shiboqi_remake *ui;      ///< UI界面指针
@@ -178,5 +196,12 @@ private:
     // 波形控制相关
     quint8 currentWaveformType;   ///< 当前波形类型 (0-3)
     UARTReceiver *uartReceiver;   ///< UART接收器实例指针
+    QTimer *portRefreshTimer;     ///< 定期刷新串口列表的定时器
+    QString openPortName;         ///< 记录当前已打开的串口名称（便于在端口消失时处理）
+
+    // page_8 频谱页面相关（不包含时域示波器逻辑）
+    QCustomPlot *customPlot_page8;     ///< page_8 的绘图控件（仅用于频谱显示）
+    bool errorDialogShown_page8;       ///< page_8 的错误对话框标志
+    SpectrumAnalyzer *spectrumAnalyzer; ///< 频谱分析器实例
 };
 #endif // SHIBOQI_REMAKE_H

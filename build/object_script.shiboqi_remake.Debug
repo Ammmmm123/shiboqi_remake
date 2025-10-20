@@ -6,9 +6,11 @@ debug/siprefixticker.o
 debug/udp_receive.o
 debug/udp_send.o
 debug/data_processor.o
+debug/spectrum_analyzer.o
 debug/moc_UART_receive.o
 debug/moc_qcustomplot.o
 debug/moc_shiboqi_remake.o
 debug/moc_udp_receive.o
 debug/moc_udp_send.o
 debug/moc_data_processor.o
+debug/moc_spectrum_analyzer.o

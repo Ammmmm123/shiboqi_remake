@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_shiboqi_remake_t {
-    QByteArrayData data[33];
-    char stringdata0[531];
+    QByteArrayData data[41];
+    char stringdata0[715];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -61,11 +61,19 @@ QT_MOC_LITERAL(24, 365, 30), // "on_frequencyDownButton_clicked"
 QT_MOC_LITERAL(25, 396, 28), // "on_amplitudeUpButton_clicked"
 QT_MOC_LITERAL(26, 425, 30), // "on_amplitudeDownButton_clicked"
 QT_MOC_LITERAL(27, 456, 23), // "on_pushButton_2_toggled"
-QT_MOC_LITERAL(28, 480, 18), // "onParsedSerialData"
-QT_MOC_LITERAL(29, 499, 4), // "duty"
-QT_MOC_LITERAL(30, 504, 8), // "highTime"
-QT_MOC_LITERAL(31, 513, 7), // "lowTime"
-QT_MOC_LITERAL(32, 521, 9) // "frequency"
+QT_MOC_LITERAL(28, 480, 18), // "refreshSerialPorts"
+QT_MOC_LITERAL(29, 499, 18), // "onParsedSerialData"
+QT_MOC_LITERAL(30, 518, 4), // "duty"
+QT_MOC_LITERAL(31, 523, 8), // "highTime"
+QT_MOC_LITERAL(32, 532, 7), // "lowTime"
+QT_MOC_LITERAL(33, 540, 9), // "frequency"
+QT_MOC_LITERAL(34, 550, 22), // "on_setButton_5_clicked"
+QT_MOC_LITERAL(35, 573, 25), // "on_listenButton_5_toggled"
+QT_MOC_LITERAL(36, 599, 27), // "on_loopSendButton_5_toggled"
+QT_MOC_LITERAL(37, 627, 26), // "on_restartButton_5_clicked"
+QT_MOC_LITERAL(38, 654, 21), // "onUdpBindFailed_page8"
+QT_MOC_LITERAL(39, 676, 15), // "onSpectrumReady"
+QT_MOC_LITERAL(40, 692, 22) // "SpectrumAnalysisResult"
 
     },
     "shiboqi_remake\0on_setButton_clicked\0"
@@ -82,8 +90,14 @@ QT_MOC_LITERAL(32, 521, 9) // "frequency"
     "on_frequencyDownButton_clicked\0"
     "on_amplitudeUpButton_clicked\0"
     "on_amplitudeDownButton_clicked\0"
-    "on_pushButton_2_toggled\0onParsedSerialData\0"
-    "duty\0highTime\0lowTime\0frequency"
+    "on_pushButton_2_toggled\0refreshSerialPorts\0"
+    "onParsedSerialData\0duty\0highTime\0"
+    "lowTime\0frequency\0on_setButton_5_clicked\0"
+    "on_listenButton_5_toggled\0"
+    "on_loopSendButton_5_toggled\0"
+    "on_restartButton_5_clicked\0"
+    "onUdpBindFailed_page8\0onSpectrumReady\0"
+    "SpectrumAnalysisResult"
 };
 #undef QT_MOC_LITERAL
 
@@ -93,7 +107,7 @@ static const uint qt_meta_data_shiboqi_remake[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      17,   14, // methods
+      24,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -101,23 +115,30 @@ static const uint qt_meta_data_shiboqi_remake[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,   99,    2, 0x08 /* Private */,
-       3,    1,  100,    2, 0x08 /* Private */,
-       5,    1,  103,    2, 0x08 /* Private */,
-       6,    0,  106,    2, 0x08 /* Private */,
-       7,    2,  107,    2, 0x08 /* Private */,
-      11,    0,  112,    2, 0x08 /* Private */,
-      12,    2,  113,    2, 0x08 /* Private */,
-      16,    1,  118,    2, 0x08 /* Private */,
-      18,    1,  121,    2, 0x08 /* Private */,
-      21,    2,  124,    2, 0x08 /* Private */,
-      22,    0,  129,    2, 0x08 /* Private */,
-      23,    0,  130,    2, 0x08 /* Private */,
-      24,    0,  131,    2, 0x08 /* Private */,
-      25,    0,  132,    2, 0x08 /* Private */,
-      26,    0,  133,    2, 0x08 /* Private */,
-      27,    1,  134,    2, 0x08 /* Private */,
-      28,    4,  137,    2, 0x08 /* Private */,
+       1,    0,  134,    2, 0x08 /* Private */,
+       3,    1,  135,    2, 0x08 /* Private */,
+       5,    1,  138,    2, 0x08 /* Private */,
+       6,    0,  141,    2, 0x08 /* Private */,
+       7,    2,  142,    2, 0x08 /* Private */,
+      11,    0,  147,    2, 0x08 /* Private */,
+      12,    2,  148,    2, 0x08 /* Private */,
+      16,    1,  153,    2, 0x08 /* Private */,
+      18,    1,  156,    2, 0x08 /* Private */,
+      21,    2,  159,    2, 0x08 /* Private */,
+      22,    0,  164,    2, 0x08 /* Private */,
+      23,    0,  165,    2, 0x08 /* Private */,
+      24,    0,  166,    2, 0x08 /* Private */,
+      25,    0,  167,    2, 0x08 /* Private */,
+      26,    0,  168,    2, 0x08 /* Private */,
+      27,    1,  169,    2, 0x08 /* Private */,
+      28,    0,  172,    2, 0x08 /* Private */,
+      29,    4,  173,    2, 0x08 /* Private */,
+      34,    0,  182,    2, 0x08 /* Private */,
+      35,    1,  183,    2, 0x08 /* Private */,
+      36,    1,  186,    2, 0x08 /* Private */,
+      37,    0,  189,    2, 0x08 /* Private */,
+      38,    1,  190,    2, 0x08 /* Private */,
+      39,    1,  193,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -136,7 +157,14 @@ static const uint qt_meta_data_shiboqi_remake[] = {
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void, QMetaType::Bool,    4,
-    QMetaType::Void, QMetaType::Int, QMetaType::Int, QMetaType::Int, QMetaType::Double,   29,   30,   31,   32,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int, QMetaType::Int, QMetaType::Int, QMetaType::Double,   30,   31,   32,   33,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Bool,    4,
+    QMetaType::Void, QMetaType::Bool,    4,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::QString,   17,
+    QMetaType::Void, 0x80000000 | 40,   20,
 
        0        // eod
 };
@@ -164,7 +192,14 @@ void shiboqi_remake::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 13: _t->on_amplitudeUpButton_clicked(); break;
         case 14: _t->on_amplitudeDownButton_clicked(); break;
         case 15: _t->on_pushButton_2_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 16: _t->onParsedSerialData((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< double(*)>(_a[4]))); break;
+        case 16: _t->refreshSerialPorts(); break;
+        case 17: _t->onParsedSerialData((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< double(*)>(_a[4]))); break;
+        case 18: _t->on_setButton_5_clicked(); break;
+        case 19: _t->on_listenButton_5_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 20: _t->on_loopSendButton_5_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 21: _t->on_restartButton_5_clicked(); break;
+        case 22: _t->onUdpBindFailed_page8((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 23: _t->onSpectrumReady((*reinterpret_cast< const SpectrumAnalysisResult(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
@@ -219,13 +254,13 @@ int shiboqi_remake::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 17)
+        if (_id < 24)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 17;
+        _id -= 24;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 17)
+        if (_id < 24)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 17;
+        _id -= 24;
     }
     return _id;
 }
