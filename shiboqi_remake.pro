@@ -44,13 +44,9 @@ qnx: target.path = /tmp/$${TARGET}/bin
 else: unix:!android: target.path = /opt/$${TARGET}/bin
 !isEmpty(target.path): INSTALLS += target
 
-
-
-win32:LIBS += -L$$PWD/freeglut-MinGW-3.0.0-1.mp/freeglut/lib/x64/ -lfreeglut -lopengl32 -lglu32
+LIBS += -lopengl32 #开启opengl关键操作
 
 
 
-INCLUDEPATH += $$PWD/freeglut-MinGW-3.0.0-1.mp/freeglut/include
-DEPENDPATH += $$PWD/freeglut-MinGW-3.0.0-1.mp/freeglut/include
 
 

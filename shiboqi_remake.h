@@ -177,6 +177,13 @@ private slots:
      * @param result 频谱分析结果
      */
     void onSpectrumReady(const SpectrumAnalysisResult &result);
+    
+    /**
+     * @brief 同步 page_5 的设置参数到 page_8
+     * 
+     * 定期将 page_5 的 IP、端口、数据个数、分频系数、通道等参数同步到 page_8
+     */
+    void syncSettingsToPage8();
 
 private:
     Ui::shiboqi_remake *ui;      ///< UI界面指针
@@ -203,5 +210,6 @@ private:
     QCustomPlot *customPlot_page8;     ///< page_8 的绘图控件（仅用于频谱显示）
     bool errorDialogShown_page8;       ///< page_8 的错误对话框标志
     SpectrumAnalyzer *spectrumAnalyzer; ///< 频谱分析器实例
+    QTimer *settingsSyncTimer;         ///< page_5 到 page_8 的设置同步定时器
 };
 #endif // SHIBOQI_REMAKE_H

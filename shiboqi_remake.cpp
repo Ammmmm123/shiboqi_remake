@@ -188,6 +188,12 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     connect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
     // 连接频谱分析结果到 UI 更新槽
     connect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+    
+    // 初始化 page_5 到 page_8 的设置同步定时器（每 500ms 同步一次）
+    settingsSyncTimer = new QTimer(this);
+    settingsSyncTimer->setInterval(500);
+    connect(settingsSyncTimer, &QTimer::timeout, this, &shiboqi_remake::syncSettingsToPage8);
+    settingsSyncTimer->start();
 }
 
 /**
@@ -1025,8 +1031,8 @@ void shiboqi_remake::onSpectrumReady(const SpectrumAnalysisResult &result)
 
     qDebug() << "收到频谱分析结果：主频率 =" << result.dominantFrequency << "Hz, 幅度 =" << result.dominantAmplitude << "V";
 
-    // 延时 0.1 秒后更新频谱显示，避免频繁刷新
-    QTimer::singleShot(100, this, [this, result]() {
+    // 延时 0.15 秒后更新频谱显示，避免频繁刷新
+    QTimer::singleShot(150, this, [this, result]() {
         if (!ui) return;
 
         // 更新 page_8 的显示标签（使用主频率和幅度）
@@ -1056,4 +1062,64 @@ void shiboqi_remake::onSpectrumReady(const SpectrumAnalysisResult &result)
             qDebug() << "频谱图已绘制，频率范围：0 -" << result.frequencies.last() << "Hz";
         }
     });
+}
+
+/**
+ * @brief 同步 page_5 的设置参数到 page_8
+ * 
+ * 定期将 page_5 的 IP、端口、数据个数、分频系数、通道等参数同步到 page_8
+ * 避免用户需要在两个页面重复输入相同的设置
+ */
+void shiboqi_remake::syncSettingsToPage8()
+{
+    if (!ui) return;
+    
+    // 同步本地 IP 地址
+    if (ui->ipLineEdit_4->text() != ui->ipLineEdit_5->text()) {
+        ui->ipLineEdit_5->blockSignals(true);
+        ui->ipLineEdit_5->setText(ui->ipLineEdit_4->text());
+        ui->ipLineEdit_5->blockSignals(false);
+    }
+    
+    // 同步本地端口
+    if (ui->portSpinBox_4->value() != ui->portSpinBox_5->value()) {
+        ui->portSpinBox_5->blockSignals(true);
+        ui->portSpinBox_5->setValue(ui->portSpinBox_4->value());
+        ui->portSpinBox_5->blockSignals(false);
+    }
+    
+    // 同步目标 IP 地址
+    if (ui->targetIpLineEdit_4->text() != ui->targetIpLineEdit_5->text()) {
+        ui->targetIpLineEdit_5->blockSignals(true);
+        ui->targetIpLineEdit_5->setText(ui->targetIpLineEdit_4->text());
+        ui->targetIpLineEdit_5->blockSignals(false);
+    }
+    
+    // 同步目标端口
+    if (ui->targetPortSpinBox_4->value() != ui->targetPortSpinBox_5->value()) {
+        ui->targetPortSpinBox_5->blockSignals(true);
+        ui->targetPortSpinBox_5->setValue(ui->targetPortSpinBox_4->value());
+        ui->targetPortSpinBox_5->blockSignals(false);
+    }
+    
+    // 同步数据个数
+    if (ui->dataNumSpinBox_4->value() != ui->dataNumSpinBox_5->value()) {
+        ui->dataNumSpinBox_5->blockSignals(true);
+        ui->dataNumSpinBox_5->setValue(ui->dataNumSpinBox_4->value());
+        ui->dataNumSpinBox_5->blockSignals(false);
+    }
+    
+    // 同步分频系数
+    if (ui->dividerSpinBox_4->value() != ui->dividerSpinBox_5->value()) {
+        ui->dividerSpinBox_5->blockSignals(true);
+        ui->dividerSpinBox_5->setValue(ui->dividerSpinBox_4->value());
+        ui->dividerSpinBox_5->blockSignals(false);
+    }
+    
+    // 同步通道
+    if (ui->channelSpinBox_4->value() != ui->channelSpinBox_5->value()) {
+        ui->channelSpinBox_5->blockSignals(true);
+        ui->channelSpinBox_5->setValue(ui->channelSpinBox_4->value());
+        ui->channelSpinBox_5->blockSignals(false);
+    }
 }
