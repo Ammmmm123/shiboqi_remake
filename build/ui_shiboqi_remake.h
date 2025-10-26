@@ -95,6 +95,7 @@ public:
     QPushButton *amplitudeDownButton;
     QLabel *label_separator2;
     QLabel *currentWaveformLabel;
+    QLabel *sendProgressLabel;
     QSpacerItem *verticalSpacer_dds;
     QWidget *page_7;
     QHBoxLayout *horizontalLayout_5;
@@ -122,6 +123,15 @@ public:
     QLabel *Frequency_in_3;
     QLabel *Amplitude_3;
     QLabel *Amplitude_in_3;
+    QLabel *label_snr;
+    QLabel *label_snr_value;
+    QHBoxLayout *horizontalLayout_spectrum_info2;
+    QLabel *label_thd;
+    QLabel *label_thd_value;
+    QLabel *label_bandwidth;
+    QLabel *label_bandwidth_value;
+    QLabel *label_harmonics;
+    QLabel *label_harmonics_value;
     QGroupBox *groupBox_2;
     QVBoxLayout *verticalLayout_15;
     QVBoxLayout *verticalLayout_16;
@@ -149,7 +159,7 @@ public:
     {
         if (shiboqi_remake->objectName().isEmpty())
             shiboqi_remake->setObjectName(QString::fromUtf8("shiboqi_remake"));
-        shiboqi_remake->resize(1074, 696);
+        shiboqi_remake->resize(1116, 696);
         centralwidget = new QWidget(shiboqi_remake);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         horizontalLayout_main = new QHBoxLayout(centralwidget);
@@ -886,6 +896,22 @@ public:
 
         verticalLayout_12->addWidget(currentWaveformLabel);
 
+        sendProgressLabel = new QLabel(page_6);
+        sendProgressLabel->setObjectName(QString::fromUtf8("sendProgressLabel"));
+        sendProgressLabel->setMinimumSize(QSize(0, 40));
+        sendProgressLabel->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    background-color: #e8f5e9;\n"
+"    color: #27ae60;\n"
+"    border: 2px solid #27ae60;\n"
+"    border-radius: 8px;\n"
+"    padding: 8px;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"}"));
+        sendProgressLabel->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_12->addWidget(sendProgressLabel);
+
         verticalSpacer_dds = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_12->addItem(verticalSpacer_dds);
@@ -1116,13 +1142,14 @@ public:
         verticalLayout_14->addWidget(customPlot_3);
 
         horizontalLayout_38 = new QHBoxLayout();
+        horizontalLayout_38->setSpacing(15);
         horizontalLayout_38->setObjectName(QString::fromUtf8("horizontalLayout_38"));
-        horizontalLayout_38->setContentsMargins(60, -1, -1, -1);
+        horizontalLayout_38->setContentsMargins(20, -1, 20, -1);
         Frequency_3 = new QLabel(page_8);
         Frequency_3->setObjectName(QString::fromUtf8("Frequency_3"));
         Frequency_3->setStyleSheet(QString::fromUtf8("QLabel {\n"
 "    color: #2c3e50;\n"
-"    font-size: 14px;\n"
+"    font-size: 13px;\n"
 "    font-weight: 600;\n"
 "    padding: 2px 5px;\n"
 "}"));
@@ -1131,10 +1158,11 @@ public:
 
         Frequency_in_3 = new QLabel(page_8);
         Frequency_in_3->setObjectName(QString::fromUtf8("Frequency_in_3"));
+        Frequency_in_3->setMinimumSize(QSize(100, 0));
         Frequency_in_3->setStyleSheet(QString::fromUtf8("QLabel {\n"
 "    color: #3498db;\n"
-"    font-size: 14px;\n"
-"    font-weight: 500;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
 "    padding: 2px 5px;\n"
 "}"));
 
@@ -1144,7 +1172,7 @@ public:
         Amplitude_3->setObjectName(QString::fromUtf8("Amplitude_3"));
         Amplitude_3->setStyleSheet(QString::fromUtf8("QLabel {\n"
 "    color: #2c3e50;\n"
-"    font-size: 14px;\n"
+"    font-size: 13px;\n"
 "    font-weight: 600;\n"
 "    padding: 2px 5px;\n"
 "}"));
@@ -1153,17 +1181,117 @@ public:
 
         Amplitude_in_3 = new QLabel(page_8);
         Amplitude_in_3->setObjectName(QString::fromUtf8("Amplitude_in_3"));
+        Amplitude_in_3->setMinimumSize(QSize(80, 0));
         Amplitude_in_3->setStyleSheet(QString::fromUtf8("QLabel {\n"
 "    color: #3498db;\n"
-"    font-size: 14px;\n"
-"    font-weight: 500;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
 "    padding: 2px 5px;\n"
 "}"));
 
         horizontalLayout_38->addWidget(Amplitude_in_3, 0, Qt::AlignLeft);
 
+        label_snr = new QLabel(page_8);
+        label_snr->setObjectName(QString::fromUtf8("label_snr"));
+        label_snr->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
+
+        horizontalLayout_38->addWidget(label_snr, 0, Qt::AlignRight);
+
+        label_snr_value = new QLabel(page_8);
+        label_snr_value->setObjectName(QString::fromUtf8("label_snr_value"));
+        label_snr_value->setMinimumSize(QSize(80, 0));
+        label_snr_value->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #27ae60;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
+
+        horizontalLayout_38->addWidget(label_snr_value, 0, Qt::AlignLeft);
+
 
         verticalLayout_14->addLayout(horizontalLayout_38);
+
+        horizontalLayout_spectrum_info2 = new QHBoxLayout();
+        horizontalLayout_spectrum_info2->setSpacing(15);
+        horizontalLayout_spectrum_info2->setObjectName(QString::fromUtf8("horizontalLayout_spectrum_info2"));
+        horizontalLayout_spectrum_info2->setContentsMargins(20, -1, 20, -1);
+        label_thd = new QLabel(page_8);
+        label_thd->setObjectName(QString::fromUtf8("label_thd"));
+        label_thd->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
+
+        horizontalLayout_spectrum_info2->addWidget(label_thd, 0, Qt::AlignRight);
+
+        label_thd_value = new QLabel(page_8);
+        label_thd_value->setObjectName(QString::fromUtf8("label_thd_value"));
+        label_thd_value->setMinimumSize(QSize(100, 0));
+        label_thd_value->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #e67e22;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
+
+        horizontalLayout_spectrum_info2->addWidget(label_thd_value, 0, Qt::AlignLeft);
+
+        label_bandwidth = new QLabel(page_8);
+        label_bandwidth->setObjectName(QString::fromUtf8("label_bandwidth"));
+        label_bandwidth->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
+
+        horizontalLayout_spectrum_info2->addWidget(label_bandwidth, 0, Qt::AlignRight);
+
+        label_bandwidth_value = new QLabel(page_8);
+        label_bandwidth_value->setObjectName(QString::fromUtf8("label_bandwidth_value"));
+        label_bandwidth_value->setMinimumSize(QSize(80, 0));
+        label_bandwidth_value->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #9b59b6;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
+
+        horizontalLayout_spectrum_info2->addWidget(label_bandwidth_value, 0, Qt::AlignLeft);
+
+        label_harmonics = new QLabel(page_8);
+        label_harmonics->setObjectName(QString::fromUtf8("label_harmonics"));
+        label_harmonics->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
+
+        horizontalLayout_spectrum_info2->addWidget(label_harmonics, 0, Qt::AlignRight);
+
+        label_harmonics_value = new QLabel(page_8);
+        label_harmonics_value->setObjectName(QString::fromUtf8("label_harmonics_value"));
+        label_harmonics_value->setMinimumSize(QSize(80, 0));
+        label_harmonics_value->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #e74c3c;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
+
+        horizontalLayout_spectrum_info2->addWidget(label_harmonics_value, 0, Qt::AlignLeft);
+
+
+        verticalLayout_14->addLayout(horizontalLayout_spectrum_info2);
 
         verticalLayout_14->setStretch(0, 9);
 
@@ -1488,6 +1616,7 @@ public:
         amplitudeDownButton->setText(QCoreApplication::translate("shiboqi_remake", "\342\254\207\357\270\217 \345\271\205\345\272\246-", nullptr));
         label_separator2->setText(QString());
         currentWaveformLabel->setText(QCoreApplication::translate("shiboqi_remake", "\345\275\223\345\211\215\346\263\242\345\275\242: \351\224\257\351\275\277\346\263\242", nullptr));
+        sendProgressLabel->setText(QCoreApplication::translate("shiboqi_remake", "\345\217\221\351\200\201\350\277\233\345\272\246: 0%", nullptr));
         pinglv->setText(QCoreApplication::translate("shiboqi_remake", "\351\242\221\347\216\207\357\274\232", nullptr));
         pinglv_in->setText(QCoreApplication::translate("shiboqi_remake", "0 Hz", nullptr));
         zhankongbi->setText(QCoreApplication::translate("shiboqi_remake", "\345\215\240\347\251\272\346\257\224\357\274\232", nullptr));
@@ -1497,10 +1626,18 @@ public:
         Lvolt_t->setText(QCoreApplication::translate("shiboqi_remake", "\344\275\216\347\224\265\345\271\263\346\227\266\351\227\264\357\274\232", nullptr));
         Lvolt_t_in->setText(QCoreApplication::translate("shiboqi_remake", "0 us", nullptr));
         pushButton_2->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\224\214 \345\274\200\345\220\257\350\277\236\346\216\245", nullptr));
-        Frequency_3->setText(QCoreApplication::translate("shiboqi_remake", "Frequency :", nullptr));
+        Frequency_3->setText(QCoreApplication::translate("shiboqi_remake", "\344\270\273\351\242\221\347\216\207:", nullptr));
         Frequency_in_3->setText(QCoreApplication::translate("shiboqi_remake", "0 Hz", nullptr));
-        Amplitude_3->setText(QCoreApplication::translate("shiboqi_remake", "Amplitude :", nullptr));
+        Amplitude_3->setText(QCoreApplication::translate("shiboqi_remake", "\345\271\205\345\272\246:", nullptr));
         Amplitude_in_3->setText(QCoreApplication::translate("shiboqi_remake", "0 V", nullptr));
+        label_snr->setText(QCoreApplication::translate("shiboqi_remake", "SNR:", nullptr));
+        label_snr_value->setText(QCoreApplication::translate("shiboqi_remake", "0 dB", nullptr));
+        label_thd->setText(QCoreApplication::translate("shiboqi_remake", "THD:", nullptr));
+        label_thd_value->setText(QCoreApplication::translate("shiboqi_remake", "0 %", nullptr));
+        label_bandwidth->setText(QCoreApplication::translate("shiboqi_remake", "\345\270\246\345\256\275:", nullptr));
+        label_bandwidth_value->setText(QCoreApplication::translate("shiboqi_remake", "0 Hz", nullptr));
+        label_harmonics->setText(QCoreApplication::translate("shiboqi_remake", "\350\260\220\346\263\242\346\225\260:", nullptr));
+        label_harmonics_value->setText(QCoreApplication::translate("shiboqi_remake", "0", nullptr));
         groupBox_2->setTitle(QCoreApplication::translate("shiboqi_remake", "UDP\350\256\276\347\275\256", nullptr));
         label_29->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
         label_29->setText(QCoreApplication::translate("shiboqi_remake", " \347\253\257\345\217\243:", nullptr));

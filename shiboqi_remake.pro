@@ -5,6 +5,9 @@ greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
 CONFIG += c++17
 
+# 应用程序名称（使用英文避免编译问题）
+TARGET = FPGA_Debugger
+
 # 启用 QCustomPlot 的 OpenGL 支持（在编译时定义）
 DEFINES += QCUSTOMPLOT_USE_OPENGL
 
@@ -40,6 +43,12 @@ HEADERS += \
 
 FORMS += \
     shiboqi_remake.ui
+
+RESOURCES += \
+    resources.qrc
+
+# Windows应用程序图标
+win32:RC_ICONS = tubiao.ico
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

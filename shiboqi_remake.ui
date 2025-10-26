@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1074</width>
+    <width>1116</width>
     <height>696</height>
    </rect>
   </property>
@@ -181,6 +181,46 @@ QLabel {
           </size>
          </property>
         </spacer>
+       </item>
+       <item>
+        <widget class="QLabel" name="copyrightLabel1">
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+    color: #ecf0f1;
+    padding: 5px 10px;
+    font-size: 11px;
+}</string>
+         </property>
+         <property name="text">
+          <string>出品方：人善被人欺，马善马嘉祺队</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="copyrightLabel2">
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+    color: #ecf0f1;
+    padding: 5px 10px;
+    font-size: 11px;
+}</string>
+         </property>
+         <property name="text">
+          <string>南京孝陵卫鞭炮厂研发中心</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+         </property>
+         <property name="wordWrap">
+          <bool>true</bool>
+         </property>
+        </widget>
        </item>
       </layout>
      </widget>
@@ -357,7 +397,7 @@ QLabel {
               <number>10</number>
              </property>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_11" stretch="0,0,0,0,0,0,0">
+              <layout class="QVBoxLayout" name="verticalLayout_11" stretch="0,0,0,0,0">
                <property name="spacing">
                 <number>20</number>
                </property>
@@ -1484,7 +1524,7 @@ QComboBox QAbstractItemView {
         <item>
          <layout class="QHBoxLayout" name="horizontalLayout_35" stretch="3,0">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_14" stretch="9,0">
+           <layout class="QVBoxLayout" name="verticalLayout_14" stretch="9,0,0">
             <item>
              <widget class="QCustomPlot" name="customPlot_3" native="true">
               <property name="sizePolicy">
@@ -1497,14 +1537,14 @@ QComboBox QAbstractItemView {
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_38">
+              <property name="spacing">
+               <number>15</number>
+              </property>
               <property name="leftMargin">
                <number>20</number>
               </property>
               <property name="rightMargin">
                <number>20</number>
-              </property>
-              <property name="spacing">
-               <number>15</number>
               </property>
               <item alignment="Qt::AlignRight">
                <widget class="QLabel" name="Frequency_3">
@@ -1523,6 +1563,12 @@ QComboBox QAbstractItemView {
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="Frequency_in_3">
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">QLabel {
     color: #3498db;
@@ -1533,12 +1579,6 @@ QComboBox QAbstractItemView {
                 </property>
                 <property name="text">
                  <string>0 Hz</string>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
                 </property>
                </widget>
               </item>
@@ -1559,6 +1599,12 @@ QComboBox QAbstractItemView {
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="Amplitude_in_3">
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">QLabel {
     color: #3498db;
@@ -1569,12 +1615,6 @@ QComboBox QAbstractItemView {
                 </property>
                 <property name="text">
                  <string>0 V</string>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>0</height>
-                 </size>
                 </property>
                </widget>
               </item>
@@ -1595,6 +1635,12 @@ QComboBox QAbstractItemView {
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="label_snr_value">
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">QLabel {
     color: #27ae60;
@@ -1606,26 +1652,20 @@ QComboBox QAbstractItemView {
                 <property name="text">
                  <string>0 dB</string>
                 </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>0</height>
-                 </size>
-                </property>
                </widget>
               </item>
              </layout>
             </item>
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_spectrum_info2">
+              <property name="spacing">
+               <number>15</number>
+              </property>
               <property name="leftMargin">
                <number>20</number>
               </property>
               <property name="rightMargin">
                <number>20</number>
-              </property>
-              <property name="spacing">
-               <number>15</number>
               </property>
               <item alignment="Qt::AlignRight">
                <widget class="QLabel" name="label_thd">
@@ -1644,6 +1684,12 @@ QComboBox QAbstractItemView {
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="label_thd_value">
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">QLabel {
     color: #e67e22;
@@ -1654,12 +1700,6 @@ QComboBox QAbstractItemView {
                 </property>
                 <property name="text">
                  <string>0 %</string>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
                 </property>
                </widget>
               </item>
@@ -1680,6 +1720,12 @@ QComboBox QAbstractItemView {
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="label_bandwidth_value">
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">QLabel {
     color: #9b59b6;
@@ -1690,12 +1736,6 @@ QComboBox QAbstractItemView {
                 </property>
                 <property name="text">
                  <string>0 Hz</string>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>0</height>
-                 </size>
                 </property>
                </widget>
               </item>
@@ -1716,6 +1756,12 @@ QComboBox QAbstractItemView {
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="label_harmonics_value">
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>0</height>
+                 </size>
+                </property>
                 <property name="styleSheet">
                  <string notr="true">QLabel {
     color: #e74c3c;
@@ -1726,12 +1772,6 @@ QComboBox QAbstractItemView {
                 </property>
                 <property name="text">
                  <string>0</string>
-                </property>
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>0</height>
-                 </size>
                 </property>
                </widget>
               </item>
@@ -1749,7 +1789,7 @@ QComboBox QAbstractItemView {
               <number>10</number>
              </property>
              <item>
-              <layout class="QVBoxLayout" name="verticalLayout_16" stretch="0,0,0,0,0,0,0">
+              <layout class="QVBoxLayout" name="verticalLayout_16" stretch="0,0,0,0,0">
                <property name="spacing">
                 <number>20</number>
                </property>
