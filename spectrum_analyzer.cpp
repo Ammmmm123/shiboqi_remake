@@ -165,14 +165,82 @@ void SpectrumAnalyzer::performFFT()
         }
     }
 
+    // 计算总功率（帕塞瓦尔定理）
+    double totalPower = 0.0;
+    for (int i = 1; i < halfN; ++i) {
+        totalPower += amplitudes[i] * amplitudes[i];
+    }
+
+    // 计算信噪比（SNR）：主频率功率 vs 噪声功率
+    double signalPower = maxAmplitude * maxAmplitude;
+    double noisePower = totalPower - signalPower;
+    double snr = (noisePower > 1e-10) ? 10.0 * std::log10(signalPower / noisePower) : 100.0;
+
+    // 检测谐波（2倍频、3倍频等）
+    double fundamentalFreq = frequencies[maxIndex];
+    QVector<double> harmonicFreqs;
+    QVector<double> harmonicAmps;
+    double harmonicPower = 0.0;
+    
+    for (int h = 2; h <= 10; ++h) {  // 检测最多10次谐波
+        double harmonicFreq = fundamentalFreq * h;
+        if (harmonicFreq >= frequencies.last()) break;
+        
+        // 找到最接近的频率索引
+        int harmonicIndex = qRound(harmonicFreq / freqResolution);
+        if (harmonicIndex < halfN && amplitudes[harmonicIndex] > maxAmplitude * 0.01) {  // 至少1%幅度
+            harmonicFreqs.append(frequencies[harmonicIndex]);
+            harmonicAmps.append(amplitudes[harmonicIndex]);
+            harmonicPower += amplitudes[harmonicIndex] * amplitudes[harmonicIndex];
+        }
+    }
+
+    // 计算总谐波失真（THD）
+    double thd = (signalPower > 1e-10) ? 100.0 * std::sqrt(harmonicPower / signalPower) : 0.0;
+
+    // 计算-3dB带宽
+    double threshold = maxAmplitude / std::sqrt(2.0);  // -3dB点
+    int lowerIndex = maxIndex, upperIndex = maxIndex;
+    
+    // 向下搜索
+    for (int i = maxIndex; i >= 1; --i) {
+        if (amplitudes[i] < threshold) {
+            lowerIndex = i;
+            break;
+        }
+    }
+    
+    // 向上搜索
+    for (int i = maxIndex; i < halfN; ++i) {
+        if (amplitudes[i] < threshold) {
+            upperIndex = i;
+            break;
+        }
+    }
+    
+    double bandwidth = frequencies[upperIndex] - frequencies[lowerIndex];
+
     // 构造结果
     SpectrumAnalysisResult result;
     result.dominantFrequency = frequencies[maxIndex];
     result.dominantAmplitude = maxAmplitude;
+    result.totalPower = totalPower;
+    result.snr = snr;
+    result.thd = thd;
+    result.bandwidth = bandwidth;
+    result.harmonicCount = harmonicFreqs.size();
+    result.harmonicFreqs = harmonicFreqs;
+    result.harmonicAmps = harmonicAmps;
     result.frequencies = frequencies;
     result.amplitudes = amplitudes;
 
-    qDebug() << "频谱分析完成：主频率 =" << result.dominantFrequency << "Hz, 幅度 =" << result.dominantAmplitude << "V";
+    qDebug() << "频谱分析完成：";
+    qDebug() << "  主频率 =" << result.dominantFrequency << "Hz";
+    qDebug() << "  幅度 =" << result.dominantAmplitude << "V";
+    qDebug() << "  SNR =" << result.snr << "dB";
+    qDebug() << "  THD =" << result.thd << "%";
+    qDebug() << "  带宽 =" << result.bandwidth << "Hz";
+    qDebug() << "  谐波数 =" << result.harmonicCount;
 
     // 发射结果信号
     emit spectrumReady(result);

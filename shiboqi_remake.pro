@@ -24,7 +24,8 @@ SOURCES += \
     udp_receive.cpp \
     udp_send.cpp \
     data_processor.cpp \
-    spectrum_analyzer.cpp
+    spectrum_analyzer.cpp \
+    waveform_sender_thread.cpp
 
 HEADERS += \
     UART_receive.h \
@@ -34,7 +35,8 @@ HEADERS += \
     udp_receive.h \
     udp_send.h \
     data_processor.h \
-    spectrum_analyzer.h
+    spectrum_analyzer.h \
+    waveform_sender_thread.h
 
 FORMS += \
     shiboqi_remake.ui

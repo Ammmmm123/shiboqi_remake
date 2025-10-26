@@ -9,10 +9,17 @@
  * @brief 频谱分析结果结构体
  */
 struct SpectrumAnalysisResult {
-    double dominantFrequency;  ///< 主频率（Hz）
-    double dominantAmplitude;  ///< 主频率对应的幅度
+    double dominantFrequency;    ///< 主频率（Hz）
+    double dominantAmplitude;    ///< 主频率对应的幅度（V）
+    double totalPower;           ///< 总功率（V²）
+    double snr;                  ///< 信噪比（dB）
+    double thd;                  ///< 总谐波失真（%）
+    double bandwidth;            ///< -3dB带宽（Hz）
+    int harmonicCount;           ///< 检测到的谐波数量
+    QVector<double> harmonicFreqs;  ///< 谐波频率列表
+    QVector<double> harmonicAmps;   ///< 谐波幅度列表
     QVector<double> frequencies; ///< 频率轴数据（Hz）
-    QVector<double> amplitudes;  ///< 幅度谱数据
+    QVector<double> amplitudes;  ///< 幅度谱数据（V）
 };
 
 /**

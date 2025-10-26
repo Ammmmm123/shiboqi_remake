@@ -2,6 +2,7 @@
 #include "ui_shiboqi_remake.h"
 #include <QMessageBox>
 #include <QTimer>
+#include <QThread>
 #include <cmath>
 #include <algorithm>
 #include <QAction>
@@ -30,7 +31,13 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     , updateTimer(new QTimer(this))
     , dataProcessor(new DataProcessor(this)) // 创建数据处理器对象
     , currentWaveformType(0) // 初始化为锯齿波
+    , isHandDrawMode(false)  // 初始化手绘模式为关闭
+    , isDrawing(false)       // 初始化绘制状态为未绘制
+    , waveformSenderThread(nullptr) // 初始化线程指针为空
     , uartReceiver(new UARTReceiver(this)) // 创建UART接收器对象
+    , isOscilloscopePageActive(true)  // 初始页面为示波器
+    , isSpectrumPageActive(false)     // 频谱页面初始未激活
+    , hasUserZoomed(false)            // 初始未手动缩放，允许自动缩放
 {
     ui->setupUi(this);
 
@@ -74,9 +81,6 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
             if (unit.isEmpty()) unit = QString("V");
             customPlot->yAxis->setLabel(QString("Voltage (%1)").arg(unit));
         });
-
-    // 连接数据接收信号到本地槽函数（如果还需要其他处理）
-    // connect(udpReceiver, &UdpReceiver::dataReceived, this, &shiboqi_remake::onDataReceived);
     
     // 设置更新定时器
     connect(updateTimer, &QTimer::timeout, this, &shiboqi_remake::updatePlot);
@@ -97,56 +101,110 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     // 连接UDP绑定失败信号到错误处理槽函数
     connect(udpReceiver, &UdpReceiver::bindFailed, this, &shiboqi_remake::onUdpBindFailed);
 
-    // --- 菜单项：切换不同页面（示波器 / DDS 设置 / 数字信号测量）
-
-    // 点击菜单标签直接切换到对应页面（无需子菜单项）
-    // 当菜单即将显示时（aboutToShow），切换页面并立即隐藏菜单。
-    if (ui->menu) {
-        connect(ui->menu, &QMenu::aboutToShow, this, [this]() {
-            ui->stackedWidget->setCurrentIndex(0); // 示波器 -> page_5
-            // 启动 page_5 的更新定时器
-            if (updateTimer) updateTimer->start(50);
-            // 强制刷新 page_5 示波器的坐标轴标签
-            if (customPlot) {
-                customPlot->xAxis->setLabel("Time (us)");
-                customPlot->yAxis->setLabel("Voltage (V)");
-                customPlot->replot();
+    // --- 侧边栏导航按钮：切换不同页面（示波器 / DDS 设置 / 数字信号测量 / 频谱）
+    
+    // 示波器按钮
+    connect(ui->navButton_oscilloscope, &QPushButton::clicked, this, [this]() {
+        // 先设置页面激活状态，立即停止其他页面的更新
+        isOscilloscopePageActive = true;
+        isSpectrumPageActive = false;
+        
+        // 重置手动缩放标志，重新启用自动缩放
+        hasUserZoomed = false;
+        
+        // 停止频谱数据标签更新定时器
+        if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->stop();
+        
+        ui->stackedWidget->setCurrentIndex(0); // 示波器 -> page_5
+        // 取消其他按钮的选中状态
+        ui->navButton_dds->setChecked(false);
+        ui->navButton_digital->setChecked(false);
+        ui->navButton_spectrum->setChecked(false);
+        ui->navButton_oscilloscope->setChecked(true);
+        
+        // 启动 page_5 的更新定时器
+        if (updateTimer) updateTimer->start(50);
+        // 强制刷新 page_5 示波器的坐标轴标签
+        if (customPlot) {
+            customPlot->xAxis->setLabel("Time (us)");
+            customPlot->yAxis->setLabel("Voltage (V)");
+            
+            // 修正X轴范围，确保零点在左下角
+            auto xRange = customPlot->xAxis->range();
+            if (xRange.lower < 0) {
+                // 如果下界小于0，强制修正为从0开始
+                double span = xRange.upper - xRange.lower;
+                customPlot->xAxis->setRange(0.0, span);
             }
-            ui->menu->hide();
-        });
-    }
-    if (ui->menuDDS) {
-        connect(ui->menuDDS, &QMenu::aboutToShow, this, [this]() {
-            ui->stackedWidget->setCurrentIndex(1); // DDS设置 -> page_6
-            // 停止所有绘图更新定时器（非当前页面）
-            if (updateTimer) updateTimer->stop();
-            ui->menuDDS->hide();
-        });
-    }
-    // 有些 UI 文件把第三个菜单命名为 menu_2（兼容性处理）
-    if (ui->menu_2) {
-        connect(ui->menu_2, &QMenu::aboutToShow, this, [this]() {
-            ui->stackedWidget->setCurrentIndex(2); // 数字信号测量 -> page_7
-            // 停止所有绘图更新定时器（非当前页面）
-            if (updateTimer) updateTimer->stop();
-            ui->menu_2->hide();
-        });
-    }
-    // 频谱菜单跳转到 page_8
-    if (ui->menu_3) {
-        connect(ui->menu_3, &QMenu::aboutToShow, this, [this]() {
-            ui->stackedWidget->setCurrentIndex(3); // 频谱 -> page_8
-            // 停止 page_5 的更新定时器（page_8 不需要定时刷新，只在频谱就绪时更新）
-            if (updateTimer) updateTimer->stop();
-            // 强制刷新 page_8 频谱的坐标轴标签
-            if (customPlot_page8) {
-                customPlot_page8->xAxis->setLabel("Frequency (Hz)");
-                customPlot_page8->yAxis->setLabel("Amplitude (V)");
-                customPlot_page8->replot();
-            }
-            ui->menu_3->hide();
-        });
-    }
+            
+            customPlot->replot();
+        }
+    });
+    
+    // DDS设置按钮
+    connect(ui->navButton_dds, &QPushButton::clicked, this, [this]() {
+        // 先设置页面激活状态
+        isOscilloscopePageActive = false;
+        isSpectrumPageActive = false;
+        
+        ui->stackedWidget->setCurrentIndex(1); // DDS设置 -> page_6
+        // 取消其他按钮的选中状态
+        ui->navButton_oscilloscope->setChecked(false);
+        ui->navButton_digital->setChecked(false);
+        ui->navButton_spectrum->setChecked(false);
+        ui->navButton_dds->setChecked(true);
+        
+        // 停止示波器更新定时器
+        if (updateTimer) updateTimer->stop();
+        
+        // 保持手绘波形显示（不清空，确保切换回来时能看到）
+        if (ui->boxingxianshi) {
+            ui->boxingxianshi->replot();
+        }
+    });
+    
+    // 数字信号测量按钮
+    connect(ui->navButton_digital, &QPushButton::clicked, this, [this]() {
+        // 先设置页面激活状态，立即停止其他页面更新
+        isOscilloscopePageActive = false;
+        isSpectrumPageActive = false;
+        
+        ui->stackedWidget->setCurrentIndex(2); // 数字信号测量 -> page_7
+        // 取消其他按钮的选中状态
+        ui->navButton_oscilloscope->setChecked(false);
+        ui->navButton_dds->setChecked(false);
+        ui->navButton_spectrum->setChecked(false);
+        ui->navButton_digital->setChecked(true);
+        
+        // 停止所有绘图更新定时器（非当前页面）
+        if (updateTimer) updateTimer->stop();
+    });
+    
+    // 频谱分析按钮
+    connect(ui->navButton_spectrum, &QPushButton::clicked, this, [this]() {
+        // 先设置页面激活状态，立即停止其他页面更新
+        isOscilloscopePageActive = false;
+        isSpectrumPageActive = true;
+        
+        ui->stackedWidget->setCurrentIndex(3); // 频谱 -> page_8
+        // 取消其他按钮的选中状态
+        ui->navButton_oscilloscope->setChecked(false);
+        ui->navButton_dds->setChecked(false);
+        ui->navButton_digital->setChecked(false);
+        ui->navButton_spectrum->setChecked(true);
+        
+        // 停止 page_5 的更新定时器（page_8 通过信号更新，不需要定时刷新）
+        if (updateTimer) updateTimer->stop();
+        // 启动频谱数据标签更新定时器（减少跳动）
+        if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->start();
+        
+        // 强制刷新 page_8 频谱的坐标轴标签
+        if (customPlot_page8) {
+            customPlot_page8->xAxis->setLabel("Frequency (Hz)");
+            customPlot_page8->yAxis->setLabel("Amplitude (V)");
+            customPlot_page8->replot();
+        }
+    });
 
     // 初始化串口comboBox
     auto ports = QSerialPortInfo::availablePorts();
@@ -170,8 +228,7 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
 
     // 仅开启 OpenGL 加速并保留为绘图控件，但不添加时域 graph（频谱绘制在需要时创建）
     customPlot_page8->setOpenGl(true);
-    customPlot_page8->setInteractions(QCP::iNone);
-    customPlot_page8->installEventFilter(this);
+    customPlot_page8->setInteractions(QCP::iNone);  // 禁用所有交互，包括缩放
 
     // 连接 page_8 的按钮信号（保持功能不变）
     connect(ui->setButton_5, &QPushButton::clicked, this, &shiboqi_remake::on_setButton_5_clicked);
@@ -193,7 +250,83 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     settingsSyncTimer = new QTimer(this);
     settingsSyncTimer->setInterval(500);
     connect(settingsSyncTimer, &QTimer::timeout, this, &shiboqi_remake::syncSettingsToPage8);
+    
+    // 初始化频谱数据标签更新定时器（每 500ms 更新一次，减少跳动）
+    spectrumLabelUpdateTimer = new QTimer(this);
+    spectrumLabelUpdateTimer->setInterval(500);
+    connect(spectrumLabelUpdateTimer, &QTimer::timeout, this, [this]() {
+        if (isSpectrumPageActive && ui) {
+            // 更新所有频谱数据标签
+            if (ui->Frequency_in_3) {
+                ui->Frequency_in_3->setText(QString("%1 Hz").arg(QString::number(lastSpectrumResult.dominantFrequency, 'f', 2)));
+            }
+            if (ui->Amplitude_in_3) {
+                ui->Amplitude_in_3->setText(QString("%1 V").arg(QString::number(lastSpectrumResult.dominantAmplitude, 'f', 3)));
+            }
+            if (ui->label_snr_value) {
+                ui->label_snr_value->setText(QString("%1 dB").arg(QString::number(lastSpectrumResult.snr, 'f', 1)));
+            }
+            if (ui->label_thd_value) {
+                ui->label_thd_value->setText(QString("%1 %").arg(QString::number(lastSpectrumResult.thd, 'f', 2)));
+            }
+            if (ui->label_bandwidth_value) {
+                double bw = lastSpectrumResult.bandwidth;
+                QString bwText;
+                if (bw >= 1e6) {
+                    bwText = QString("%1 MHz").arg(QString::number(bw / 1e6, 'f', 2));
+                } else if (bw >= 1e3) {
+                    bwText = QString("%1 kHz").arg(QString::number(bw / 1e3, 'f', 2));
+                } else {
+                    bwText = QString("%1 Hz").arg(QString::number(bw, 'f', 1));
+                }
+                ui->label_bandwidth_value->setText(bwText);
+            }
+            if (ui->label_harmonics_value) {
+                ui->label_harmonics_value->setText(QString::number(lastSpectrumResult.harmonicCount));
+            }
+        }
+    });
+    
+    // 初始化UDP参数缓存（用于智能双向同步）
+    lastIp4 = ui->ipLineEdit_4->text();
+    lastIp5 = ui->ipLineEdit_5->text();
+    lastPort4 = ui->portSpinBox_4->value();
+    lastPort5 = ui->portSpinBox_5->value();
+    lastTargetIp4 = ui->targetIpLineEdit_4->text();
+    lastTargetIp5 = ui->targetIpLineEdit_5->text();
+    lastTargetPort4 = ui->targetPortSpinBox_4->value();
+    lastTargetPort5 = ui->targetPortSpinBox_5->value();
+    lastDataNum4 = ui->dataNumSpinBox_4->value();
+    lastDataNum5 = ui->dataNumSpinBox_5->value();
+    
     settingsSyncTimer->start();
+    
+    // ===== 初始化 DDS 手绘波形功能 (boxingxianshi) =====
+    if (ui->boxingxianshi) {
+        QCustomPlot *drawPlot = ui->boxingxianshi;
+        
+        // 设置基本属性
+        drawPlot->setOpenGl(true);
+        
+        // 添加一个graph用于显示手绘轨迹
+        drawPlot->addGraph();
+        drawPlot->graph(0)->setPen(QPen(Qt::red, 2));
+        
+        // 设置坐标轴范围 (X: 0-1, Y: 0-1023)
+        drawPlot->xAxis->setRange(0.0, 1.0);
+        drawPlot->yAxis->setRange(0.0, 1023.0);
+        drawPlot->xAxis->setLabel("Time (normalized)");
+        drawPlot->yAxis->setLabel("Voltage (10-bit)");
+        
+        // 启用鼠标跟踪（以便在移动时也能捕获事件）
+        drawPlot->setMouseTracking(true);
+        
+        // 禁用默认交互
+        drawPlot->setInteractions(QCP::iNone);
+        
+        // 安装事件过滤器以捕获鼠标事件
+        drawPlot->installEventFilter(this);
+    }
 }
 
 /**
@@ -245,13 +378,17 @@ void shiboqi_remake::on_setButton_clicked()
         udpSender->setTargetAddress(targetAddress, targetPort);
     }
 
-    // 设置UDP发送器的数据个数和分频系数
+    // 设置UDP发送器的数据个数、分频系数和通道（固定值）
     quint32 dataNum = ui->dataNumSpinBox_4->value();
-    quint32 divider = ui->dividerSpinBox_4->value();
-    quint8 channel = ui->channelSpinBox_4->value();
+    quint32 divider = 0;  // 固定为0
+    quint8 channel = 1;   // 固定为通道1
     udpSender->setDataNum(dataNum);
     udpSender->setDivider(divider);
     udpSender->setChannel(channel);
+    
+    // ========== 新增：配置数据处理器的采样参数（智能低频支持）==========
+    dataProcessor->setSamplingConfig(dataNum, udpReceiver->getSampleRate());
+    
     udpSender->sendChannelSelectCommand(); // 发送通道选择命令
     udpSender->sendDataNumCommand(); // 发送数据个数设置命令
     udpSender->sendDividerCommand(); // 发送分频系数设置命令
@@ -283,8 +420,7 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         ui->targetIpLineEdit_4->setEnabled(false);
         ui->targetPortSpinBox_4->setEnabled(false);
         ui->dataNumSpinBox_4->setEnabled(false);
-        ui->dividerSpinBox_4->setEnabled(false);
-        ui->channelSpinBox_4->setEnabled(false);
+        // 注意：通道和分频系数输入框已删除，不再需要禁用
         
         // 同步 page_8 的监听按钮状态
         ui->listenButton_5->blockSignals(true);
@@ -308,8 +444,7 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         ui->targetIpLineEdit_4->setEnabled(true);
         ui->targetPortSpinBox_4->setEnabled(true);
         ui->dataNumSpinBox_4->setEnabled(true);
-        ui->dividerSpinBox_4->setEnabled(true);
-        ui->channelSpinBox_4->setEnabled(true);
+        // 注意：通道和分频系数输入框已删除，不再需要启用
         
         // 同步 page_8 的监听按钮状态
         ui->listenButton_5->blockSignals(true);
@@ -363,8 +498,7 @@ void shiboqi_remake::onUdpBindFailed(const QString &errorString)
         ui->targetIpLineEdit_4->setEnabled(true);
         ui->targetPortSpinBox_4->setEnabled(true);
         ui->dataNumSpinBox_4->setEnabled(true);
-        ui->dividerSpinBox_4->setEnabled(true);
-        ui->channelSpinBox_4->setEnabled(true);
+        // 注意：通道和分频系数输入框已删除，不再需要启用
 
         // 重置标志位，允许下次显示错误对话框
         errorDialogShown = false;
@@ -410,23 +544,10 @@ void shiboqi_remake::on_loopSendButton_toggled(bool checked)
  */
 void shiboqi_remake::on_restartButton_clicked()
 {   
-
+    // 重置手动缩放标志，重新启用自动缩放
+    hasUserZoomed = false;
+    
     udpSender->sendRestartCommand();
-}
-
-/**
- * @brief 数据接收槽函数（已废弃 - 现在使用 DataProcessor 的降采样数据）
- *
- * 此函数保留用于兼容性，实际绘图数据由 onDownsampledDataReady 处理
- * @param voltages 电压值向量
- * @param times 时间向量
- */
-void shiboqi_remake::onDataReceived(const QVector<double> &voltages, const QVector<double> &times)
-{
-    // 原始数据接收逻辑已移至 DataProcessor
-    // 不再需要本地缓冲和抽样
-    Q_UNUSED(voltages);
-    Q_UNUSED(times);
 }
 
 /**
@@ -442,8 +563,19 @@ void shiboqi_remake::onDownsampledDataReady(const QVector<double> &voltages, con
     plotVoltages = voltages;
     plotTimes = times;
     
-    // 可选：立即触发一次绘图更新（或等待定时器）
-    // updatePlot();
+    // 仅在用户未手动缩放时自动缩放坐标轴到数据范围
+    if (!hasUserZoomed && !plotVoltages.isEmpty() && !plotTimes.isEmpty()) {
+        // 计算时间范围（使用调整后的时间，即从0开始）
+        double minT = 0.0;  // 第一个点的时间为0
+        double maxT = times.last() - times.first();  // 最后一个点相对于第一个点的时间
+        
+        // 不调整Y轴范围（保持用户设置的电压范围）
+        
+        // X轴：正常设置范围，但确保下界为0（零点固定在左下角）
+        double tMargin = (maxT - minT) * 0.1;
+        if (tMargin < 0.01) tMargin = 1.0;  // 防止范围过小时边距为0
+        customPlot->xAxis->setRange(0.0, maxT + tMargin);  // 下界固定为0
+    }
 }
 
 /**
@@ -454,6 +586,11 @@ void shiboqi_remake::onDownsampledDataReady(const QVector<double> &voltages, con
  */
 void shiboqi_remake::updatePlot()
 {
+    // 性能优化：只在示波器页面激活时更新
+    if (!isOscilloscopePageActive) {
+        return;
+    }
+    
     // 检查是否有有效的绘图数据
     if (plotVoltages.isEmpty() || plotTimes.isEmpty()) {
         return;
@@ -471,27 +608,27 @@ void shiboqi_remake::updatePlot()
     // 使用调整后的时间数据绘图
     customPlot->graph(0)->setData(adjustedTimes, plotVoltages);
     
-    // 不自动调整坐标轴范围，保持用户设置的范围
-    // 注释掉 rescale() 调用
-    // customPlot->xAxis->rescale();
-    // customPlot->yAxis->rescale();
-    
     // 重绘图表
     customPlot->replot();
 }
 
 /**
- * @brief 按因子缩放 Y 轴范围（无限制）
+ * @brief 按因子缩放 Y 轴范围（保持0刻度在中心）
  *
  * @param plot 指定的 QCustomPlot
  * @param factor 缩放因子（<1 放大，>1 缩小）
  * @param pos 鼠标位置（当前实现未使用）
+ * 
+ * Y轴始终以0为中心对称缩放，确保0刻度线保持在屏幕中间
  */
 void scaleYAxis(QCustomPlot *plot, double factor, const QPoint &/*pos*/) {
     auto range = plot->yAxis->range();
-    double center = (range.lower + range.upper) / 2.0;
-    double half = (range.upper - range.lower) / 2.0 * factor;
-    plot->yAxis->setRange(center - half, center + half);
+    // 计算当前范围相对于0的最大偏移（取上下边界绝对值的最大值）
+    double maxOffset = qMax(qAbs(range.upper), qAbs(range.lower));
+    // 按因子缩放偏移量
+    double newMaxOffset = maxOffset * factor;
+    // 设置对称范围：[-newMaxOffset, +newMaxOffset]
+    plot->yAxis->setRange(-newMaxOffset, newMaxOffset);
 }
 
 /**
@@ -547,17 +684,74 @@ void scaleXAxis(QCustomPlot *plot, double factor, const QPoint &/*pos*/, const Q
 
 bool shiboqi_remake::eventFilter(QObject *obj, QEvent *event)
 {
-    // 支持 page_5 和 page_8 的 customPlot 滚轮缩放
+    // ===== 处理 DDS 手绘波形的鼠标事件 =====
+    if (obj == ui->boxingxianshi && isHandDrawMode) {
+        QCustomPlot *drawPlot = ui->boxingxianshi;
+        
+        if (event->type() == QEvent::MouseButtonPress) {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            if (me->button() == Qt::LeftButton) {
+                // 开始绘制
+                isDrawing = true;
+                handDrawnPoints.clear();
+                
+                // 将鼠标坐标转换为绘图坐标
+                double x = drawPlot->xAxis->pixelToCoord(me->pos().x());
+                double y = drawPlot->yAxis->pixelToCoord(me->pos().y());
+                
+                // 限制在有效范围内
+                x = qBound(0.0, x, 1.0);
+                y = qBound(0.0, y, 1023.0);
+                
+                handDrawnPoints.append(QPointF(x, y));
+                return true;
+            }
+        } else if (event->type() == QEvent::MouseMove && isDrawing) {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            
+            // 将鼠标坐标转换为绘图坐标
+            double x = drawPlot->xAxis->pixelToCoord(me->pos().x());
+            double y = drawPlot->yAxis->pixelToCoord(me->pos().y());
+            
+            // 限制在有效范围内
+            x = qBound(0.0, x, 1.0);
+            y = qBound(0.0, y, 1023.0);
+            
+            handDrawnPoints.append(QPointF(x, y));
+            
+            // 实时更新显示
+            QVector<double> xs, ys;
+            for (const QPointF &p : handDrawnPoints) {
+                xs.append(p.x());
+                ys.append(p.y());
+            }
+            
+            if (drawPlot->graphCount() > 0) {
+                drawPlot->graph(0)->setData(xs, ys);
+                drawPlot->replot();
+            }
+            
+            return true;
+        } else if (event->type() == QEvent::MouseButtonRelease) {
+            QMouseEvent *me = static_cast<QMouseEvent *>(event);
+            if (me->button() == Qt::LeftButton && isDrawing) {
+                // 结束绘制
+                isDrawing = false;
+                qDebug() << "手绘波形已完成，共" << handDrawnPoints.size() << "个点，点击'保存并发送'按钮以发送波形";
+                
+                return true;
+            }
+        }
+    }
+    
+    // 仅支持 page_5 (示波器) 的 customPlot 滚轮缩放
+    // page_8 (频谱图) 不支持鼠标缩放
     QCustomPlot *targetPlot = nullptr;
     QVector<double> *targetTimes = nullptr;
 
     if (obj == customPlot && event->type() == QEvent::Wheel) {
         targetPlot = customPlot;
         targetTimes = &plotTimes;
-    } else if (obj == customPlot_page8 && event->type() == QEvent::Wheel) {
-        // page_8 仅用于频谱显示，没有时域时间数组，使用空时间向量以启用无约束缩放逻辑
-        targetPlot = customPlot_page8;
-        targetTimes = nullptr;
     }
 
     if (targetPlot && event->type() == QEvent::Wheel) {
@@ -612,6 +806,11 @@ bool shiboqi_remake::eventFilter(QObject *obj, QEvent *event)
             scaleYAxis(targetPlot, factor, we->position().toPoint());
         }
 
+        // 如果是示波器页面的缩放，标记用户已手动缩放（禁用自动缩放）
+        if (targetPlot == customPlot) {
+            hasUserZoomed = true;
+        }
+
         targetPlot->replot();
         return true; // 事件已处理
     }
@@ -658,50 +857,17 @@ void shiboqi_remake::on_waveformSwitchButton_clicked()
     udpSender->setWaveformType(currentWaveformType);
     udpSender->sendWaveformCommand();
     
-    // 显示当前波形类型（可选，用于调试）
+    // 更新右侧标签显示当前波形
     QString waveformNames[] = {"锯齿波", "正弦波", "方波", "三角波"};
-    qDebug() << "切换到波形：" << waveformNames[currentWaveformType] << "(" << currentWaveformType << ")";
-
-    // 在 ui->boxingxianshi 上绘制一个示意波形（单周期，范围 0..1）
-    if (ui && ui->boxingxianshi) {
-        QCustomPlot *preview = ui->boxingxianshi;
-
-        // 确保至少有一个 graph
-        if (preview->graphCount() == 0) {
-            preview->addGraph();
-        }
-
-        // 生成示意数据
-        const int N = 200;
-        QVector<double> xs(N), ys(N);
-        for (int i = 0; i < N; ++i) {
-            double t = double(i) / double(N - 1); // 0..1
-            xs[i] = t;
-            switch (currentWaveformType) {
-                case 0: // 锯齿波: 从 1 到 -1 的线性下降
-                    ys[i] = 1.0 - 2.0 * t;
-                    break;
-                case 1: // 正弦波
-                    ys[i] = std::sin(2.0 * M_PI * t);
-                    break;
-                case 2: // 方波
-                    ys[i] = (std::sin(2.0 * M_PI * t) >= 0.0) ? 1.0 : -1.0;
-                    break;
-                case 3: // 三角波: 上升到 1 再下降到 -1
-                    if (t < 0.5) ys[i] = 4.0 * t - 1.0; else ys[i] = -4.0 * t + 3.0;
-                    break;
-                default:
-                    ys[i] = 0.0;
-            }
-        }
-
-        // 设置 graph
-        preview->graph(0)->setData(xs, ys);
-        preview->graph(0)->setPen(QPen(Qt::red));
-        preview->xAxis->setRange(0.0, 1.0);
-        preview->yAxis->setRange(-1.2, 1.2);
-        preview->replot();
+    QString waveformEmojis[] = {"📐", "〰️", "▭", "🔺"};
+    
+    if (ui && ui->currentWaveformLabel) {
+        ui->currentWaveformLabel->setText(
+            QString("当前波形: %1 %2").arg(waveformEmojis[currentWaveformType]).arg(waveformNames[currentWaveformType])
+        );
     }
+    
+    qDebug() << "切换到波形：" << waveformNames[currentWaveformType] << "(" << currentWaveformType << ")";
 }
 
 /**
@@ -879,11 +1045,15 @@ void shiboqi_remake::on_setButton_5_clicked()
     }
 
     quint32 dataNum = ui->dataNumSpinBox_5->value();
-    quint32 divider = ui->dividerSpinBox_5->value();
-    quint8 channel = ui->channelSpinBox_5->value();
+    quint32 divider = 0;  // 固定为0
+    quint8 channel = 1;   // 固定为通道1
     udpSender->setDataNum(dataNum);
     udpSender->setDivider(divider);
     udpSender->setChannel(channel);
+    
+    // ========== 新增：配置数据处理器的采样参数 ==========
+    dataProcessor->setSamplingConfig(dataNum, udpReceiver->getSampleRate());
+    
     udpSender->sendChannelSelectCommand();
     udpSender->sendDataNumCommand();
     udpSender->sendDividerCommand();
@@ -913,8 +1083,7 @@ void shiboqi_remake::on_listenButton_5_toggled(bool checked)
         ui->targetIpLineEdit_5->setEnabled(false);
         ui->targetPortSpinBox_5->setEnabled(false);
         ui->dataNumSpinBox_5->setEnabled(false);
-        ui->dividerSpinBox_5->setEnabled(false);
-        ui->channelSpinBox_5->setEnabled(false);
+        // 注意：通道和分频系数输入框已删除，不再需要禁用
         
         // 同步 page_5 的监听按钮状态
         ui->listenButton_4->blockSignals(true);
@@ -934,8 +1103,7 @@ void shiboqi_remake::on_listenButton_5_toggled(bool checked)
         ui->targetIpLineEdit_5->setEnabled(true);
         ui->targetPortSpinBox_5->setEnabled(true);
         ui->dataNumSpinBox_5->setEnabled(true);
-        ui->dividerSpinBox_5->setEnabled(true);
-        ui->channelSpinBox_5->setEnabled(true);
+        // 注意：通道和分频系数输入框已删除，不再需要启用
         
         // 同步 page_5 的监听按钮状态
         ui->listenButton_4->blockSignals(true);
@@ -1015,8 +1183,7 @@ void shiboqi_remake::onUdpBindFailed_page8(const QString &errorString)
         ui->targetIpLineEdit_5->setEnabled(true);
         ui->targetPortSpinBox_5->setEnabled(true);
         ui->dataNumSpinBox_5->setEnabled(true);
-        ui->dividerSpinBox_5->setEnabled(true);
-        ui->channelSpinBox_5->setEnabled(true);
+        // 注意：通道和分频系数输入框已删除，不再需要启用
 
         errorDialogShown_page8 = false;
     });
@@ -1028,98 +1195,516 @@ void shiboqi_remake::onUdpBindFailed_page8(const QString &errorString)
 void shiboqi_remake::onSpectrumReady(const SpectrumAnalysisResult &result)
 {
     if (!ui) return;
+    
+    // 性能优化：只在频谱页面激活时更新显示
+    if (!isSpectrumPageActive) {
+        qDebug() << "频谱页面未激活，跳过显示更新（数据已接收）";
+        return;
+    }
 
     qDebug() << "收到频谱分析结果：主频率 =" << result.dominantFrequency << "Hz, 幅度 =" << result.dominantAmplitude << "V";
 
-    // 延时 0.15 秒后更新频谱显示，避免频繁刷新
-    QTimer::singleShot(150, this, [this, result]() {
-        if (!ui) return;
+    // 缓存最新的频谱分析结果，由定时器定期更新标签（减少跳动）
+    lastSpectrumResult = result;
 
-        // 更新 page_8 的显示标签（使用主频率和幅度）
-        ui->Frequency_in_3->setText(QString("%1 Hz").arg(QString::number(result.dominantFrequency, 'f', 2)));
-        ui->Amplitude_in_3->setText(QString("%1 V").arg(QString::number(result.dominantAmplitude, 'f', 3)));
+    // 延时 30ms 后更新频谱图（保持高刷新率），但不更新数据标签
+    // 使用 Qt::QueuedConnection 确保在主线程中执行，并且检查页面状态
+    QTimer::singleShot(30, this, [this, result]() {
+        // 再次检查UI指针和页面激活状态，防止切换页面后崩溃
+        if (!ui || !customPlot_page8 || !isSpectrumPageActive) {
+            qDebug() << "延时回调时页面已切换，取消频谱更新";
+            return;
+        }
 
-        // 在 customPlot_page8 上绘制频谱图
+        // 检查数据有效性
+        if (result.frequencies.isEmpty() || result.amplitudes.isEmpty()) {
+            qWarning() << "频谱数据为空，跳过绘制";
+            return;
+        }
+
+        // 在 customPlot_page8 上绘制频谱图（快速刷新）
         if (customPlot_page8 && !result.frequencies.isEmpty()) {
-            // 清空并重新设置图形
-            customPlot_page8->clearGraphs();
-            customPlot_page8->addGraph();
-            customPlot_page8->graph(0)->setPen(QPen(Qt::red, 2));
-            customPlot_page8->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 50))); // 半透明填充
+            try {
+                // 清空并重新设置图形
+                customPlot_page8->clearGraphs();
+                customPlot_page8->addGraph();
+                
+                if (customPlot_page8->graphCount() > 0 && customPlot_page8->graph(0)) {
+                    customPlot_page8->graph(0)->setPen(QPen(Qt::red, 2));
+                    customPlot_page8->graph(0)->setBrush(QBrush(QColor(255, 0, 0, 50))); // 半透明填充
 
-            // 设置数据
-            customPlot_page8->graph(0)->setData(result.frequencies, result.amplitudes);
+                    // 设置数据
+                    customPlot_page8->graph(0)->setData(result.frequencies, result.amplitudes);
 
-            // 自动调整坐标轴范围
-            customPlot_page8->xAxis->setLabel("Frequency (Hz)");
-            customPlot_page8->yAxis->setLabel("Amplitude (V)");
-            customPlot_page8->xAxis->setRange(0, result.frequencies.last());
-            customPlot_page8->yAxis->setRange(0, *std::max_element(result.amplitudes.begin(), result.amplitudes.end()) * 1.1);
+                    // 自动调整坐标轴范围
+                    customPlot_page8->xAxis->setLabel("Frequency (Hz)");
+                    customPlot_page8->yAxis->setLabel("Amplitude (V)");
+                    customPlot_page8->xAxis->setRange(0, result.frequencies.last());
+                    
+                    // 安全获取最大值
+                    auto maxIt = std::max_element(result.amplitudes.begin(), result.amplitudes.end());
+                    if (maxIt != result.amplitudes.end()) {
+                        customPlot_page8->yAxis->setRange(0, (*maxIt) * 1.1);
+                    }
 
-            // 重绘
-            customPlot_page8->replot();
+                    // 重绘
+                    customPlot_page8->replot();
 
-            qDebug() << "频谱图已绘制，频率范围：0 -" << result.frequencies.last() << "Hz";
+                    qDebug() << "频谱图已绘制，频率范围：0 -" << result.frequencies.last() << "Hz";
+                }
+            } catch (const std::exception &e) {
+                qWarning() << "频谱绘制异常：" << e.what();
+            } catch (...) {
+                qWarning() << "频谱绘制未知异常";
+            }
         }
     });
 }
 
 /**
- * @brief 同步 page_5 的设置参数到 page_8
+ * @brief 同步 page_5 和 page_8 的设置参数（智能双向同步）
  * 
- * 定期将 page_5 的 IP、端口、数据个数、分频系数、通道等参数同步到 page_8
- * 避免用户需要在两个页面重复输入相同的设置
+ * 检测用户在哪个页面修改了参数,只同步被修改的那一方到另一方
+ * 避免覆盖用户正在输入的内容
  */
 void shiboqi_remake::syncSettingsToPage8()
 {
     if (!ui) return;
     
-    // 同步本地 IP 地址
-    if (ui->ipLineEdit_4->text() != ui->ipLineEdit_5->text()) {
+    // 获取当前值
+    QString currentIp4 = ui->ipLineEdit_4->text();
+    QString currentIp5 = ui->ipLineEdit_5->text();
+    quint16 currentPort4 = ui->portSpinBox_4->value();
+    quint16 currentPort5 = ui->portSpinBox_5->value();
+    QString currentTargetIp4 = ui->targetIpLineEdit_4->text();
+    QString currentTargetIp5 = ui->targetIpLineEdit_5->text();
+    quint16 currentTargetPort4 = ui->targetPortSpinBox_4->value();
+    quint16 currentTargetPort5 = ui->targetPortSpinBox_5->value();
+    quint32 currentDataNum4 = ui->dataNumSpinBox_4->value();
+    quint32 currentDataNum5 = ui->dataNumSpinBox_5->value();
+    
+    // 检测并同步本地IP地址
+    if (currentIp4 != lastIp4 && currentIp5 == lastIp5) {
+        // page_5被修改,同步到page_8
         ui->ipLineEdit_5->blockSignals(true);
-        ui->ipLineEdit_5->setText(ui->ipLineEdit_4->text());
+        ui->ipLineEdit_5->setText(currentIp4);
         ui->ipLineEdit_5->blockSignals(false);
+        lastIp5 = currentIp4;
+    } else if (currentIp5 != lastIp5 && currentIp4 == lastIp4) {
+        // page_8被修改,同步到page_5
+        ui->ipLineEdit_4->blockSignals(true);
+        ui->ipLineEdit_4->setText(currentIp5);
+        ui->ipLineEdit_4->blockSignals(false);
+        lastIp4 = currentIp5;
     }
+    lastIp4 = ui->ipLineEdit_4->text();
+    lastIp5 = ui->ipLineEdit_5->text();
     
-    // 同步本地端口
-    if (ui->portSpinBox_4->value() != ui->portSpinBox_5->value()) {
+    // 检测并同步本地端口
+    if (currentPort4 != lastPort4 && currentPort5 == lastPort5) {
         ui->portSpinBox_5->blockSignals(true);
-        ui->portSpinBox_5->setValue(ui->portSpinBox_4->value());
+        ui->portSpinBox_5->setValue(currentPort4);
         ui->portSpinBox_5->blockSignals(false);
+        lastPort5 = currentPort4;
+    } else if (currentPort5 != lastPort5 && currentPort4 == lastPort4) {
+        ui->portSpinBox_4->blockSignals(true);
+        ui->portSpinBox_4->setValue(currentPort5);
+        ui->portSpinBox_4->blockSignals(false);
+        lastPort4 = currentPort5;
     }
+    lastPort4 = ui->portSpinBox_4->value();
+    lastPort5 = ui->portSpinBox_5->value();
     
-    // 同步目标 IP 地址
-    if (ui->targetIpLineEdit_4->text() != ui->targetIpLineEdit_5->text()) {
+    // 检测并同步目标IP地址
+    if (currentTargetIp4 != lastTargetIp4 && currentTargetIp5 == lastTargetIp5) {
         ui->targetIpLineEdit_5->blockSignals(true);
-        ui->targetIpLineEdit_5->setText(ui->targetIpLineEdit_4->text());
+        ui->targetIpLineEdit_5->setText(currentTargetIp4);
         ui->targetIpLineEdit_5->blockSignals(false);
+        lastTargetIp5 = currentTargetIp4;
+    } else if (currentTargetIp5 != lastTargetIp5 && currentTargetIp4 == lastTargetIp4) {
+        ui->targetIpLineEdit_4->blockSignals(true);
+        ui->targetIpLineEdit_4->setText(currentTargetIp5);
+        ui->targetIpLineEdit_4->blockSignals(false);
+        lastTargetIp4 = currentTargetIp5;
     }
+    lastTargetIp4 = ui->targetIpLineEdit_4->text();
+    lastTargetIp5 = ui->targetIpLineEdit_5->text();
     
-    // 同步目标端口
-    if (ui->targetPortSpinBox_4->value() != ui->targetPortSpinBox_5->value()) {
+    // 检测并同步目标端口
+    if (currentTargetPort4 != lastTargetPort4 && currentTargetPort5 == lastTargetPort5) {
         ui->targetPortSpinBox_5->blockSignals(true);
-        ui->targetPortSpinBox_5->setValue(ui->targetPortSpinBox_4->value());
+        ui->targetPortSpinBox_5->setValue(currentTargetPort4);
         ui->targetPortSpinBox_5->blockSignals(false);
+        lastTargetPort5 = currentTargetPort4;
+    } else if (currentTargetPort5 != lastTargetPort5 && currentTargetPort4 == lastTargetPort4) {
+        ui->targetPortSpinBox_4->blockSignals(true);
+        ui->targetPortSpinBox_4->setValue(currentTargetPort5);
+        ui->targetPortSpinBox_4->blockSignals(false);
+        lastTargetPort4 = currentTargetPort5;
     }
+    lastTargetPort4 = ui->targetPortSpinBox_4->value();
+    lastTargetPort5 = ui->targetPortSpinBox_5->value();
     
-    // 同步数据个数
-    if (ui->dataNumSpinBox_4->value() != ui->dataNumSpinBox_5->value()) {
+    // 检测并同步数据个数
+    if (currentDataNum4 != lastDataNum4 && currentDataNum5 == lastDataNum5) {
         ui->dataNumSpinBox_5->blockSignals(true);
-        ui->dataNumSpinBox_5->setValue(ui->dataNumSpinBox_4->value());
+        ui->dataNumSpinBox_5->setValue(currentDataNum4);
         ui->dataNumSpinBox_5->blockSignals(false);
+        lastDataNum5 = currentDataNum4;
+    } else if (currentDataNum5 != lastDataNum5 && currentDataNum4 == lastDataNum4) {
+        ui->dataNumSpinBox_4->blockSignals(true);
+        ui->dataNumSpinBox_4->setValue(currentDataNum5);
+        ui->dataNumSpinBox_4->blockSignals(false);
+        lastDataNum4 = currentDataNum5;
+    }
+    lastDataNum4 = ui->dataNumSpinBox_4->value();
+    lastDataNum5 = ui->dataNumSpinBox_5->value();
+}
+
+// ==================== 手绘波形功能实现 ====================
+
+/**
+ * @brief 手绘模式按钮切换槽函数
+ * @param checked true表示开启手绘模式，false表示关闭手绘模式
+ */
+void shiboqi_remake::on_handDrawButton_toggled(bool checked)
+{
+    isHandDrawMode = checked;
+    
+    if (checked) {
+        qDebug() << "手绘模式已开启";
+        
+        // 禁用切换波形按钮
+        if (ui->waveformSwitchButton) {
+            ui->waveformSwitchButton->setEnabled(false);
+        }
+        
+        // 更新标签显示为"手绘波形"
+        if (ui->currentWaveformLabel) {
+            ui->currentWaveformLabel->setText("当前波形: ✏️ 手绘波形");
+        }
+        
+        // 清空之前的绘制
+        if (ui->boxingxianshi && ui->boxingxianshi->graphCount() > 0) {
+            ui->boxingxianshi->graph(0)->data()->clear();
+            ui->boxingxianshi->replot();
+        }
+    } else {
+        qDebug() << "手绘模式已关闭";
+        isDrawing = false;
+        
+        // 启用切换波形按钮
+        if (ui->waveformSwitchButton) {
+            ui->waveformSwitchButton->setEnabled(true);
+        }
+        
+        // 恢复显示当前波形类型
+        QString waveformNames[] = {"锯齿波", "正弦波", "方波", "三角波"};
+        QString waveformEmojis[] = {"📐", "〰️", "▭", "🔺"};
+        if (ui->currentWaveformLabel && currentWaveformType < 4) {
+            ui->currentWaveformLabel->setText(
+                QString("当前波形: %1 %2").arg(waveformEmojis[currentWaveformType]).arg(waveformNames[currentWaveformType])
+            );
+        }
+    }
+}
+
+/**
+ * @brief 清除绘制按钮点击槽函数
+ */
+void shiboqi_remake::on_clearDrawButton_clicked()
+{
+    // 清空手绘点集合
+    handDrawnPoints.clear();
+    handDrawnWaveform.clear();
+    
+    // 清空显示
+    if (ui->boxingxianshi && ui->boxingxianshi->graphCount() > 0) {
+        ui->boxingxianshi->graph(0)->data()->clear();
+        ui->boxingxianshi->replot();
     }
     
-    // 同步分频系数
-    if (ui->dividerSpinBox_4->value() != ui->dividerSpinBox_5->value()) {
-        ui->dividerSpinBox_5->blockSignals(true);
-        ui->dividerSpinBox_5->setValue(ui->dividerSpinBox_4->value());
-        ui->dividerSpinBox_5->blockSignals(false);
+    qDebug() << "手绘波形已清除";
+}
+
+/**
+ * @brief 保存并发送按钮点击槽函数
+ */
+void shiboqi_remake::on_saveAndSendButton_clicked()
+{
+    // 检查是否有足够的绘制点
+    if (handDrawnPoints.size() < 2) {
+        qDebug() << "绘制点不足，无法发送波形";
+        return;
     }
     
-    // 同步通道
-    if (ui->channelSpinBox_4->value() != ui->channelSpinBox_5->value()) {
-        ui->channelSpinBox_5->blockSignals(true);
-        ui->channelSpinBox_5->setValue(ui->channelSpinBox_4->value());
-        ui->channelSpinBox_5->blockSignals(false);
+    // 检查线程是否正在运行
+    if (waveformSenderThread && waveformSenderThread->isRunning()) {
+        qDebug() << "波形正在发送中，请等待...";
+        return;
+    }
+    
+    // 插值为1024点
+    interpolateHandDrawnWaveform();
+    
+    // 翻转Y轴数据
+    flipYAxisData();
+    
+    // 发送波形数据
+    sendHandDrawnWaveform();
+    
+    qDebug() << "手绘波形已保存并开始发送";
+}
+
+/**
+ * @brief 将手绘点集合插值为1024点波形数据
+ * 
+ * 参考 udp_test.py 的逻辑，将用户手绘的点插值为1024个采样点
+ * 每个点的值范围为 0-1023 (10位)
+ */
+void shiboqi_remake::interpolateHandDrawnWaveform()
+{
+    handDrawnWaveform.clear();
+    
+    if (handDrawnPoints.size() < 2) {
+        qWarning() << "手绘点数不足，无法插值";
+        return;
+    }
+    
+    // 按 x 坐标排序
+    QVector<QPointF> sortedPoints = handDrawnPoints;
+    std::sort(sortedPoints.begin(), sortedPoints.end(), 
+              [](const QPointF &a, const QPointF &b) { return a.x() < b.x(); });
+    
+    const int NUM_SAMPLES = 1024;
+    handDrawnWaveform.reserve(NUM_SAMPLES);
+    
+    // 线性插值生成1024个点
+    for (int i = 0; i < NUM_SAMPLES; ++i) {
+        double targetX = double(i) / (NUM_SAMPLES - 1); // 0.0 到 1.0
+        
+        // 找到 targetX 左右两个点
+        int leftIdx = 0;
+        for (int j = 0; j < sortedPoints.size() - 1; ++j) {
+            if (sortedPoints[j].x() <= targetX && targetX <= sortedPoints[j + 1].x()) {
+                leftIdx = j;
+                break;
+            }
+        }
+        
+        // 如果 targetX 超出范围，使用边界值
+        if (targetX < sortedPoints.first().x()) {
+            handDrawnWaveform.append(static_cast<quint16>(qBound(0.0, sortedPoints.first().y(), 1023.0)));
+        } else if (targetX > sortedPoints.last().x()) {
+            handDrawnWaveform.append(static_cast<quint16>(qBound(0.0, sortedPoints.last().y(), 1023.0)));
+        } else {
+            // 线性插值
+            QPointF p1 = sortedPoints[leftIdx];
+            QPointF p2 = sortedPoints[leftIdx + 1];
+            
+            double t = (targetX - p1.x()) / (p2.x() - p1.x());
+            double y = p1.y() + t * (p2.y() - p1.y());
+            
+            handDrawnWaveform.append(static_cast<quint16>(qBound(0.0, y, 1023.0)));
+        }
+    }
+    
+    qDebug() << "插值完成，生成" << handDrawnWaveform.size() << "个采样点";
+}
+
+/**
+ * @brief 翻转Y轴数据（1023 - y）
+ * 
+ * 由于绘图坐标系和实际显示坐标系Y轴方向相反，
+ * 需要将所有Y坐标翻转，使发送的波形和手绘的波形一致
+ */
+void shiboqi_remake::flipYAxisData()
+{
+    for (int i = 0; i < handDrawnWaveform.size(); ++i) {
+        handDrawnWaveform[i] = 1023 - handDrawnWaveform[i];
+    }
+    
+    qDebug() << "Y轴数据已翻转";
+}
+
+/**
+ * @brief 发送手绘波形数据包
+ * 
+ * 使用独立线程发送波形数据，避免阻塞主线程
+ */
+void shiboqi_remake::sendHandDrawnWaveform()
+{
+    if (handDrawnWaveform.size() != 1024) {
+        qWarning() << "波形数据不是1024个点，无法发送";
+        return;
+    }
+
+    // 如果之前的线程还在运行，先停止它
+    if (waveformSenderThread && waveformSenderThread->isRunning()) {
+        qDebug() << "正在发送波形，请等待上一次发送完成...";
+        return;
+    }
+
+    // 获取目标地址和端口（从UdpSender获取，或使用默认值）
+    QHostAddress targetAddress("192.168.0.2");
+    quint16 targetPort = 5000;
+
+    // TODO: 如果需要，可以从UI读取目标地址
+    // targetAddress = QHostAddress(ui->targetIpLineEdit_4->text());
+    // targetPort = ui->targetPortSpinBox_4->value();
+
+    qDebug() << "创建波形发送线程...";
+    
+    // 创建新的发送线程
+    waveformSenderThread = new WaveformSenderThread(
+        handDrawnWaveform,
+        targetAddress,
+        targetPort,
+        1,  // 1ms延迟
+        this
+    );
+
+    // 连接线程信号
+    connect(waveformSenderThread, &WaveformSenderThread::progressUpdated,
+            this, &shiboqi_remake::onWaveformSendProgress);
+    connect(waveformSenderThread, &WaveformSenderThread::sendingCompleted,
+            this, &shiboqi_remake::onWaveformSendCompleted);
+    connect(waveformSenderThread, &WaveformSenderThread::sendingFailed,
+            this, &shiboqi_remake::onWaveformSendFailed);
+
+    // 线程完成后自动清理
+    connect(waveformSenderThread, &WaveformSenderThread::finished,
+            waveformSenderThread, &QObject::deleteLater);
+
+    // 在发送前切换波形类型为手绘波形（4）
+    udpSender->setWaveformType(4);
+    udpSender->sendWaveformCommand();
+
+    // 启动线程
+    waveformSenderThread->start();
+    qDebug() << "波形发送线程已启动（异步发送）";
+}
+
+/**
+ * @brief 波形发送进度更新槽函数
+ */
+void shiboqi_remake::onWaveformSendProgress(int current, int total)
+{
+    if (total <= 0) return;
+    
+    int percentage = (current * 100) / total;
+    qDebug() << "波形发送进度：" << current << "/" << total << "(" << percentage << "%)";
+    
+    // 更新UI进度显示
+    if (ui && ui->sendProgressLabel) {
+        ui->sendProgressLabel->setText(QString("发送进度: %1%").arg(percentage));
+        
+        // 根据进度改变颜色
+        if (percentage < 100) {
+            ui->sendProgressLabel->setStyleSheet(
+                "QLabel {"
+                "    background-color: #fff3cd;"
+                "    color: #856404;"
+                "    border: 2px solid #ffc107;"
+                "    border-radius: 8px;"
+                "    padding: 8px;"
+                "    font-size: 13px;"
+                "    font-weight: 600;"
+                "}"
+            );
+        }
+    }
+}
+
+/**
+ * @brief 波形发送完成槽函数
+ */
+void shiboqi_remake::onWaveformSendCompleted(int successCount, int totalCount)
+{
+    qDebug() << "✓ 波形发送完成！成功：" << successCount << "/" << totalCount;
+    
+    // 将线程指针置空（线程会通过deleteLater自动删除）
+    waveformSenderThread = nullptr;
+    
+    // 更新进度为100%并显示成功状态
+    if (ui && ui->sendProgressLabel) {
+        ui->sendProgressLabel->setText("发送完成: 100% ✓");
+        ui->sendProgressLabel->setStyleSheet(
+            "QLabel {"
+            "    background-color: #d4edda;"
+            "    color: #155724;"
+            "    border: 2px solid #28a745;"
+            "    border-radius: 8px;"
+            "    padding: 8px;"
+            "    font-size: 13px;"
+            "    font-weight: 600;"
+            "}"
+        );
+        
+        // 3秒后恢复默认样式
+        QTimer::singleShot(3000, this, [this]() {
+            if (ui && ui->sendProgressLabel) {
+                ui->sendProgressLabel->setText("发送进度: 0%");
+                ui->sendProgressLabel->setStyleSheet(
+                    "QLabel {"
+                    "    background-color: #e8f5e9;"
+                    "    color: #27ae60;"
+                    "    border: 2px solid #27ae60;"
+                    "    border-radius: 8px;"
+                    "    padding: 8px;"
+                    "    font-size: 13px;"
+                    "    font-weight: 600;"
+                    "}"
+                );
+            }
+        });
+    }
+    
+    qDebug() << "✓ 波形发送完成！波形已保留，可重复发送或点击'清除绘制'清空";
+    // TODO: 可以在UI上显示成功提示
+}
+
+/**
+ * @brief 波形发送失败槽函数
+ */
+void shiboqi_remake::onWaveformSendFailed(const QString &errorMessage)
+{
+    qWarning() << "✗ 波形发送失败：" << errorMessage;
+    
+    // 将线程指针置空（线程会通过deleteLater自动删除）
+    waveformSenderThread = nullptr;
+    
+    // 显示发送失败状态
+    if (ui && ui->sendProgressLabel) {
+        ui->sendProgressLabel->setText("发送失败 ✗");
+        ui->sendProgressLabel->setStyleSheet(
+            "QLabel {"
+            "    background-color: #f8d7da;"
+            "    color: #721c24;"
+            "    border: 2px solid #dc3545;"
+            "    border-radius: 8px;"
+            "    padding: 8px;"
+            "    font-size: 13px;"
+            "    font-weight: 600;"
+            "}"
+        );
+        
+        // 3秒后恢复默认样式
+        QTimer::singleShot(3000, this, [this]() {
+            if (ui && ui->sendProgressLabel) {
+                ui->sendProgressLabel->setText("发送进度: 0%");
+                ui->sendProgressLabel->setStyleSheet(
+                    "QLabel {"
+                    "    background-color: #e8f5e9;"
+                    "    color: #27ae60;"
+                    "    border: 2px solid #27ae60;"
+                    "    border-radius: 8px;"
+                    "    padding: 8px;"
+                    "    font-size: 13px;"
+                    "    font-weight: 600;"
+                    "}"
+                );
+            }
+        });
     }
 }

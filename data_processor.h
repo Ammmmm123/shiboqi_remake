@@ -48,6 +48,26 @@ public:
     WaveformAnalysisResult analyzeWaveform(const QVector<double>& voltages, const QVector<double>& times);
 
     /**
+     * @brief 设置ADC采样配置（用于智能累积策略）
+     * @param totalSamples 一次连续采样的总点数（分多个UDP包发送）
+     * @param sampleRate 采样率（Hz），默认50MHz
+     * 
+     * 关键理解：
+     * - totalSamples是一次连续采样的总数据点（例如500,000）
+     * - 这些数据会被分成多个UDP包发送
+     * - 采样窗口时间 = totalSamples / sampleRate
+     * - 处理器需要累积所有UDP包，直到收集完整的一次采样批次
+     */
+    void setSamplingConfig(int totalSamples, double sampleRate = 50e6);
+    
+    /**
+     * @brief 标记新的采样批次开始
+     * 
+     * 当检测到时间戳重置或不连续时调用，表示开始接收新一批采样数据
+     */
+    void markNewSamplingBatch();
+
+    /**
      * @brief 重置数据处理器状态
      * 
      * 清空所有累积的数据缓冲区，将处理器恢复到初始状态。
@@ -71,8 +91,39 @@ signals:
     void downsampledDataReady(const QVector<double> &voltages, const QVector<double> &times);
 
 private:
-    QVector<double> accumulatedVoltages;  ///< 累积的电压数据
-    QVector<double> accumulatedTimes;     ///< 累积的时间数据
+    QVector<double> accumulatedVoltages;  ///< 累积的电压数据（单次采样批次内）
+    QVector<double> accumulatedTimes;     ///< 累积的时间数据（单次采样批次内）
+    
+    // ADC采样配置（新理解）
+    int configTotalSamples;   ///< 一次连续采样的总点数（分多个UDP包发送）
+    double configSampleRate;  ///< ADC采样率（Hz）
+    double samplingWindowUs;  ///< 单次采样窗口时间（微秒）= totalSamples / sampleRate * 1e6
+    
+    bool isNewBatch;          ///< 是否是新的采样批次
+    int currentBatchSize;     ///< 当前批次已收到的数据点数
+    double lastDetectedFrequency; ///< 上次检测到的频率（用于动态调节阈值）
+
+    /**
+     * @brief 根据信号频率动态计算批次完成阈值
+     * @param estimatedFreq 估计的信号频率（Hz）
+     * @return 批次完成阈值（0.0-1.0）
+     * 
+     * 动态策略：
+     * - 高频信号（>100kHz）：30-50%阈值，快速刷新
+     * - 中频信号（1kHz-100kHz）：60-80%阈值，平衡刷新率和精度
+     * - 低频信号（<1kHz）：90-95%阈值，保证测量精度
+     */
+    double calculateDynamicThreshold(double estimatedFreq) const;
+
+    /**
+     * @brief 快速估算信号频率（用于动态阈值计算）
+     * @param voltages 当前累积的电压数据
+     * @param times 当前累积的时间数据
+     * @return 估算的频率（Hz），0表示无法估算
+     * 
+     * 轻量级实现：只计算前几个过零点，避免全量扫描
+     */
+    double quickFrequencyEstimate(const QVector<double>& voltages, const QVector<double>& times) const;
 
     /**
      * @brief 核心分析引擎：基于完整周期计数的频率计算
@@ -101,26 +152,28 @@ private:
     double interpolateZeroCrossTime(double v1, double v2, double t1, double t2, double threshold) const;
 
     /**
-     * @brief 智能降采样：根据频率自适应减少数据点
-     * @param voltages 原始电压数据
-     * @param times 原始时间戳
-     * @param frequency 检测到的信号频率（Hz）
-     * @param outVoltages 输出：降采样后的电压
-     * @param outTimes 输出：降采样后的时间戳
-     * @return 降采样倍率
-     * 
-     * 策略：
-     * - 根据频率计算每周期最少保留点数（15个点/周期）
-     * - 使用抗混叠的降采样（局部平均而非简单跳点）
-     * - 保证极值点不丢失（峰值和谷值）
-     * - 自动适配不同频率（1Hz - 25MHz）
+     * @brief 基于FFT的频率检测（更准确，抗噪声能力强）
+     * @param voltages 电压数据
+     * @param sampleRate 采样率（Hz）
+     * @return 检测到的主频率（Hz），0表示检测失败
      */
-    int downsampleWaveform(
-        const QVector<double>& voltages, 
-        const QVector<double>& times, 
-        double frequency,
-        QVector<double>& outVoltages,
-        QVector<double>& outTimes) const;
+    double calculateFrequencyFFT(const QVector<double>& voltages, double sampleRate) const;
+
+private:
+    /**
+     * @brief Cooley-Tukey FFT算法实现（原位计算）
+     */
+    void fft(QVector<double>& real, QVector<double>& imag, bool inverse = false) const;
+
+    /**
+     * @brief 应用Hann窗函数
+     */
+    void applyHannWindow(QVector<double>& data) const;
+
+    /**
+     * @brief 计算下一个2的幂次方
+     */
+    int nextPowerOfTwo(int n) const;
 };
 
 #endif // DATA_PROCESSOR_H

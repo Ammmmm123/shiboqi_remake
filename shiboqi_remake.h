@@ -10,6 +10,7 @@
 #include "data_processor.h"
 #include "UART_receive.h"
 #include "spectrum_analyzer.h"
+#include "waveform_sender_thread.h"
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -79,15 +80,6 @@ private slots:
     void on_restartButton_clicked();
 
     /**
-     * @brief 数据接收槽函数
-     *
-     * 处理UDP接收到的数据，添加到缓冲池并触发更新。
-     * @param voltages 电压值向量
-     * @param times 时间向量
-     */
-    void onDataReceived(const QVector<double> &voltages, const QVector<double> &times);
-
-    /**
      * @brief 更新波形图
      *
      * 从缓冲池获取数据并更新显示。
@@ -147,6 +139,22 @@ private slots:
     void on_amplitudeDownButton_clicked();
 
     /**
+     * @brief 手绘模式按钮切换槽函数
+     * @param checked true表示开启手绘模式，false表示关闭手绘模式
+     */
+    void on_handDrawButton_toggled(bool checked);
+
+    /**
+     * @brief 清除绘制按钮点击槽函数
+     */
+    void on_clearDrawButton_clicked();
+
+    /**
+     * @brief 保存并发送按钮点击槽函数
+     */
+    void on_saveAndSendButton_clicked();
+
+    /**
      * @brief 串口连接按钮切换槽函数
      * @param checked true表示连接串口，false表示断开串口
      */
@@ -164,6 +172,26 @@ private slots:
      * @param frequency 频率（Hz）
      */
     void onParsedSerialData(int duty, int highTime, int lowTime, double frequency);
+
+    /**
+     * @brief 波形发送进度更新槽函数
+     * @param current 当前已发送的数据包数
+     * @param total 总数据包数
+     */
+    void onWaveformSendProgress(int current, int total);
+
+    /**
+     * @brief 波形发送完成槽函数
+     * @param successCount 成功发送的数据包数
+     * @param totalCount 总数据包数
+     */
+    void onWaveformSendCompleted(int successCount, int totalCount);
+
+    /**
+     * @brief 波形发送失败槽函数
+     * @param errorMessage 错误信息
+     */
+    void onWaveformSendFailed(const QString &errorMessage);
 
     // ===== page_8 频谱页面的槽函数（复制自page_5） =====
     void on_setButton_5_clicked();
@@ -186,6 +214,22 @@ private slots:
     void syncSettingsToPage8();
 
 private:
+    /**
+     * @brief 将手绘点集合插值为1024点波形数据
+     */
+    void interpolateHandDrawnWaveform();
+    
+    /**
+     * @brief 翻转Y轴数据（1023 - y）,使发送的波形和手绘的波形一致
+     */
+    void flipYAxisData();
+    
+    /**
+     * @brief 发送手绘波形数据包（使用独立线程发送）
+     */
+    void sendHandDrawnWaveform();
+
+private:
     Ui::shiboqi_remake *ui;      ///< UI界面指针
     UdpReceiver *udpReceiver;    ///< UDP接收器实例指针
     UdpSender *udpSender;        ///< UDP发送器实例指针
@@ -202,6 +246,14 @@ private:
     
     // 波形控制相关
     quint8 currentWaveformType;   ///< 当前波形类型 (0-3)
+    
+    // 手绘波形相关
+    bool isHandDrawMode;          ///< 是否处于手绘模式
+    bool isDrawing;               ///< 是否正在绘制
+    QVector<QPointF> handDrawnPoints; ///< 手绘的点集合
+    QVector<quint16> handDrawnWaveform; ///< 插值后的1024点波形数据(0-1023)
+    WaveformSenderThread *waveformSenderThread; ///< 波形发送线程
+    
     UARTReceiver *uartReceiver;   ///< UART接收器实例指针
     QTimer *portRefreshTimer;     ///< 定期刷新串口列表的定时器
     QString openPortName;         ///< 记录当前已打开的串口名称（便于在端口消失时处理）
@@ -211,5 +263,19 @@ private:
     bool errorDialogShown_page8;       ///< page_8 的错误对话框标志
     SpectrumAnalyzer *spectrumAnalyzer; ///< 频谱分析器实例
     QTimer *settingsSyncTimer;         ///< page_5 到 page_8 的设置同步定时器
+    QTimer *spectrumLabelUpdateTimer;  ///< 频谱数据标签更新定时器（节流）
+    SpectrumAnalysisResult lastSpectrumResult; ///< 缓存最新的频谱分析结果
+    
+    // 页面激活状态标志（性能优化）
+    bool isOscilloscopePageActive;     ///< 示波器页面是否激活
+    bool isSpectrumPageActive;         ///< 频谱页面是否激活
+    bool hasUserZoomed;                ///< 用户是否手动缩放过示波器（禁用自动缩放）
+    
+    // UDP参数缓存（用于检测用户修改）
+    QString lastIp4, lastIp5;
+    quint16 lastPort4, lastPort5;
+    QString lastTargetIp4, lastTargetIp5;
+    quint16 lastTargetPort4, lastTargetPort5;
+    quint32 lastDataNum4, lastDataNum5;
 };
 #endif // SHIBOQI_REMAKE_H

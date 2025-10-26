@@ -10,7 +10,6 @@
 #define UI_SHIBOQI_REMAKE_H
 
 #include <QtCore/QVariant>
-#include <QtWidgets/QAction>
 #include <QtWidgets/QApplication>
 #include <QtWidgets/QComboBox>
 #include <QtWidgets/QGroupBox>
@@ -18,12 +17,10 @@
 #include <QtWidgets/QLabel>
 #include <QtWidgets/QLineEdit>
 #include <QtWidgets/QMainWindow>
-#include <QtWidgets/QMenu>
-#include <QtWidgets/QMenuBar>
 #include <QtWidgets/QPushButton>
+#include <QtWidgets/QSpacerItem>
 #include <QtWidgets/QSpinBox>
 #include <QtWidgets/QStackedWidget>
-#include <QtWidgets/QStatusBar>
 #include <QtWidgets/QVBoxLayout>
 #include <QtWidgets/QWidget>
 #include "qcustomplot.h"
@@ -35,6 +32,15 @@ class Ui_shiboqi_remake
 public:
     QWidget *centralwidget;
     QHBoxLayout *horizontalLayout_main;
+    QWidget *sidebarWidget;
+    QVBoxLayout *verticalLayout_sidebar;
+    QLabel *titleLabel;
+    QLabel *menuLabel;
+    QPushButton *navButton_oscilloscope;
+    QPushButton *navButton_dds;
+    QPushButton *navButton_digital;
+    QPushButton *navButton_spectrum;
+    QSpacerItem *verticalSpacer;
     QStackedWidget *stackedWidget;
     QWidget *page_5;
     QHBoxLayout *horizontalLayout_3;
@@ -56,12 +62,6 @@ public:
     QHBoxLayout *horizontalLayout_28;
     QLabel *label_22;
     QSpinBox *portSpinBox_4;
-    QHBoxLayout *horizontalLayout_29;
-    QLabel *label_23;
-    QSpinBox *channelSpinBox_4;
-    QHBoxLayout *horizontalLayout_30;
-    QLabel *label_24;
-    QSpinBox *dividerSpinBox_4;
     QHBoxLayout *horizontalLayout_31;
     QLabel *label_25;
     QSpinBox *dataNumSpinBox_4;
@@ -83,11 +83,19 @@ public:
     QHBoxLayout *horizontalLayout_36;
     QCustomPlot *boxingxianshi;
     QVBoxLayout *verticalLayout_12;
+    QLabel *label_dds_title;
     QPushButton *waveformSwitchButton;
+    QPushButton *handDrawButton;
+    QPushButton *clearDrawButton;
+    QPushButton *saveAndSendButton;
+    QLabel *label_separator1;
     QPushButton *frequencyUpButton;
     QPushButton *frequencyDownButton;
     QPushButton *amplitudeUpButton;
     QPushButton *amplitudeDownButton;
+    QLabel *label_separator2;
+    QLabel *currentWaveformLabel;
+    QSpacerItem *verticalSpacer_dds;
     QWidget *page_7;
     QHBoxLayout *horizontalLayout_5;
     QVBoxLayout *verticalLayout_13;
@@ -120,12 +128,6 @@ public:
     QHBoxLayout *horizontalLayout_39;
     QLabel *label_29;
     QSpinBox *portSpinBox_5;
-    QHBoxLayout *horizontalLayout_40;
-    QLabel *label_30;
-    QSpinBox *channelSpinBox_5;
-    QHBoxLayout *horizontalLayout_41;
-    QLabel *label_31;
-    QSpinBox *dividerSpinBox_5;
     QHBoxLayout *horizontalLayout_42;
     QLabel *label_32;
     QSpinBox *dataNumSpinBox_5;
@@ -142,12 +144,6 @@ public:
     QPushButton *listenButton_5;
     QPushButton *loopSendButton_5;
     QPushButton *restartButton_5;
-    QMenuBar *menubar;
-    QMenu *menu;
-    QMenu *menuDDS;
-    QMenu *menu_2;
-    QMenu *menu_3;
-    QStatusBar *statusbar;
 
     void setupUi(QMainWindow *shiboqi_remake)
     {
@@ -161,6 +157,94 @@ public:
         horizontalLayout_main->setObjectName(QString::fromUtf8("horizontalLayout_main"));
         horizontalLayout_main->setSizeConstraint(QLayout::SetMaximumSize);
         horizontalLayout_main->setContentsMargins(0, 0, 0, 0);
+        sidebarWidget = new QWidget(centralwidget);
+        sidebarWidget->setObjectName(QString::fromUtf8("sidebarWidget"));
+        sidebarWidget->setMinimumSize(QSize(200, 0));
+        sidebarWidget->setMaximumSize(QSize(200, 16777215));
+        sidebarWidget->setStyleSheet(QString::fromUtf8("QWidget#sidebarWidget {\n"
+"    background-color: #2c3e50;\n"
+"}\n"
+"\n"
+"QPushButton {\n"
+"    background-color: transparent;\n"
+"    color: #ecf0f1;\n"
+"    text-align: left;\n"
+"    padding: 15px 20px;\n"
+"    border: none;\n"
+"    border-left: 3px solid transparent;\n"
+"    font-size: 14px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #34495e;\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: #34495e;\n"
+"    border-left: 3px solid #3498db;\n"
+"    font-weight: bold;\n"
+"}\n"
+"\n"
+"QLabel {\n"
+"    color: #95a5a6;\n"
+"    padding: 10px 20px;\n"
+"    font-size: 12px;\n"
+"}"));
+        verticalLayout_sidebar = new QVBoxLayout(sidebarWidget);
+        verticalLayout_sidebar->setSpacing(0);
+        verticalLayout_sidebar->setObjectName(QString::fromUtf8("verticalLayout_sidebar"));
+        verticalLayout_sidebar->setContentsMargins(0, 0, 0, 0);
+        titleLabel = new QLabel(sidebarWidget);
+        titleLabel->setObjectName(QString::fromUtf8("titleLabel"));
+        titleLabel->setMinimumSize(QSize(0, 60));
+        titleLabel->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    background-color: #1a252f;\n"
+"    color: #3498db;\n"
+"    font-size: 18px;\n"
+"    font-weight: bold;\n"
+"    padding: 20px;\n"
+"}"));
+        titleLabel->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_sidebar->addWidget(titleLabel);
+
+        menuLabel = new QLabel(sidebarWidget);
+        menuLabel->setObjectName(QString::fromUtf8("menuLabel"));
+
+        verticalLayout_sidebar->addWidget(menuLabel);
+
+        navButton_oscilloscope = new QPushButton(sidebarWidget);
+        navButton_oscilloscope->setObjectName(QString::fromUtf8("navButton_oscilloscope"));
+        navButton_oscilloscope->setCheckable(true);
+        navButton_oscilloscope->setChecked(true);
+
+        verticalLayout_sidebar->addWidget(navButton_oscilloscope);
+
+        navButton_dds = new QPushButton(sidebarWidget);
+        navButton_dds->setObjectName(QString::fromUtf8("navButton_dds"));
+        navButton_dds->setCheckable(true);
+
+        verticalLayout_sidebar->addWidget(navButton_dds);
+
+        navButton_digital = new QPushButton(sidebarWidget);
+        navButton_digital->setObjectName(QString::fromUtf8("navButton_digital"));
+        navButton_digital->setCheckable(true);
+
+        verticalLayout_sidebar->addWidget(navButton_digital);
+
+        navButton_spectrum = new QPushButton(sidebarWidget);
+        navButton_spectrum->setObjectName(QString::fromUtf8("navButton_spectrum"));
+        navButton_spectrum->setCheckable(true);
+
+        verticalLayout_sidebar->addWidget(navButton_spectrum);
+
+        verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_sidebar->addItem(verticalSpacer);
+
+
+        horizontalLayout_main->addWidget(sidebarWidget);
+
         stackedWidget = new QStackedWidget(centralwidget);
         stackedWidget->setObjectName(QString::fromUtf8("stackedWidget"));
         QSizePolicy sizePolicy(QSizePolicy::Preferred, QSizePolicy::Preferred);
@@ -190,41 +274,89 @@ public:
         horizontalLayout_27->setContentsMargins(60, -1, -1, -1);
         Frequency_2 = new QLabel(page_5);
         Frequency_2->setObjectName(QString::fromUtf8("Frequency_2"));
+        Frequency_2->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_27->addWidget(Frequency_2, 0, Qt::AlignRight);
 
         Frequency_in_2 = new QLabel(page_5);
         Frequency_in_2->setObjectName(QString::fromUtf8("Frequency_in_2"));
+        Frequency_in_2->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_27->addWidget(Frequency_in_2, 0, Qt::AlignLeft);
 
         Amplitude_2 = new QLabel(page_5);
         Amplitude_2->setObjectName(QString::fromUtf8("Amplitude_2"));
+        Amplitude_2->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_27->addWidget(Amplitude_2, 0, Qt::AlignRight);
 
         Amplitude_in_2 = new QLabel(page_5);
         Amplitude_in_2->setObjectName(QString::fromUtf8("Amplitude_in_2"));
+        Amplitude_in_2->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_27->addWidget(Amplitude_in_2, 0, Qt::AlignLeft);
 
         VPP_2 = new QLabel(page_5);
         VPP_2->setObjectName(QString::fromUtf8("VPP_2"));
+        VPP_2->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_27->addWidget(VPP_2, 0, Qt::AlignRight);
 
         VPP_in_2 = new QLabel(page_5);
         VPP_in_2->setObjectName(QString::fromUtf8("VPP_in_2"));
+        VPP_in_2->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_27->addWidget(VPP_in_2, 0, Qt::AlignLeft);
 
         V_MAX_2 = new QLabel(page_5);
         V_MAX_2->setObjectName(QString::fromUtf8("V_MAX_2"));
+        V_MAX_2->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_27->addWidget(V_MAX_2, 0, Qt::AlignRight);
 
         V_MAX_in_2 = new QLabel(page_5);
         V_MAX_in_2->setObjectName(QString::fromUtf8("V_MAX_in_2"));
+        V_MAX_in_2->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_27->addWidget(V_MAX_in_2, 0, Qt::AlignLeft);
 
@@ -281,58 +413,6 @@ public:
 
 
         verticalLayout_11->addLayout(horizontalLayout_28);
-
-        horizontalLayout_29 = new QHBoxLayout();
-        horizontalLayout_29->setSpacing(5);
-        horizontalLayout_29->setObjectName(QString::fromUtf8("horizontalLayout_29"));
-        horizontalLayout_29->setContentsMargins(-1, -1, 30, -1);
-        label_23 = new QLabel(groupBox);
-        label_23->setObjectName(QString::fromUtf8("label_23"));
-        label_23->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_29->addWidget(label_23);
-
-        channelSpinBox_4 = new QSpinBox(groupBox);
-        channelSpinBox_4->setObjectName(QString::fromUtf8("channelSpinBox_4"));
-        sizePolicy1.setHeightForWidth(channelSpinBox_4->sizePolicy().hasHeightForWidth());
-        channelSpinBox_4->setSizePolicy(sizePolicy1);
-        channelSpinBox_4->setMinimumSize(QSize(80, 0));
-        channelSpinBox_4->setFrame(false);
-        channelSpinBox_4->setButtonSymbols(QAbstractSpinBox::NoButtons);
-        channelSpinBox_4->setMinimum(0);
-        channelSpinBox_4->setMaximum(2);
-        channelSpinBox_4->setValue(0);
-
-        horizontalLayout_29->addWidget(channelSpinBox_4);
-
-
-        verticalLayout_11->addLayout(horizontalLayout_29);
-
-        horizontalLayout_30 = new QHBoxLayout();
-        horizontalLayout_30->setSpacing(5);
-        horizontalLayout_30->setObjectName(QString::fromUtf8("horizontalLayout_30"));
-        horizontalLayout_30->setContentsMargins(-1, -1, 30, -1);
-        label_24 = new QLabel(groupBox);
-        label_24->setObjectName(QString::fromUtf8("label_24"));
-        label_24->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_30->addWidget(label_24, 0, Qt::AlignVCenter);
-
-        dividerSpinBox_4 = new QSpinBox(groupBox);
-        dividerSpinBox_4->setObjectName(QString::fromUtf8("dividerSpinBox_4"));
-        sizePolicy1.setHeightForWidth(dividerSpinBox_4->sizePolicy().hasHeightForWidth());
-        dividerSpinBox_4->setSizePolicy(sizePolicy1);
-        dividerSpinBox_4->setMinimumSize(QSize(80, 0));
-        dividerSpinBox_4->setFrame(false);
-        dividerSpinBox_4->setButtonSymbols(QAbstractSpinBox::NoButtons);
-        dividerSpinBox_4->setMinimum(0);
-        dividerSpinBox_4->setMaximum(1000000);
-        dividerSpinBox_4->setValue(0);
-
-        horizontalLayout_30->addWidget(dividerSpinBox_4);
-
-
-        verticalLayout_11->addLayout(horizontalLayout_30);
 
         horizontalLayout_31 = new QHBoxLayout();
         horizontalLayout_31->setSpacing(5);
@@ -431,23 +511,107 @@ public:
 
         setButton_4 = new QPushButton(groupBox);
         setButton_4->setObjectName(QString::fromUtf8("setButton_4"));
+        setButton_4->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #3498db;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #2980b9;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #21618c;\n"
+"}"));
 
         verticalLayout_10->addWidget(setButton_4);
 
         listenButton_4 = new QPushButton(groupBox);
         listenButton_4->setObjectName(QString::fromUtf8("listenButton_4"));
+        listenButton_4->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #27ae60;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #229954;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #1e8449;\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: #e74c3c;\n"
+"}\n"
+"\n"
+"QPushButton:checked:hover {\n"
+"    background-color: #c0392b;\n"
+"}"));
         listenButton_4->setCheckable(true);
 
         verticalLayout_10->addWidget(listenButton_4);
 
         loopSendButton_4 = new QPushButton(groupBox);
         loopSendButton_4->setObjectName(QString::fromUtf8("loopSendButton_4"));
+        loopSendButton_4->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #f39c12;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #e67e22;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #d35400;\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: #e74c3c;\n"
+"}\n"
+"\n"
+"QPushButton:checked:hover {\n"
+"    background-color: #c0392b;\n"
+"}"));
         loopSendButton_4->setCheckable(true);
 
         verticalLayout_10->addWidget(loopSendButton_4);
 
         restartButton_4 = new QPushButton(groupBox);
         restartButton_4->setObjectName(QString::fromUtf8("restartButton_4"));
+        restartButton_4->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #9b59b6;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #8e44ad;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #7d3c98;\n"
+"}"));
 
         verticalLayout_10->addWidget(restartButton_4);
 
@@ -468,40 +632,268 @@ public:
         horizontalLayout_36->setObjectName(QString::fromUtf8("horizontalLayout_36"));
         boxingxianshi = new QCustomPlot(page_6);
         boxingxianshi->setObjectName(QString::fromUtf8("boxingxianshi"));
+        boxingxianshi->setStyleSheet(QString::fromUtf8("QCustomPlot {\n"
+"    border: 2px solid #34495e;\n"
+"    border-radius: 10px;\n"
+"    background-color: white;\n"
+"}"));
 
         horizontalLayout_36->addWidget(boxingxianshi);
 
         verticalLayout_12 = new QVBoxLayout();
+        verticalLayout_12->setSpacing(10);
         verticalLayout_12->setObjectName(QString::fromUtf8("verticalLayout_12"));
+        verticalLayout_12->setContentsMargins(10, 10, 10, 10);
+        label_dds_title = new QLabel(page_6);
+        label_dds_title->setObjectName(QString::fromUtf8("label_dds_title"));
+        label_dds_title->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    font-size: 16px;\n"
+"    font-weight: bold;\n"
+"    color: #2c3e50;\n"
+"    padding: 5px;\n"
+"}"));
+        label_dds_title->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_12->addWidget(label_dds_title);
+
         waveformSwitchButton = new QPushButton(page_6);
         waveformSwitchButton->setObjectName(QString::fromUtf8("waveformSwitchButton"));
+        waveformSwitchButton->setMinimumSize(QSize(0, 45));
+        waveformSwitchButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #3498db;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #2980b9;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #21618c;\n"
+"}"));
 
         verticalLayout_12->addWidget(waveformSwitchButton);
 
+        handDrawButton = new QPushButton(page_6);
+        handDrawButton->setObjectName(QString::fromUtf8("handDrawButton"));
+        handDrawButton->setMinimumSize(QSize(0, 45));
+        handDrawButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #e74c3c;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #c0392b;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #a93226;\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: #27ae60;\n"
+"}\n"
+"\n"
+"QPushButton:checked:hover {\n"
+"    background-color: #229954;\n"
+"}"));
+        handDrawButton->setCheckable(true);
+
+        verticalLayout_12->addWidget(handDrawButton);
+
+        clearDrawButton = new QPushButton(page_6);
+        clearDrawButton->setObjectName(QString::fromUtf8("clearDrawButton"));
+        clearDrawButton->setMinimumSize(QSize(0, 40));
+        clearDrawButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #95a5a6;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 8px 12px;\n"
+"    font-size: 13px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #7f8c8d;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #66727a;\n"
+"}"));
+
+        verticalLayout_12->addWidget(clearDrawButton);
+
+        saveAndSendButton = new QPushButton(page_6);
+        saveAndSendButton->setObjectName(QString::fromUtf8("saveAndSendButton"));
+        saveAndSendButton->setMinimumSize(QSize(0, 45));
+        saveAndSendButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #9b59b6;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #8e44ad;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #7d3c98;\n"
+"}"));
+
+        verticalLayout_12->addWidget(saveAndSendButton);
+
+        label_separator1 = new QLabel(page_6);
+        label_separator1->setObjectName(QString::fromUtf8("label_separator1"));
+        label_separator1->setMinimumSize(QSize(0, 20));
+        label_separator1->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    background-color: #bdc3c7;\n"
+"    max-height: 2px;\n"
+"}"));
+
+        verticalLayout_12->addWidget(label_separator1);
+
         frequencyUpButton = new QPushButton(page_6);
         frequencyUpButton->setObjectName(QString::fromUtf8("frequencyUpButton"));
+        frequencyUpButton->setMinimumSize(QSize(0, 40));
+        frequencyUpButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #16a085;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 8px 12px;\n"
+"    font-size: 13px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #138d75;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #117a65;\n"
+"}"));
 
         verticalLayout_12->addWidget(frequencyUpButton);
 
         frequencyDownButton = new QPushButton(page_6);
         frequencyDownButton->setObjectName(QString::fromUtf8("frequencyDownButton"));
+        frequencyDownButton->setMinimumSize(QSize(0, 40));
+        frequencyDownButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #16a085;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 8px 12px;\n"
+"    font-size: 13px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #138d75;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #117a65;\n"
+"}"));
 
         verticalLayout_12->addWidget(frequencyDownButton);
 
         amplitudeUpButton = new QPushButton(page_6);
         amplitudeUpButton->setObjectName(QString::fromUtf8("amplitudeUpButton"));
+        amplitudeUpButton->setMinimumSize(QSize(0, 40));
+        amplitudeUpButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #f39c12;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 8px 12px;\n"
+"    font-size: 13px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #e67e22;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #d35400;\n"
+"}"));
 
         verticalLayout_12->addWidget(amplitudeUpButton);
 
         amplitudeDownButton = new QPushButton(page_6);
         amplitudeDownButton->setObjectName(QString::fromUtf8("amplitudeDownButton"));
+        amplitudeDownButton->setMinimumSize(QSize(0, 40));
+        amplitudeDownButton->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #f39c12;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 8px 12px;\n"
+"    font-size: 13px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #e67e22;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #d35400;\n"
+"}"));
 
         verticalLayout_12->addWidget(amplitudeDownButton);
+
+        label_separator2 = new QLabel(page_6);
+        label_separator2->setObjectName(QString::fromUtf8("label_separator2"));
+        label_separator2->setMinimumSize(QSize(0, 2));
+        label_separator2->setMaximumSize(QSize(16777215, 2));
+        label_separator2->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    background-color: #bdc3c7;\n"
+"    margin: 10px 0px;\n"
+"}"));
+
+        verticalLayout_12->addWidget(label_separator2);
+
+        currentWaveformLabel = new QLabel(page_6);
+        currentWaveformLabel->setObjectName(QString::fromUtf8("currentWaveformLabel"));
+        currentWaveformLabel->setMinimumSize(QSize(0, 50));
+        currentWaveformLabel->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    background-color: #ecf0f1;\n"
+"    color: #2c3e50;\n"
+"    border: 2px solid #bdc3c7;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"}"));
+        currentWaveformLabel->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_12->addWidget(currentWaveformLabel);
+
+        verticalSpacer_dds = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_12->addItem(verticalSpacer_dds);
 
 
         horizontalLayout_36->addLayout(verticalLayout_12);
 
-        horizontalLayout_36->setStretch(0, 2);
+        horizontalLayout_36->setStretch(0, 3);
 
         horizontalLayout_4->addLayout(horizontalLayout_36);
 
@@ -521,41 +913,89 @@ public:
         horizontalLayout_37->setObjectName(QString::fromUtf8("horizontalLayout_37"));
         pinglv = new QLabel(page_7);
         pinglv->setObjectName(QString::fromUtf8("pinglv"));
+        pinglv->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_37->addWidget(pinglv);
 
         pinglv_in = new QLabel(page_7);
         pinglv_in->setObjectName(QString::fromUtf8("pinglv_in"));
+        pinglv_in->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_37->addWidget(pinglv_in);
 
         zhankongbi = new QLabel(page_7);
         zhankongbi->setObjectName(QString::fromUtf8("zhankongbi"));
+        zhankongbi->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_37->addWidget(zhankongbi);
 
         zhankongbi_in = new QLabel(page_7);
         zhankongbi_in->setObjectName(QString::fromUtf8("zhankongbi_in"));
+        zhankongbi_in->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_37->addWidget(zhankongbi_in);
 
         Hvolt_t = new QLabel(page_7);
         Hvolt_t->setObjectName(QString::fromUtf8("Hvolt_t"));
+        Hvolt_t->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_37->addWidget(Hvolt_t);
 
         Hvolt_t_in = new QLabel(page_7);
         Hvolt_t_in->setObjectName(QString::fromUtf8("Hvolt_t_in"));
+        Hvolt_t_in->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_37->addWidget(Hvolt_t_in);
 
         Lvolt_t = new QLabel(page_7);
         Lvolt_t->setObjectName(QString::fromUtf8("Lvolt_t"));
+        Lvolt_t->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_37->addWidget(Lvolt_t);
 
         Lvolt_t_in = new QLabel(page_7);
         Lvolt_t_in->setObjectName(QString::fromUtf8("Lvolt_t_in"));
+        Lvolt_t_in->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_37->addWidget(Lvolt_t_in);
 
@@ -569,6 +1009,36 @@ public:
         horizontalLayout_2->setContentsMargins(50, -1, 50, -1);
         pushButton_2 = new QPushButton(page_7);
         pushButton_2->setObjectName(QString::fromUtf8("pushButton_2"));
+        pushButton_2->setMinimumSize(QSize(0, 45));
+        pushButton_2->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #27ae60;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #229954;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #1e8449;\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: #e74c3c;\n"
+"}\n"
+"\n"
+"QPushButton:checked:hover {\n"
+"    background-color: #c0392b;\n"
+"}\n"
+"\n"
+"QPushButton:checked:pressed {\n"
+"    background-color: #a93226;\n"
+"}"));
         pushButton_2->setCheckable(true);
         pushButton_2->setAutoDefault(false);
         pushButton_2->setFlat(false);
@@ -577,6 +1047,46 @@ public:
 
         comboBox = new QComboBox(page_7);
         comboBox->setObjectName(QString::fromUtf8("comboBox"));
+        comboBox->setMinimumSize(QSize(0, 45));
+        comboBox->setStyleSheet(QString::fromUtf8("QComboBox {\n"
+"    background-color: white;\n"
+"    color: #2c3e50;\n"
+"    border: 2px solid #bdc3c7;\n"
+"    border-radius: 8px;\n"
+"    padding: 8px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QComboBox:hover {\n"
+"    border-color: #3498db;\n"
+"}\n"
+"\n"
+"QComboBox:focus {\n"
+"    border-color: #3498db;\n"
+"}\n"
+"\n"
+"QComboBox::drop-down {\n"
+"    border: none;\n"
+"    width: 30px;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow {\n"
+"    image: none;\n"
+"    border-left: 5px solid transparent;\n"
+"    border-right: 5px solid transparent;\n"
+"    border-top: 6px solid #2c3e50;\n"
+"    margin-right: 8px;\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView {\n"
+"    background-color: white;\n"
+"    border: 2px solid #3498db;\n"
+"    border-radius: 6px;\n"
+"    selection-background-color: #3498db;\n"
+"    selection-color: white;\n"
+"    padding: 5px;\n"
+"}"));
 
         horizontalLayout_2->addWidget(comboBox);
 
@@ -610,21 +1120,45 @@ public:
         horizontalLayout_38->setContentsMargins(60, -1, -1, -1);
         Frequency_3 = new QLabel(page_8);
         Frequency_3->setObjectName(QString::fromUtf8("Frequency_3"));
+        Frequency_3->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_38->addWidget(Frequency_3, 0, Qt::AlignRight);
 
         Frequency_in_3 = new QLabel(page_8);
         Frequency_in_3->setObjectName(QString::fromUtf8("Frequency_in_3"));
+        Frequency_in_3->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_38->addWidget(Frequency_in_3, 0, Qt::AlignLeft);
 
         Amplitude_3 = new QLabel(page_8);
         Amplitude_3->setObjectName(QString::fromUtf8("Amplitude_3"));
+        Amplitude_3->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 14px;\n"
+"    font-weight: 600;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_38->addWidget(Amplitude_3, 0, Qt::AlignRight);
 
         Amplitude_in_3 = new QLabel(page_8);
         Amplitude_in_3->setObjectName(QString::fromUtf8("Amplitude_in_3"));
+        Amplitude_in_3->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"    padding: 2px 5px;\n"
+"}"));
 
         horizontalLayout_38->addWidget(Amplitude_in_3, 0, Qt::AlignLeft);
 
@@ -678,58 +1212,6 @@ public:
 
 
         verticalLayout_16->addLayout(horizontalLayout_39);
-
-        horizontalLayout_40 = new QHBoxLayout();
-        horizontalLayout_40->setSpacing(5);
-        horizontalLayout_40->setObjectName(QString::fromUtf8("horizontalLayout_40"));
-        horizontalLayout_40->setContentsMargins(-1, -1, 30, -1);
-        label_30 = new QLabel(groupBox_2);
-        label_30->setObjectName(QString::fromUtf8("label_30"));
-        label_30->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_40->addWidget(label_30);
-
-        channelSpinBox_5 = new QSpinBox(groupBox_2);
-        channelSpinBox_5->setObjectName(QString::fromUtf8("channelSpinBox_5"));
-        sizePolicy1.setHeightForWidth(channelSpinBox_5->sizePolicy().hasHeightForWidth());
-        channelSpinBox_5->setSizePolicy(sizePolicy1);
-        channelSpinBox_5->setMinimumSize(QSize(80, 0));
-        channelSpinBox_5->setFrame(false);
-        channelSpinBox_5->setButtonSymbols(QAbstractSpinBox::NoButtons);
-        channelSpinBox_5->setMinimum(0);
-        channelSpinBox_5->setMaximum(2);
-        channelSpinBox_5->setValue(0);
-
-        horizontalLayout_40->addWidget(channelSpinBox_5);
-
-
-        verticalLayout_16->addLayout(horizontalLayout_40);
-
-        horizontalLayout_41 = new QHBoxLayout();
-        horizontalLayout_41->setSpacing(5);
-        horizontalLayout_41->setObjectName(QString::fromUtf8("horizontalLayout_41"));
-        horizontalLayout_41->setContentsMargins(-1, -1, 30, -1);
-        label_31 = new QLabel(groupBox_2);
-        label_31->setObjectName(QString::fromUtf8("label_31"));
-        label_31->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
-
-        horizontalLayout_41->addWidget(label_31, 0, Qt::AlignVCenter);
-
-        dividerSpinBox_5 = new QSpinBox(groupBox_2);
-        dividerSpinBox_5->setObjectName(QString::fromUtf8("dividerSpinBox_5"));
-        sizePolicy1.setHeightForWidth(dividerSpinBox_5->sizePolicy().hasHeightForWidth());
-        dividerSpinBox_5->setSizePolicy(sizePolicy1);
-        dividerSpinBox_5->setMinimumSize(QSize(80, 0));
-        dividerSpinBox_5->setFrame(false);
-        dividerSpinBox_5->setButtonSymbols(QAbstractSpinBox::NoButtons);
-        dividerSpinBox_5->setMinimum(0);
-        dividerSpinBox_5->setMaximum(1000000);
-        dividerSpinBox_5->setValue(0);
-
-        horizontalLayout_41->addWidget(dividerSpinBox_5);
-
-
-        verticalLayout_16->addLayout(horizontalLayout_41);
 
         horizontalLayout_42 = new QHBoxLayout();
         horizontalLayout_42->setSpacing(5);
@@ -828,23 +1310,107 @@ public:
 
         setButton_5 = new QPushButton(groupBox_2);
         setButton_5->setObjectName(QString::fromUtf8("setButton_5"));
+        setButton_5->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #3498db;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #2980b9;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #21618c;\n"
+"}"));
 
         verticalLayout_15->addWidget(setButton_5);
 
         listenButton_5 = new QPushButton(groupBox_2);
         listenButton_5->setObjectName(QString::fromUtf8("listenButton_5"));
+        listenButton_5->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #27ae60;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #229954;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #1e8449;\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: #e74c3c;\n"
+"}\n"
+"\n"
+"QPushButton:checked:hover {\n"
+"    background-color: #c0392b;\n"
+"}"));
         listenButton_5->setCheckable(true);
 
         verticalLayout_15->addWidget(listenButton_5);
 
         loopSendButton_5 = new QPushButton(groupBox_2);
         loopSendButton_5->setObjectName(QString::fromUtf8("loopSendButton_5"));
+        loopSendButton_5->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #f39c12;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #e67e22;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #d35400;\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: #e74c3c;\n"
+"}\n"
+"\n"
+"QPushButton:checked:hover {\n"
+"    background-color: #c0392b;\n"
+"}"));
         loopSendButton_5->setCheckable(true);
 
         verticalLayout_15->addWidget(loopSendButton_5);
 
         restartButton_5 = new QPushButton(groupBox_2);
         restartButton_5->setObjectName(QString::fromUtf8("restartButton_5"));
+        restartButton_5->setStyleSheet(QString::fromUtf8("QPushButton {\n"
+"    background-color: #9b59b6;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 15px;\n"
+"    font-size: 14px;\n"
+"    font-weight: 500;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #8e44ad;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #7d3c98;\n"
+"}"));
 
         verticalLayout_15->addWidget(restartButton_5);
 
@@ -860,27 +1426,8 @@ public:
 
         horizontalLayout_main->addWidget(stackedWidget);
 
+        horizontalLayout_main->setStretch(1, 1);
         shiboqi_remake->setCentralWidget(centralwidget);
-        menubar = new QMenuBar(shiboqi_remake);
-        menubar->setObjectName(QString::fromUtf8("menubar"));
-        menubar->setGeometry(QRect(0, 0, 1074, 24));
-        menu = new QMenu(menubar);
-        menu->setObjectName(QString::fromUtf8("menu"));
-        menuDDS = new QMenu(menubar);
-        menuDDS->setObjectName(QString::fromUtf8("menuDDS"));
-        menu_2 = new QMenu(menubar);
-        menu_2->setObjectName(QString::fromUtf8("menu_2"));
-        menu_3 = new QMenu(menubar);
-        menu_3->setObjectName(QString::fromUtf8("menu_3"));
-        shiboqi_remake->setMenuBar(menubar);
-        statusbar = new QStatusBar(shiboqi_remake);
-        statusbar->setObjectName(QString::fromUtf8("statusbar"));
-        shiboqi_remake->setStatusBar(statusbar);
-
-        menubar->addAction(menu->menuAction());
-        menubar->addAction(menuDDS->menuAction());
-        menubar->addAction(menu_2->menuAction());
-        menubar->addAction(menu_3->menuAction());
 
         retranslateUi(shiboqi_remake);
 
@@ -894,6 +1441,12 @@ public:
     void retranslateUi(QMainWindow *shiboqi_remake)
     {
         shiboqi_remake->setWindowTitle(QCoreApplication::translate("shiboqi_remake", "shiboqi_remake", nullptr));
+        titleLabel->setText(QCoreApplication::translate("shiboqi_remake", "\345\244\232\345\212\237\350\203\275\350\260\203\350\257\225\345\231\250", nullptr));
+        menuLabel->setText(QCoreApplication::translate("shiboqi_remake", "\345\212\237\350\203\275\350\217\234\345\215\225", nullptr));
+        navButton_oscilloscope->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\223\212  \347\244\272\346\263\242\345\231\250", nullptr));
+        navButton_dds->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\216\233\357\270\217  DDS\350\256\276\347\275\256", nullptr));
+        navButton_digital->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\223\241  \346\225\260\345\255\227\344\277\241\345\217\267", nullptr));
+        navButton_spectrum->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\223\210  \351\242\221\350\260\261\345\210\206\346\236\220", nullptr));
         Frequency_2->setText(QCoreApplication::translate("shiboqi_remake", "Frequency :", nullptr));
         Frequency_in_2->setText(QCoreApplication::translate("shiboqi_remake", "0 Hz", nullptr));
         Amplitude_2->setText(QCoreApplication::translate("shiboqi_remake", "Amplitude :", nullptr));
@@ -905,12 +1458,6 @@ public:
         groupBox->setTitle(QCoreApplication::translate("shiboqi_remake", "UDP\350\256\276\347\275\256", nullptr));
         label_22->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
         label_22->setText(QCoreApplication::translate("shiboqi_remake", " \347\253\257\345\217\243:", nullptr));
-        label_23->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
-        label_23->setText(QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223\351\200\211\346\213\251:", nullptr));
-        channelSpinBox_4->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "padding: 0px;", nullptr));
-        label_24->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
-        label_24->setText(QCoreApplication::translate("shiboqi_remake", "\345\210\206\351\242\221\347\263\273\346\225\260:", nullptr));
-        dividerSpinBox_4->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "padding: 0px;", nullptr));
         label_25->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
         label_25->setText(QCoreApplication::translate("shiboqi_remake", "\346\225\260\346\215\256\344\270\252\346\225\260:", nullptr));
         dataNumSpinBox_4->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "padding: 0px;", nullptr));
@@ -929,11 +1476,18 @@ public:
         listenButton_4->setText(QCoreApplication::translate("shiboqi_remake", "\345\274\200\345\247\213\347\233\221\345\220\254", nullptr));
         loopSendButton_4->setText(QCoreApplication::translate("shiboqi_remake", "\345\276\252\347\216\257\345\217\221\351\200\201", nullptr));
         restartButton_4->setText(QCoreApplication::translate("shiboqi_remake", "\345\217\221\351\200\201\351\207\207\351\233\206\345\221\275\344\273\244", nullptr));
-        waveformSwitchButton->setText(QCoreApplication::translate("shiboqi_remake", "\345\210\207\346\215\242\346\263\242\345\275\242", nullptr));
-        frequencyUpButton->setText(QCoreApplication::translate("shiboqi_remake", "\351\242\221\347\216\207+", nullptr));
-        frequencyDownButton->setText(QCoreApplication::translate("shiboqi_remake", "\351\242\221\347\216\207-", nullptr));
-        amplitudeUpButton->setText(QCoreApplication::translate("shiboqi_remake", "\345\271\205\345\272\246+", nullptr));
-        amplitudeDownButton->setText(QCoreApplication::translate("shiboqi_remake", "\345\271\205\345\272\246-", nullptr));
+        label_dds_title->setText(QCoreApplication::translate("shiboqi_remake", "\346\263\242\345\275\242\346\216\247\345\210\266", nullptr));
+        waveformSwitchButton->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\224\204 \345\210\207\346\215\242\346\263\242\345\275\242", nullptr));
+        handDrawButton->setText(QCoreApplication::translate("shiboqi_remake", "\342\234\217\357\270\217 \346\211\213\347\273\230\346\250\241\345\274\217", nullptr));
+        clearDrawButton->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\227\221\357\270\217 \346\270\205\351\231\244\347\273\230\345\210\266", nullptr));
+        saveAndSendButton->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\222\276 \344\277\235\345\255\230\345\271\266\345\217\221\351\200\201", nullptr));
+        label_separator1->setText(QString());
+        frequencyUpButton->setText(QCoreApplication::translate("shiboqi_remake", "\342\254\206\357\270\217 \351\242\221\347\216\207+", nullptr));
+        frequencyDownButton->setText(QCoreApplication::translate("shiboqi_remake", "\342\254\207\357\270\217 \351\242\221\347\216\207-", nullptr));
+        amplitudeUpButton->setText(QCoreApplication::translate("shiboqi_remake", "\342\254\206\357\270\217 \345\271\205\345\272\246+", nullptr));
+        amplitudeDownButton->setText(QCoreApplication::translate("shiboqi_remake", "\342\254\207\357\270\217 \345\271\205\345\272\246-", nullptr));
+        label_separator2->setText(QString());
+        currentWaveformLabel->setText(QCoreApplication::translate("shiboqi_remake", "\345\275\223\345\211\215\346\263\242\345\275\242: \351\224\257\351\275\277\346\263\242", nullptr));
         pinglv->setText(QCoreApplication::translate("shiboqi_remake", "\351\242\221\347\216\207\357\274\232", nullptr));
         pinglv_in->setText(QCoreApplication::translate("shiboqi_remake", "0 Hz", nullptr));
         zhankongbi->setText(QCoreApplication::translate("shiboqi_remake", "\345\215\240\347\251\272\346\257\224\357\274\232", nullptr));
@@ -942,7 +1496,7 @@ public:
         Hvolt_t_in->setText(QCoreApplication::translate("shiboqi_remake", "0 us", nullptr));
         Lvolt_t->setText(QCoreApplication::translate("shiboqi_remake", "\344\275\216\347\224\265\345\271\263\346\227\266\351\227\264\357\274\232", nullptr));
         Lvolt_t_in->setText(QCoreApplication::translate("shiboqi_remake", "0 us", nullptr));
-        pushButton_2->setText(QCoreApplication::translate("shiboqi_remake", "\345\274\200\345\220\257\350\277\236\346\216\245", nullptr));
+        pushButton_2->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\224\214 \345\274\200\345\220\257\350\277\236\346\216\245", nullptr));
         Frequency_3->setText(QCoreApplication::translate("shiboqi_remake", "Frequency :", nullptr));
         Frequency_in_3->setText(QCoreApplication::translate("shiboqi_remake", "0 Hz", nullptr));
         Amplitude_3->setText(QCoreApplication::translate("shiboqi_remake", "Amplitude :", nullptr));
@@ -950,12 +1504,6 @@ public:
         groupBox_2->setTitle(QCoreApplication::translate("shiboqi_remake", "UDP\350\256\276\347\275\256", nullptr));
         label_29->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
         label_29->setText(QCoreApplication::translate("shiboqi_remake", " \347\253\257\345\217\243:", nullptr));
-        label_30->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
-        label_30->setText(QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223\351\200\211\346\213\251:", nullptr));
-        channelSpinBox_5->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "padding: 0px;", nullptr));
-        label_31->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
-        label_31->setText(QCoreApplication::translate("shiboqi_remake", "\345\210\206\351\242\221\347\263\273\346\225\260:", nullptr));
-        dividerSpinBox_5->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "padding: 0px;", nullptr));
         label_32->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
         label_32->setText(QCoreApplication::translate("shiboqi_remake", "\346\225\260\346\215\256\344\270\252\346\225\260:", nullptr));
         dataNumSpinBox_5->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "padding: 0px;", nullptr));
@@ -974,10 +1522,6 @@ public:
         listenButton_5->setText(QCoreApplication::translate("shiboqi_remake", "\345\274\200\345\247\213\347\233\221\345\220\254", nullptr));
         loopSendButton_5->setText(QCoreApplication::translate("shiboqi_remake", "\345\276\252\347\216\257\345\217\221\351\200\201", nullptr));
         restartButton_5->setText(QCoreApplication::translate("shiboqi_remake", "\345\217\221\351\200\201\351\207\207\351\233\206\345\221\275\344\273\244", nullptr));
-        menu->setTitle(QCoreApplication::translate("shiboqi_remake", "\347\244\272\346\263\242\345\231\250", nullptr));
-        menuDDS->setTitle(QCoreApplication::translate("shiboqi_remake", "DDS\350\256\276\347\275\256", nullptr));
-        menu_2->setTitle(QCoreApplication::translate("shiboqi_remake", "\346\225\260\345\255\227\344\277\241\345\217\267\346\265\213\351\207\217", nullptr));
-        menu_3->setTitle(QCoreApplication::translate("shiboqi_remake", "\351\242\221\350\260\261", nullptr));
     } // retranslateUi
 
 };

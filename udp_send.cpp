@@ -148,16 +148,17 @@ void UdpSender::sendStopLoopCommand()
  * @brief 设置波形类型
  *
  * 设置波形类型，用于发送波形设置命令。
- * @param waveformType 波形类型 (0-3)
+ * @param waveformType 波形类型 (0-4)
  *        0: 锯齿波
  *        1: 正弦波
  *        2: 方波
  *        3: 三角波
+ *        4: 手绘波形
  */
 void UdpSender::setWaveformType(quint8 waveformType)
 {
-    // 限制波形类型在有效范围内 (0-3)
-    this->waveformType = waveformType & 0x03;
+    // 限制波形类型在有效范围内 (0-4)
+    this->waveformType = waveformType & 0x07;
 }
 
 /**
@@ -168,6 +169,7 @@ void UdpSender::setWaveformType(quint8 waveformType)
  * 3'b001: 正弦波 (1)
  * 3'b010: 方波   (2)
  * 3'b011: 三角波 (3)
+ * 3'b100: 手绘波形 (4)
  */
 void UdpSender::sendWaveformCommand()
 {
@@ -258,4 +260,14 @@ void UdpSender::sendUdpPacket(quint8 cmdAddr, quint32 cmdData)
         // 可以添加错误处理
         qWarning() << "Failed to send UDP packet";
     }
+}
+
+/**
+ * @brief 发送原始UDP数据包
+ * @param datagram 要发送的数据包
+ * @return 实际发送的字节数
+ */
+qint64 UdpSender::sendRawDatagram(const QByteArray &datagram)
+{
+    return socket->writeDatagram(datagram, targetAddress, targetPort);
 }

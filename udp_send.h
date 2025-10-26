@@ -116,6 +116,13 @@ public:
      */
     void sendAmplitudeDownCommand();
 
+    /**
+     * @brief 发送原始UDP数据包
+     * @param datagram 要发送的数据包
+     * @return 实际发送的字节数
+     */
+    qint64 sendRawDatagram(const QByteArray &datagram);
+
 signals:
     /**
      * @brief 发送完成信号

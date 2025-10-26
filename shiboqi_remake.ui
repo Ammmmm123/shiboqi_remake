@@ -14,7 +14,7 @@
    <string>shiboqi_remake</string>
   </property>
   <widget class="QWidget" name="centralwidget">
-   <layout class="QHBoxLayout" name="horizontalLayout_main" stretch="0">
+   <layout class="QHBoxLayout" name="horizontalLayout_main" stretch="0,1">
     <property name="spacing">
      <number>0</number>
     </property>
@@ -33,6 +33,158 @@
     <property name="bottomMargin">
      <number>0</number>
     </property>
+    <item>
+     <widget class="QWidget" name="sidebarWidget" native="true">
+      <property name="minimumSize">
+       <size>
+        <width>200</width>
+        <height>0</height>
+       </size>
+      </property>
+      <property name="maximumSize">
+       <size>
+        <width>200</width>
+        <height>16777215</height>
+       </size>
+      </property>
+      <property name="styleSheet">
+       <string notr="true">QWidget#sidebarWidget {
+    background-color: #2c3e50;
+}
+
+QPushButton {
+    background-color: transparent;
+    color: #ecf0f1;
+    text-align: left;
+    padding: 15px 20px;
+    border: none;
+    border-left: 3px solid transparent;
+    font-size: 14px;
+}
+
+QPushButton:hover {
+    background-color: #34495e;
+}
+
+QPushButton:checked {
+    background-color: #34495e;
+    border-left: 3px solid #3498db;
+    font-weight: bold;
+}
+
+QLabel {
+    color: #95a5a6;
+    padding: 10px 20px;
+    font-size: 12px;
+}</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_sidebar">
+       <property name="spacing">
+        <number>0</number>
+       </property>
+       <property name="leftMargin">
+        <number>0</number>
+       </property>
+       <property name="topMargin">
+        <number>0</number>
+       </property>
+       <property name="rightMargin">
+        <number>0</number>
+       </property>
+       <property name="bottomMargin">
+        <number>0</number>
+       </property>
+       <item>
+        <widget class="QLabel" name="titleLabel">
+         <property name="minimumSize">
+          <size>
+           <width>0</width>
+           <height>60</height>
+          </size>
+         </property>
+         <property name="styleSheet">
+          <string notr="true">QLabel {
+    background-color: #1a252f;
+    color: #3498db;
+    font-size: 18px;
+    font-weight: bold;
+    padding: 20px;
+}</string>
+         </property>
+         <property name="text">
+          <string>多功能调试器</string>
+         </property>
+         <property name="alignment">
+          <set>Qt::AlignCenter</set>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QLabel" name="menuLabel">
+         <property name="text">
+          <string>功能菜单</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="navButton_oscilloscope">
+         <property name="text">
+          <string>  📊  示波器</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="navButton_dds">
+         <property name="text">
+          <string>  🎛️  DDS设置</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="navButton_digital">
+         <property name="text">
+          <string>  📡  数字信号</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="navButton_spectrum">
+         <property name="text">
+          <string>  📈  频谱分析</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <spacer name="verticalSpacer">
+         <property name="orientation">
+          <enum>Qt::Vertical</enum>
+         </property>
+         <property name="sizeHint" stdset="0">
+          <size>
+           <width>20</width>
+           <height>40</height>
+          </size>
+         </property>
+        </spacer>
+       </item>
+      </layout>
+     </widget>
+    </item>
     <item>
      <widget class="QStackedWidget" name="stackedWidget">
       <property name="sizePolicy">
@@ -73,6 +225,14 @@
               </property>
               <item alignment="Qt::AlignRight">
                <widget class="QLabel" name="Frequency_2">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string>Frequency :</string>
                 </property>
@@ -80,6 +240,14 @@
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="Frequency_in_2">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string>0 Hz</string>
                 </property>
@@ -87,6 +255,14 @@
               </item>
               <item alignment="Qt::AlignRight">
                <widget class="QLabel" name="Amplitude_2">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string>Amplitude :</string>
                 </property>
@@ -94,6 +270,14 @@
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="Amplitude_in_2">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string>0 V</string>
                 </property>
@@ -101,6 +285,14 @@
               </item>
               <item alignment="Qt::AlignRight">
                <widget class="QLabel" name="VPP_2">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string>vp-p :</string>
                 </property>
@@ -108,6 +300,14 @@
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="VPP_in_2">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string>0 V</string>
                 </property>
@@ -115,6 +315,14 @@
               </item>
               <item alignment="Qt::AlignRight">
                <widget class="QLabel" name="V_MAX_2">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string>Vmax :</string>
                 </property>
@@ -122,6 +330,14 @@
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="V_MAX_in_2">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string>0 V</string>
                 </property>
@@ -233,120 +449,6 @@
                    </property>
                    <property name="value">
                     <number>6102</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_29">
-                 <property name="spacing">
-                  <number>5</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>30</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label_23">
-                   <property name="styleSheet">
-                    <string>margin: 0px; padding: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string>通道选择:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="channelSpinBox_4">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string>padding: 0px;</string>
-                   </property>
-                   <property name="frame">
-                    <bool>false</bool>
-                   </property>
-                   <property name="buttonSymbols">
-                    <enum>QAbstractSpinBox::NoButtons</enum>
-                   </property>
-                   <property name="minimum">
-                    <number>0</number>
-                   </property>
-                   <property name="maximum">
-                    <number>2</number>
-                   </property>
-                   <property name="value">
-                    <number>0</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_30">
-                 <property name="spacing">
-                  <number>5</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>30</number>
-                 </property>
-                 <item alignment="Qt::AlignVCenter">
-                  <widget class="QLabel" name="label_24">
-                   <property name="styleSheet">
-                    <string>margin: 0px; padding: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string>分频系数:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="dividerSpinBox_4">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string>padding: 0px;</string>
-                   </property>
-                   <property name="frame">
-                    <bool>false</bool>
-                   </property>
-                   <property name="buttonSymbols">
-                    <enum>QAbstractSpinBox::NoButtons</enum>
-                   </property>
-                   <property name="minimum">
-                    <number>0</number>
-                   </property>
-                   <property name="maximum">
-                    <number>1000000</number>
-                   </property>
-                   <property name="value">
-                    <number>0</number>
                    </property>
                   </widget>
                  </item>
@@ -554,6 +656,25 @@
              </item>
              <item>
               <widget class="QPushButton" name="setButton_4">
+               <property name="styleSheet">
+                <string notr="true">QPushButton {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #2980b9;
+}
+
+QPushButton:pressed {
+    background-color: #21618c;
+}</string>
+               </property>
                <property name="text">
                 <string>设置UDP连接参数</string>
                </property>
@@ -561,6 +682,33 @@
              </item>
              <item>
               <widget class="QPushButton" name="listenButton_4">
+               <property name="styleSheet">
+                <string notr="true">QPushButton {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #229954;
+}
+
+QPushButton:pressed {
+    background-color: #1e8449;
+}
+
+QPushButton:checked {
+    background-color: #e74c3c;
+}
+
+QPushButton:checked:hover {
+    background-color: #c0392b;
+}</string>
+               </property>
                <property name="text">
                 <string>开始监听</string>
                </property>
@@ -571,6 +719,33 @@
              </item>
              <item>
               <widget class="QPushButton" name="loopSendButton_4">
+               <property name="styleSheet">
+                <string notr="true">QPushButton {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #e67e22;
+}
+
+QPushButton:pressed {
+    background-color: #d35400;
+}
+
+QPushButton:checked {
+    background-color: #e74c3c;
+}
+
+QPushButton:checked:hover {
+    background-color: #c0392b;
+}</string>
+               </property>
                <property name="text">
                 <string>循环发送</string>
                </property>
@@ -581,6 +756,25 @@
              </item>
              <item>
               <widget class="QPushButton" name="restartButton_4">
+               <property name="styleSheet">
+                <string notr="true">QPushButton {
+    background-color: #9b59b6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #8e44ad;
+}
+
+QPushButton:pressed {
+    background-color: #7d3c98;
+}</string>
+               </property>
                <property name="text">
                 <string>发送采集命令</string>
                </property>
@@ -596,46 +790,430 @@
       <widget class="QWidget" name="page_6">
        <layout class="QHBoxLayout" name="horizontalLayout_4">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_36" stretch="2,0">
+         <layout class="QHBoxLayout" name="horizontalLayout_36" stretch="3,0">
           <item>
-           <widget class="QCustomPlot" name="boxingxianshi" native="true"/>
+           <widget class="QCustomPlot" name="boxingxianshi" native="true">
+            <property name="styleSheet">
+             <string notr="true">QCustomPlot {
+    border: 2px solid #34495e;
+    border-radius: 10px;
+    background-color: white;
+}</string>
+            </property>
+           </widget>
           </item>
           <item>
            <layout class="QVBoxLayout" name="verticalLayout_12">
+            <property name="spacing">
+             <number>10</number>
+            </property>
+            <property name="leftMargin">
+             <number>10</number>
+            </property>
+            <property name="topMargin">
+             <number>10</number>
+            </property>
+            <property name="rightMargin">
+             <number>10</number>
+            </property>
+            <property name="bottomMargin">
+             <number>10</number>
+            </property>
+            <item>
+             <widget class="QLabel" name="label_dds_title">
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    font-size: 16px;
+    font-weight: bold;
+    color: #2c3e50;
+    padding: 5px;
+}</string>
+              </property>
+              <property name="text">
+               <string>波形控制</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
             <item>
              <widget class="QPushButton" name="waveformSwitchButton">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>45</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #2980b9;
+}
+
+QPushButton:pressed {
+    background-color: #21618c;
+}</string>
+              </property>
               <property name="text">
-               <string>切换波形</string>
+               <string>🔄 切换波形</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="handDrawButton">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>45</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #e74c3c;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #c0392b;
+}
+
+QPushButton:pressed {
+    background-color: #a93226;
+}
+
+QPushButton:checked {
+    background-color: #27ae60;
+}
+
+QPushButton:checked:hover {
+    background-color: #229954;
+}</string>
+              </property>
+              <property name="text">
+               <string>✏️ 手绘模式</string>
+              </property>
+              <property name="checkable">
+               <bool>true</bool>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="clearDrawButton">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #95a5a6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #7f8c8d;
+}
+
+QPushButton:pressed {
+    background-color: #66727a;
+}</string>
+              </property>
+              <property name="text">
+               <string>🗑️ 清除绘制</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QPushButton" name="saveAndSendButton">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>45</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #9b59b6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #8e44ad;
+}
+
+QPushButton:pressed {
+    background-color: #7d3c98;
+}</string>
+              </property>
+              <property name="text">
+               <string>💾 保存并发送</string>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_separator1">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>20</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    background-color: #bdc3c7;
+    max-height: 2px;
+}</string>
+              </property>
+              <property name="text">
+               <string/>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="frequencyUpButton">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #16a085;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #138d75;
+}
+
+QPushButton:pressed {
+    background-color: #117a65;
+}</string>
+              </property>
               <property name="text">
-               <string>频率+</string>
+               <string>⬆️ 频率+</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="frequencyDownButton">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #16a085;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #138d75;
+}
+
+QPushButton:pressed {
+    background-color: #117a65;
+}</string>
+              </property>
               <property name="text">
-               <string>频率-</string>
+               <string>⬇️ 频率-</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="amplitudeUpButton">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #e67e22;
+}
+
+QPushButton:pressed {
+    background-color: #d35400;
+}</string>
+              </property>
               <property name="text">
-               <string>幅度+</string>
+               <string>⬆️ 幅度+</string>
               </property>
              </widget>
             </item>
             <item>
              <widget class="QPushButton" name="amplitudeDownButton">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 8px 12px;
+    font-size: 13px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #e67e22;
+}
+
+QPushButton:pressed {
+    background-color: #d35400;
+}</string>
+              </property>
               <property name="text">
-               <string>幅度-</string>
+               <string>⬇️ 幅度-</string>
               </property>
              </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="label_separator2">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>2</height>
+               </size>
+              </property>
+              <property name="maximumSize">
+               <size>
+                <width>16777215</width>
+                <height>2</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    background-color: #bdc3c7;
+    margin: 10px 0px;
+}</string>
+              </property>
+              <property name="text">
+               <string/>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="currentWaveformLabel">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>50</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    background-color: #ecf0f1;
+    color: #2c3e50;
+    border: 2px solid #bdc3c7;
+    border-radius: 8px;
+    padding: 10px;
+    font-size: 14px;
+    font-weight: 600;
+}</string>
+              </property>
+              <property name="text">
+               <string>当前波形: 锯齿波</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <widget class="QLabel" name="sendProgressLabel">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>40</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    background-color: #e8f5e9;
+    color: #27ae60;
+    border: 2px solid #27ae60;
+    border-radius: 8px;
+    padding: 8px;
+    font-size: 13px;
+    font-weight: 600;
+}</string>
+              </property>
+              <property name="text">
+               <string>发送进度: 0%</string>
+              </property>
+              <property name="alignment">
+               <set>Qt::AlignCenter</set>
+              </property>
+             </widget>
+            </item>
+            <item>
+             <spacer name="verticalSpacer_dds">
+              <property name="orientation">
+               <enum>Qt::Vertical</enum>
+              </property>
+              <property name="sizeHint" stdset="0">
+               <size>
+                <width>20</width>
+                <height>40</height>
+               </size>
+              </property>
+             </spacer>
             </item>
            </layout>
           </item>
@@ -654,6 +1232,14 @@
            <layout class="QHBoxLayout" name="horizontalLayout_37">
             <item>
              <widget class="QLabel" name="pinglv">
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+              </property>
               <property name="text">
                <string>频率：</string>
               </property>
@@ -661,6 +1247,14 @@
             </item>
             <item>
              <widget class="QLabel" name="pinglv_in">
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 2px 5px;
+}</string>
+              </property>
               <property name="text">
                <string>0 Hz</string>
               </property>
@@ -668,6 +1262,14 @@
             </item>
             <item>
              <widget class="QLabel" name="zhankongbi">
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+              </property>
               <property name="text">
                <string>占空比：</string>
               </property>
@@ -675,6 +1277,14 @@
             </item>
             <item>
              <widget class="QLabel" name="zhankongbi_in">
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 2px 5px;
+}</string>
+              </property>
               <property name="text">
                <string>0</string>
               </property>
@@ -682,6 +1292,14 @@
             </item>
             <item>
              <widget class="QLabel" name="Hvolt_t">
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+              </property>
               <property name="text">
                <string>高电平时间：</string>
               </property>
@@ -689,6 +1307,14 @@
             </item>
             <item>
              <widget class="QLabel" name="Hvolt_t_in">
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 2px 5px;
+}</string>
+              </property>
               <property name="text">
                <string>0 us</string>
               </property>
@@ -696,6 +1322,14 @@
             </item>
             <item>
              <widget class="QLabel" name="Lvolt_t">
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 14px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+              </property>
               <property name="text">
                <string>低电平时间：</string>
               </property>
@@ -703,6 +1337,14 @@
             </item>
             <item>
              <widget class="QLabel" name="Lvolt_t_in">
+              <property name="styleSheet">
+               <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 14px;
+    font-weight: 500;
+    padding: 2px 5px;
+}</string>
+              </property>
               <property name="text">
                <string>0 us</string>
               </property>
@@ -726,8 +1368,45 @@
             </property>
             <item>
              <widget class="QPushButton" name="pushButton_2">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>45</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QPushButton {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #229954;
+}
+
+QPushButton:pressed {
+    background-color: #1e8449;
+}
+
+QPushButton:checked {
+    background-color: #e74c3c;
+}
+
+QPushButton:checked:hover {
+    background-color: #c0392b;
+}
+
+QPushButton:checked:pressed {
+    background-color: #a93226;
+}</string>
+              </property>
               <property name="text">
-               <string>开启连接</string>
+               <string>🔌 开启连接</string>
               </property>
               <property name="checkable">
                <bool>true</bool>
@@ -744,7 +1423,55 @@
              </widget>
             </item>
             <item>
-             <widget class="QComboBox" name="comboBox"/>
+             <widget class="QComboBox" name="comboBox">
+              <property name="minimumSize">
+               <size>
+                <width>0</width>
+                <height>45</height>
+               </size>
+              </property>
+              <property name="styleSheet">
+               <string notr="true">QComboBox {
+    background-color: white;
+    color: #2c3e50;
+    border: 2px solid #bdc3c7;
+    border-radius: 8px;
+    padding: 8px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QComboBox:hover {
+    border-color: #3498db;
+}
+
+QComboBox:focus {
+    border-color: #3498db;
+}
+
+QComboBox::drop-down {
+    border: none;
+    width: 30px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-top: 6px solid #2c3e50;
+    margin-right: 8px;
+}
+
+QComboBox QAbstractItemView {
+    background-color: white;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    selection-background-color: #3498db;
+    selection-color: white;
+    padding: 5px;
+}</string>
+              </property>
+             </widget>
             </item>
            </layout>
           </item>
@@ -771,33 +1498,240 @@
             <item>
              <layout class="QHBoxLayout" name="horizontalLayout_38">
               <property name="leftMargin">
-               <number>60</number>
+               <number>20</number>
+              </property>
+              <property name="rightMargin">
+               <number>20</number>
+              </property>
+              <property name="spacing">
+               <number>15</number>
               </property>
               <item alignment="Qt::AlignRight">
                <widget class="QLabel" name="Frequency_3">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
-                 <string>Frequency :</string>
+                 <string>主频率:</string>
                 </property>
                </widget>
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="Frequency_in_3">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string>0 Hz</string>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
                 </property>
                </widget>
               </item>
               <item alignment="Qt::AlignRight">
                <widget class="QLabel" name="Amplitude_3">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
-                 <string>Amplitude :</string>
+                 <string>幅度:</string>
                 </property>
                </widget>
               </item>
               <item alignment="Qt::AlignLeft">
                <widget class="QLabel" name="Amplitude_in_3">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
                 <property name="text">
                  <string>0 V</string>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignRight">
+               <widget class="QLabel" name="label_snr">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>SNR:</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignLeft">
+               <widget class="QLabel" name="label_snr_value">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #27ae60;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>0 dB</string>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </item>
+            <item>
+             <layout class="QHBoxLayout" name="horizontalLayout_spectrum_info2">
+              <property name="leftMargin">
+               <number>20</number>
+              </property>
+              <property name="rightMargin">
+               <number>20</number>
+              </property>
+              <property name="spacing">
+               <number>15</number>
+              </property>
+              <item alignment="Qt::AlignRight">
+               <widget class="QLabel" name="label_thd">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>THD:</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignLeft">
+               <widget class="QLabel" name="label_thd_value">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #e67e22;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>0 %</string>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignRight">
+               <widget class="QLabel" name="label_bandwidth">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>带宽:</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignLeft">
+               <widget class="QLabel" name="label_bandwidth_value">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #9b59b6;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>0 Hz</string>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>0</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignRight">
+               <widget class="QLabel" name="label_harmonics">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>谐波数:</string>
+                </property>
+               </widget>
+              </item>
+              <item alignment="Qt::AlignLeft">
+               <widget class="QLabel" name="label_harmonics_value">
+                <property name="styleSheet">
+                 <string notr="true">QLabel {
+    color: #e74c3c;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 2px 5px;
+}</string>
+                </property>
+                <property name="text">
+                 <string>0</string>
+                </property>
+                <property name="minimumSize">
+                 <size>
+                  <width>80</width>
+                  <height>0</height>
+                 </size>
                 </property>
                </widget>
               </item>
@@ -907,120 +1841,6 @@
                    </property>
                    <property name="value">
                     <number>6102</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_40">
-                 <property name="spacing">
-                  <number>5</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>30</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label_30">
-                   <property name="styleSheet">
-                    <string>margin: 0px; padding: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string>通道选择:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="channelSpinBox_5">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string>padding: 0px;</string>
-                   </property>
-                   <property name="frame">
-                    <bool>false</bool>
-                   </property>
-                   <property name="buttonSymbols">
-                    <enum>QAbstractSpinBox::NoButtons</enum>
-                   </property>
-                   <property name="minimum">
-                    <number>0</number>
-                   </property>
-                   <property name="maximum">
-                    <number>2</number>
-                   </property>
-                   <property name="value">
-                    <number>0</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_41">
-                 <property name="spacing">
-                  <number>5</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>30</number>
-                 </property>
-                 <item alignment="Qt::AlignVCenter">
-                  <widget class="QLabel" name="label_31">
-                   <property name="styleSheet">
-                    <string>margin: 0px; padding: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string>分频系数:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="dividerSpinBox_5">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string>padding: 0px;</string>
-                   </property>
-                   <property name="frame">
-                    <bool>false</bool>
-                   </property>
-                   <property name="buttonSymbols">
-                    <enum>QAbstractSpinBox::NoButtons</enum>
-                   </property>
-                   <property name="minimum">
-                    <number>0</number>
-                   </property>
-                   <property name="maximum">
-                    <number>1000000</number>
-                   </property>
-                   <property name="value">
-                    <number>0</number>
                    </property>
                   </widget>
                  </item>
@@ -1228,6 +2048,25 @@
              </item>
              <item>
               <widget class="QPushButton" name="setButton_5">
+               <property name="styleSheet">
+                <string notr="true">QPushButton {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #2980b9;
+}
+
+QPushButton:pressed {
+    background-color: #21618c;
+}</string>
+               </property>
                <property name="text">
                 <string>设置UDP连接参数</string>
                </property>
@@ -1235,6 +2074,33 @@
              </item>
              <item>
               <widget class="QPushButton" name="listenButton_5">
+               <property name="styleSheet">
+                <string notr="true">QPushButton {
+    background-color: #27ae60;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #229954;
+}
+
+QPushButton:pressed {
+    background-color: #1e8449;
+}
+
+QPushButton:checked {
+    background-color: #e74c3c;
+}
+
+QPushButton:checked:hover {
+    background-color: #c0392b;
+}</string>
+               </property>
                <property name="text">
                 <string>开始监听</string>
                </property>
@@ -1245,6 +2111,33 @@
              </item>
              <item>
               <widget class="QPushButton" name="loopSendButton_5">
+               <property name="styleSheet">
+                <string notr="true">QPushButton {
+    background-color: #f39c12;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #e67e22;
+}
+
+QPushButton:pressed {
+    background-color: #d35400;
+}
+
+QPushButton:checked {
+    background-color: #e74c3c;
+}
+
+QPushButton:checked:hover {
+    background-color: #c0392b;
+}</string>
+               </property>
                <property name="text">
                 <string>循环发送</string>
                </property>
@@ -1255,6 +2148,25 @@
              </item>
              <item>
               <widget class="QPushButton" name="restartButton_5">
+               <property name="styleSheet">
+                <string notr="true">QPushButton {
+    background-color: #9b59b6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    font-weight: 500;
+}
+
+QPushButton:hover {
+    background-color: #8e44ad;
+}
+
+QPushButton:pressed {
+    background-color: #7d3c98;
+}</string>
+               </property>
                <property name="text">
                 <string>发送采集命令</string>
                </property>
@@ -1271,41 +2183,6 @@
     </item>
    </layout>
   </widget>
-  <widget class="QMenuBar" name="menubar">
-   <property name="geometry">
-    <rect>
-     <x>0</x>
-     <y>0</y>
-     <width>1074</width>
-     <height>24</height>
-    </rect>
-   </property>
-   <widget class="QMenu" name="menu">
-    <property name="title">
-     <string>示波器</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menuDDS">
-    <property name="title">
-     <string>DDS设置</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menu_2">
-    <property name="title">
-     <string>数字信号测量</string>
-    </property>
-   </widget>
-   <widget class="QMenu" name="menu_3">
-    <property name="title">
-     <string>频谱</string>
-    </property>
-   </widget>
-   <addaction name="menu"/>
-   <addaction name="menuDDS"/>
-   <addaction name="menu_2"/>
-   <addaction name="menu_3"/>
-  </widget>
-  <widget class="QStatusBar" name="statusbar"/>
  </widget>
  <customwidgets>
   <customwidget>

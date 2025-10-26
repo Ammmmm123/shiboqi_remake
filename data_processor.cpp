@@ -28,7 +28,176 @@ DataProcessor::DataProcessor(QObject *parent)
     : QObject(parent)
     , accumulatedVoltages()
     , accumulatedTimes()
+    , configTotalSamples(500000)  // 默认50万点（10ms @ 50MHz）
+    , configSampleRate(50e6)      // 默认50MHz
+    , samplingWindowUs(10000.0)   // 默认窗口 = 500000 / 50MHz * 1e6 = 10ms
+    , isNewBatch(true)            // 初始为新批次
+    , currentBatchSize(0)         // 当前批次大小为0
+    , lastDetectedFrequency(0.0)  // 初始频率为0
 {
+}
+
+/**
+ * @brief 设置ADC采样配置（基于实际采样机制）
+ * @param totalSamples 一次连续采样的总点数（分多个UDP包发送）
+ * @param sampleRate 采样率（Hz），默认50MHz
+ */
+void DataProcessor::setSamplingConfig(int totalSamples, double sampleRate)
+{
+    configTotalSamples = totalSamples;
+    configSampleRate = sampleRate;
+    samplingWindowUs = (totalSamples / sampleRate) * 1e6;
+    
+    qDebug() << "========================================";
+    qDebug() << "DataProcessor采样配置：";
+    qDebug() << "  - 连续采样点数：" << totalSamples;
+    qDebug() << "  - 采样窗口：" << (samplingWindowUs / 1000.0) << "ms";
+    qDebug() << "  - 可检测最低频率：" << (2e6 / samplingWindowUs) << "Hz (2周期)";
+    qDebug() << "========================================";
+}
+
+/**
+ * @brief 标记新的采样批次开始
+ */
+void DataProcessor::markNewSamplingBatch()
+{
+    isNewBatch = true;
+    currentBatchSize = 0;
+    qDebug() << "标记新采样批次";
+}
+
+/**
+ * @brief 根据信号频率动态计算批次完成阈值
+ * @param estimatedFreq 估计的信号频率（Hz）
+ * @return 批次完成阈值（0.0-1.0）
+ * 
+ * 动态策略（全面优化刷新率，低频信号也快速响应）：
+ * - 超高频（>1MHz）：15%阈值，极速刷新
+ * - 高频（100kHz-1MHz）：25%阈值，高速刷新
+ * - 中高频（10kHz-100kHz）：35%阈值，快速刷新
+ * - 中频（1kHz-10kHz）：45%阈值，快速响应
+ * - 低频（100Hz-1kHz）：55%阈值，较快响应
+ * - 极低频（<100Hz）：70%阈值，保证完整周期
+ */
+double DataProcessor::calculateDynamicThreshold(double estimatedFreq) const {
+    if (estimatedFreq <= 0.0) {
+        // 无法估算频率时，使用保守阈值（中等）
+        return 0.45;
+    }
+    
+    // 超高频：极速刷新优先
+    if (estimatedFreq > 1000000.0) {
+        return 0.15;  // 15%即触发（例如500k点只需75k点）
+    }
+    // 高频：高速刷新
+    else if (estimatedFreq > 100000.0) {
+        return 0.25;  // 25%触发
+    }
+    // 中高频：快速刷新
+    else if (estimatedFreq > 10000.0) {
+        return 0.35;  // 35%触发（降低15%）
+    }
+    // 中频：快速响应
+    else if (estimatedFreq > 1000.0) {
+        return 0.45;  // 45%触发（降低25%）⚡
+    }
+    // 低频：较快响应
+    else if (estimatedFreq > 100.0) {
+        return 0.55;  // 55%触发（降低35%）⚡⚡
+    }
+    // 极低频：保证完整周期
+    else {
+        return 0.70;  // 70%触发（降低18%）
+    }
+}
+
+/**
+ * @brief 快速估算信号频率（用于动态阈值计算）
+ * @param voltages 当前累积的电压数据
+ * @param times 当前累积的时间数据
+ * @return 估算的频率（Hz），0表示无法估算
+ * 
+ * 轻量级实现：
+ * - 只扫描前5000个点（避免全量扫描）
+ * - 使用简单的过零检测
+ * - 计算前几个周期的平均频率
+ */
+double DataProcessor::quickFrequencyEstimate(const QVector<double>& voltages, const QVector<double>& times) const {
+    const int n = voltages.size();
+    if (n < 100 || times.size() != n) {
+        return 0.0;
+    }
+
+    // 限制扫描范围（最多5000个点，或全部数据）
+    const int scanLimit = qMin(5000, n);
+    
+    // 快速计算最大最小值和阈值
+    double vMin = voltages[0];
+    double vMax = voltages[0];
+    for (int i = 0; i < scanLimit; ++i) {
+        if (voltages[i] < vMin) vMin = voltages[i];
+        if (voltages[i] > vMax) vMax = voltages[i];
+    }
+    
+    double peakToPeak = vMax - vMin;
+    if (peakToPeak < 1e-6) {
+        return 0.0;  // 信号幅度太小
+    }
+    
+    double threshold = (vMin + vMax) * 0.5;
+    double hysteresis = peakToPeak * 0.02;
+    
+    // 检测前几个过零点
+    QVector<double> crossTimes;
+    crossTimes.reserve(20);
+    
+    bool isAbove = (voltages[0] > threshold);
+    
+    for (int i = 1; i < scanLimit && crossTimes.size() < 10; ++i) {
+        double v_prev = voltages[i-1];
+        double v_curr = voltages[i];
+        
+        // 上升沿过零
+        if (!isAbove && v_curr > (threshold + hysteresis)) {
+            double t_cross = interpolateZeroCrossTime(v_prev, v_curr, times[i-1], times[i], threshold);
+            crossTimes.append(t_cross);
+            isAbove = true;
+        }
+        // 下降沿过零
+        else if (isAbove && v_curr < (threshold - hysteresis)) {
+            double t_cross = interpolateZeroCrossTime(v_prev, v_curr, times[i-1], times[i], threshold);
+            crossTimes.append(t_cross);
+            isAbove = false;
+        }
+    }
+    
+    // 至少需要4个过零点（2个完整周期）才能估算
+    if (crossTimes.size() < 4) {
+        return 0.0;
+    }
+    
+    // 计算前几个完整周期的平均周期
+    QVector<double> periods;
+    for (int i = 0; i < crossTimes.size() - 2; i += 2) {
+        double period = crossTimes[i+2] - crossTimes[i];
+        if (period > 0.01) {  // 过滤异常值
+            periods.append(period);
+        }
+    }
+    
+    if (periods.isEmpty()) {
+        return 0.0;
+    }
+    
+    // 计算平均周期
+    double sumPeriods = 0.0;
+    for (double p : periods) {
+        sumPeriods += p;
+    }
+    double avgPeriod = sumPeriods / periods.size();  // 微秒
+    
+    // 转换为频率（Hz）
+    return 1e6 / avgPeriod;
 }
 
 /**
@@ -40,7 +209,9 @@ void DataProcessor::reset()
 {
     accumulatedVoltages.clear();
     accumulatedTimes.clear();
-    qDebug() << "DataProcessor reset: 已清空累积的数据缓冲区";
+    currentBatchSize = 0;
+    isNewBatch = true;
+    qDebug() << "DataProcessor reset";
 }
 
 /**
@@ -82,88 +253,112 @@ WaveformAnalysisResult DataProcessor::analyzeWaveform(const QVector<double>& vol
         }
     }
 
-    // 快速检查：是否有足够数据进行分析（至少需要能检测2个完整周期）
-    const int MIN_SAMPLES = 10; // 最少10个采样点
-    if (accumulatedVoltages.size() < MIN_SAMPLES) {
-        WaveformAnalysisResult result;
-        result.isReady = false;
-        return result;
+    // ========== 基于频率自适应的动态分析触发逻辑 ==========
+    // 追加到当前批次计数
+    currentBatchSize += (times.size() - startIdx);
+    
+    // 每累积一定数量的点，进行快速频率估算
+    double estimatedFreq = 0.0;
+    if (currentBatchSize >= 1000 && currentBatchSize % 2000 == 0) {
+        estimatedFreq = quickFrequencyEstimate(accumulatedVoltages, accumulatedTimes);
+        
+        // 调试输出
+        if (estimatedFreq > 0.0) {
+            qDebug() << "快速频率估算：" << QString::number(estimatedFreq / 1000.0, 'f', 2) << "kHz";
+        }
+    } else if (lastDetectedFrequency > 0.0) {
+        // 使用上次检测到的频率
+        estimatedFreq = lastDetectedFrequency;
     }
+    
+    // 根据估算频率计算动态阈值
+    double dynamicThreshold = calculateDynamicThreshold(estimatedFreq);
+    
+    // 显示累积进度
+    double progress = (currentBatchSize * 100.0) / configTotalSamples;
+    if (currentBatchSize % 5000 == 0 || currentBatchSize < 1000) {
+        QString freqInfo = (estimatedFreq > 0.0) 
+            ? QString("估算频率：%1kHz，阈值：%2%").arg(estimatedFreq / 1000.0, 0, 'f', 2).arg(dynamicThreshold * 100.0, 0, 'f', 0)
+            : QString("阈值：%1%").arg(dynamicThreshold * 100.0, 0, 'f', 0);
+        qDebug() << "累积进度：" << currentBatchSize << "/" << configTotalSamples 
+                 << "(" << QString::number(progress, 'f', 1) << "%)"
+                 << freqInfo;
+    }
+    
+    // 判断是否达到动态阈值
+    bool isBatchComplete = (currentBatchSize >= configTotalSamples * dynamicThreshold);
+    
+    // 防护：如果累积超过120%，强制触发（防止无限累积）
+    bool forceAnalysis = (currentBatchSize >= configTotalSamples * 1.2);
+    
+    if (isBatchComplete || forceAnalysis) {
+        qDebug() << "========================================";
+        qDebug() << "批次完成，开始分析：" << currentBatchSize << "个采样点";
+        double timeSpan = accumulatedTimes.last() - accumulatedTimes.first();
+        qDebug() << "时间跨度：" << QString::number(timeSpan / 1000.0, 'f', 2) << "ms";
+        if (estimatedFreq > 0.0) {
+            qDebug() << "触发阈值：" << QString::number(dynamicThreshold * 100.0, 'f', 0) << "%（基于" 
+                     << QString::number(estimatedFreq / 1000.0, 'f', 2) << "kHz估算）";
+        }
+        qDebug() << "========================================";
+        
+        // 执行完整分析
+        WaveformAnalysisResult result = performAnalysis(accumulatedVoltages, accumulatedTimes);
+        result.isReady = true;
+        
+        // 保存检测到的频率（用于下次动态阈值计算）
+        if (result.frequency > 0.0) {
+            lastDetectedFrequency = result.frequency;
+        }
 
-    // ========== 防护：数据量过大保护 ==========
-    // 降低阈值，更频繁触发分析（避免累积过多数据）
-    const int MAX_ACCUMULATED_SAMPLES = 10000; // 降低到10000点
-    bool forceAnalysis = (accumulatedVoltages.size() >= MAX_ACCUMULATED_SAMPLES);
-    
-    // 如果数据量过大（>10000），只取前面的数据进行分析
-    QVector<double> analyzeVoltages = accumulatedVoltages;
-    QVector<double> analyzeTimes = accumulatedTimes;
-    
-    if (forceAnalysis && accumulatedVoltages.size() > MAX_ACCUMULATED_SAMPLES) {
-        // 只取前MAX_ACCUMULATED_SAMPLES个点进行分析
-        analyzeVoltages = accumulatedVoltages.mid(0, MAX_ACCUMULATED_SAMPLES);
-        analyzeTimes = accumulatedTimes.mid(0, MAX_ACCUMULATED_SAMPLES);
-        qDebug() << "Data truncated for analysis: from" << accumulatedVoltages.size() 
-                 << "to" << MAX_ACCUMULATED_SAMPLES;
-    }
-    
-    // 快速预扫描：计算过零点数量（O(n)单次遍历）
-    int crossCount = countZeroCrossings(analyzeVoltages);
-    
-    // ========== 改进的触发逻辑：根据频率需求累积足够的周期数 ==========
-    // 第一阶段：至少需要4个过零点才能初步判断频率
-    const int MIN_CROSSINGS_FOR_FREQ = 4;
-    if (crossCount < MIN_CROSSINGS_FOR_FREQ) {
-        // 如果数据量过大但过零点不足，说明可能是直流或噪声，强制触发
-        if (forceAnalysis) {
-            WaveformAnalysisResult result = performAnalysis(analyzeVoltages, analyzeTimes);
-            result.isReady = true;
+        // ========== 保留部分数据以保证波形连续性 ==========
+        // 策略：根据频率动态调整保留比例
+        // - 高频（>10kHz）：保留20%数据
+        // - 中频（1kHz-10kHz）：保留15%数据
+        // - 低频（<1kHz）：保留10%数据（加快低频刷新）⚡
+        double keepRatio;
+        if (estimatedFreq > 10000.0) {
+            keepRatio = 0.20;  // 高频：20%
+        } else if (estimatedFreq > 1000.0) {
+            keepRatio = 0.15;  // 中频：15%
+        } else {
+            keepRatio = 0.10;  // 低频：10%（减少保留数据）
+        }
+        
+        int keepCount = qMin(static_cast<int>(currentBatchSize * keepRatio), 50000); // 动态保留，最多5万点
+        
+        if (keepCount > 0 && accumulatedVoltages.size() > keepCount) {
+            int startKeep = accumulatedVoltages.size() - keepCount;
             
-            // 清理累积数据
+            // 创建临时缓冲区保存要保留的数据
+            QVector<double> keepVoltages;
+            QVector<double> keepTimes;
+            keepVoltages.reserve(keepCount);
+            keepTimes.reserve(keepCount);
+            
+            for (int i = startKeep; i < accumulatedVoltages.size(); ++i) {
+                keepVoltages.append(accumulatedVoltages[i]);
+                keepTimes.append(accumulatedTimes[i]);
+            }
+            
+            // 清空原数据
             accumulatedVoltages.clear();
             accumulatedTimes.clear();
             
-            // 发射降采样数据信号（供绘图使用）
-            if (!result.downsampledVoltages.isEmpty() && !result.downsampledTimes.isEmpty()) {
-                emit downsampledDataReady(result.downsampledVoltages, result.downsampledTimes);
-            }
+            // 恢复保留的数据
+            accumulatedVoltages = keepVoltages;
+            accumulatedTimes = keepTimes;
+            currentBatchSize = keepCount;
             
-            // 发射分析结果信号
-            emit analysisReady(result);
-            return result;
+            qDebug() << "保留" << keepCount << "个数据点用于下一批次，保证波形连续性";
+        } else {
+            // 数据太少，全部清空
+            accumulatedVoltages.clear();
+            accumulatedTimes.clear();
+            currentBatchSize = 0;
         }
         
-        // 数据不足以判断频率，继续累积
-        WaveformAnalysisResult result;
-        result.isReady = false;
-        return result;
-    }
-    
-    // 第二阶段：粗略估算频率，判断需要多少个周期
-    double timeSpan = analyzeTimes.last() - analyzeTimes.first(); // 微秒
-    double estimatedCycles = crossCount / 2.0; // 每个完整周期有2个过零点
-    double estimatedFrequency = (estimatedCycles / timeSpan) * 1e6; // Hz
-    
-    // 根据频率决定需要累积的最小周期数
-    const double HIGH_FREQ_THRESHOLD = 10000.0; // 10kHz
-    int requiredCycles = (estimatedFrequency > HIGH_FREQ_THRESHOLD) ? 8 : 3;
-    
-    // ========== 添加最大周期数限制 ==========
-    // 如果已经累积了超过20个周期，无论是否达到目标都强制触发（避免累积过多）
-    const int MAX_CYCLES = 20;
-    bool hasEnoughCycles = (estimatedCycles >= requiredCycles) || 
-                           (estimatedCycles >= MAX_CYCLES) ||
-                           forceAnalysis;
-    
-    // 判断是否已经累积了足够的周期数
-    if (hasEnoughCycles) {
-        // 执行完整分析
-        WaveformAnalysisResult result = performAnalysis(analyzeVoltages, analyzeTimes);
-        result.isReady = true;
-
-        // 清理累积数据
-        accumulatedVoltages.clear();
-        accumulatedTimes.clear();
+        isNewBatch = false; // 已经不是新批次了
 
         // 发射降采样数据信号（供绘图使用）
         if (!result.downsampledVoltages.isEmpty() && !result.downsampledTimes.isEmpty()) {
@@ -174,16 +369,8 @@ WaveformAnalysisResult DataProcessor::analyzeWaveform(const QVector<double>& vol
         emit analysisReady(result);
         return result;
     }
-
-    // 数据不足，继续累积更多周期
-    // 调试信息：显示当前累积状态
-    if (accumulatedVoltages.size() % 2000 == 0) { // 每累积2000个点输出一次（更频繁）
-        qDebug() << "Accumulating: samples=" << accumulatedVoltages.size() 
-                 << ", cycles=" << estimatedCycles
-                 << ", required=" << requiredCycles
-                 << ", freq_est=" << estimatedFrequency << "Hz";
-    }
     
+    // 继续累积
     WaveformAnalysisResult result;
     result.isReady = false;
     return result;
@@ -335,59 +522,156 @@ WaveformAnalysisResult DataProcessor::performAnalysis(const QVector<double>& vol
         return result;
     }
 
-    // ========== 阶段3：基于完整周期的频率计算 ==========
-    // 策略：使用所有完整周期的平均值（比单个周期更准确）
+    // ========== 阶段3：波形类型识别 ==========
+    // 识别方波的特征：
+    // 1. 信号主要集中在两个电平（高低电平）
+    // 2. 跳变速度快（总变化量大）
+    // 3. 占空比在合理范围内（10%-90%）
     
-    // 计算连续同向过零点之间的完整周期（2倍半周期）
-    QVector<double> periods;
-    periods.reserve(crosses.size() / 2);
+    // 计算电平分布（统计接近最大值和最小值的样本数量）
+    double levelThreshold = result.peakToPeak * 0.2; // 20%的范围内视为稳定电平
+    int nearMaxCount = 0;
+    int nearMinCount = 0;
     
-    for (int i = 0; i < crosses.size() - 2; i += 2) {
-        // 找到两个同向过零点（例如：上升沿到下一个上升沿）
-        if (crosses[i].rising == crosses[i+2].rising) {
-            double period = crosses[i+2].time - crosses[i].time;
-            if (period > 0.01) { // 过滤异常值（周期>0.01微秒，即频率<100MHz）
-                periods.append(period);
+    for (int i = 0; i < n; ++i) {
+        if (voltages[i] > (vMax - levelThreshold)) {
+            nearMaxCount++;
+        } else if (voltages[i] < (vMin + levelThreshold)) {
+            nearMinCount++;
+        }
+    }
+    
+    // 方波特征判断：
+    // 1. 大部分样本点集中在高低电平（>60%）
+    // 2. 平均变化量大（跳变明显）
+    double levelConcentration = (nearMaxCount + nearMinCount) * 100.0 / n;
+    double avgVariationPerSample = totalVariation / n;
+    bool isSquareWave = (levelConcentration > 60.0) 
+                        && (avgVariationPerSample > result.peakToPeak * 0.05);
+    
+    QString waveType = isSquareWave ? "方波" : "正弦波/其他";
+    qDebug() << "[波形识别] 类型：" << waveType 
+             << "，电平集中度：" << QString::number(levelConcentration, 'f', 1) << "%"
+             << "，平均变化：" << QString::number(avgVariationPerSample, 'f', 4) << "V";
+    
+    // ========== 阶段4：频率计算（基于波形类型和频率范围）==========
+    double timeSpan = times.last() - times.first(); // 微秒
+    double effectiveSampleRate = (n - 1) / (timeSpan * 1e-6); // 有效采样率（Hz）
+    
+    // 方法1：FFT频率检测
+    double fftFrequency = calculateFrequencyFFT(voltages, effectiveSampleRate);
+    
+    // 方法2：过零点检测
+    double zeroCrossFrequency = 0.0;
+    
+    // 决策逻辑：
+    // 1. 高频（≥30kHz）：FFT + 过零点综合
+    // 2. 低频方波（<30kHz + 方波）：优先过零点检测（避免FFT谐波干扰）
+    // 3. 低频非方波（<30kHz + 正弦波等）：只用FFT（避免倍频问题）
+    
+    if (fftFrequency >= 30000.0) {
+        // 高频信号：综合FFT和过零点
+        QVector<double> sameDirTimes;
+        for (const auto& cross : crosses) {
+            if (cross.rising) {  // 只统计上升沿
+                sameDirTimes.append(cross.time);
             }
+        }
+        
+        if (sameDirTimes.size() >= 2) {
+            // 计算相邻上升沿的周期
+            QVector<double> periods;
+            for (int i = 0; i < sameDirTimes.size() - 1; ++i) {
+                double period = sameDirTimes[i+1] - sameDirTimes[i];
+                if (period > 0.01 && period < 10e6) {
+                    periods.append(period);
+                }
+            }
+            
+            if (!periods.isEmpty()) {
+                // 排序并取中位数
+                std::sort(periods.begin(), periods.end());
+                double median = periods[periods.size() / 2];
+                zeroCrossFrequency = 1e6 / median;
+            }
+        }
+        
+        // 高频信号：综合FFT和过零点
+        if (fftFrequency > 0.0 && zeroCrossFrequency > 0.0) {
+            double errorPercent = std::fabs(fftFrequency - zeroCrossFrequency) / ((fftFrequency + zeroCrossFrequency) / 2.0) * 100.0;
+            result.frequency = (errorPercent < 5.0) ? fftFrequency : ((fftFrequency + zeroCrossFrequency) / 2.0);
+            qDebug() << "[频率≥30kHz] FFT:" << fftFrequency << "Hz, 过零点:" << zeroCrossFrequency << "Hz, 误差:" << errorPercent << "%";
+        } else if (fftFrequency > 0.0) {
+            result.frequency = fftFrequency;
+            qDebug() << "[频率≥30kHz] 使用FFT:" << fftFrequency << "Hz";
+        } else if (zeroCrossFrequency > 0.0) {
+            result.frequency = zeroCrossFrequency;
+            qDebug() << "[频率≥30kHz] 使用过零点:" << zeroCrossFrequency << "Hz";
+        } else {
+            result.frequency = 0.0;
+        }
+    } else if (isSquareWave) {
+        // 低频方波：优先使用过零点检测（方波FFT受谐波影响）
+        QVector<double> sameDirTimes;
+        for (const auto& cross : crosses) {
+            if (cross.rising) {  // 只统计上升沿
+                sameDirTimes.append(cross.time);
+            }
+        }
+        
+        if (sameDirTimes.size() >= 2) {
+            // 计算相邻上升沿的周期
+            QVector<double> periods;
+            for (int i = 0; i < sameDirTimes.size() - 1; ++i) {
+                double period = sameDirTimes[i+1] - sameDirTimes[i];
+                if (period > 0.01 && period < 10e6) {
+                    periods.append(period);
+                }
+            }
+            
+            if (!periods.isEmpty()) {
+                // 排序并取中位数
+                std::sort(periods.begin(), periods.end());
+                double median = periods[periods.size() / 2];
+                zeroCrossFrequency = 1e6 / median;
+                
+                // 方波优先使用过零点，但如果FFT结果接近则取平均
+                if (fftFrequency > 0.0 && zeroCrossFrequency > 0.0) {
+                    double errorPercent = std::fabs(fftFrequency - zeroCrossFrequency) / ((fftFrequency + zeroCrossFrequency) / 2.0) * 100.0;
+                    result.frequency = (errorPercent < 10.0) ? zeroCrossFrequency : ((fftFrequency + zeroCrossFrequency) / 2.0);
+                    qDebug() << "[低频方波] 过零点:" << zeroCrossFrequency << "Hz, FFT:" << fftFrequency << "Hz, 误差:" << errorPercent << "%，使用过零点";
+                } else if (zeroCrossFrequency > 0.0) {
+                    result.frequency = zeroCrossFrequency;
+                    qDebug() << "[低频方波] 使用过零点:" << zeroCrossFrequency << "Hz";
+                } else if (fftFrequency > 0.0) {
+                    result.frequency = fftFrequency;
+                    qDebug() << "[低频方波] 过零点失败，使用FFT:" << fftFrequency << "Hz";
+                } else {
+                    result.frequency = 0.0;
+                }
+            } else if (fftFrequency > 0.0) {
+                result.frequency = fftFrequency;
+                qDebug() << "[低频方波] 过零点周期异常，使用FFT:" << fftFrequency << "Hz";
+            } else {
+                result.frequency = 0.0;
+            }
+        } else if (fftFrequency > 0.0) {
+            result.frequency = fftFrequency;
+            qDebug() << "[低频方波] 过零点不足，使用FFT:" << fftFrequency << "Hz";
+        } else {
+            result.frequency = 0.0;
+        }
+    } else {
+        // 低频正弦波/其他波形：只使用FFT（避免倍频问题）
+        result.frequency = fftFrequency;
+        if (fftFrequency > 0.0) {
+            qDebug() << "[低频非方波] 仅使用FFT（避免倍频）:" << fftFrequency << "Hz";
+        } else {
+            qDebug() << "[低频非方波] FFT检测失败";
         }
     }
 
-    // 如果完整周期不足，使用半周期估算
-    if (periods.isEmpty()) {
-        for (int i = 0; i < crosses.size() - 1; ++i) {
-            double halfPeriod = crosses[i+1].time - crosses[i].time;
-            if (halfPeriod > 0.01) {
-                periods.append(halfPeriod * 2.0); // 半周期×2
-            }
-        }
-    }
-
-    // 使用中位数滤波（对离群值robust）+ 平均值
-    if (!periods.isEmpty()) {
-        std::sort(periods.begin(), periods.end());
-        
-        // 计算中位数
-        double median = (periods.size() % 2 == 0) 
-            ? (periods[periods.size()/2 - 1] + periods[periods.size()/2]) * 0.5
-            : periods[periods.size()/2];
-        
-        // 过滤离群值：只保留±40%范围内的周期
-        double sumValid = 0.0;
-        int countValid = 0;
-        for (double p : periods) {
-            if (std::fabs(p - median) <= median * 0.4) {
-                sumValid += p;
-                countValid++;
-            }
-        }
-        
-        if (countValid > 0) {
-            double avgPeriod = sumValid / countValid; // 平均周期（微秒）
-            result.frequency = 1e6 / avgPeriod;      // 转换为Hz
-        }
-    }
-
-    // ========== 阶段4：占空比检测（方波特征） ==========
+    // ========== 阶段5：占空比计算（用于显示）==========
     // 计算高电平持续时间比例
     double highTime = 0.0;
     double totalTime = times.last() - times.first();
@@ -402,28 +686,49 @@ WaveformAnalysisResult DataProcessor::performAnalysis(const QVector<double>& vol
     
     double dutyRatio = (totalTime > 0) ? (highTime / totalTime) : 0.0;
 
-    // 判断是否为方波：
-    // 1. 占空比不是极端值（10%-90%）
-    // 2. 总变化量大（方波有明显跳变）
-    double avgVariationPerSample = totalVariation / n;
-    bool isSquareWave = (dutyRatio > 0.1 && dutyRatio < 0.9) 
-                        && (avgVariationPerSample > result.peakToPeak * 0.1);
-    
+    // 根据波形类型设置占空比显示
     if (isSquareWave) {
         result.dutyCycle = QString::number(dutyRatio * 100.0, 'f', 1) + "%";
     } else {
         result.dutyCycle = "非方波";
     }
 
-    // ========== 阶段5：智能降采样（提升绘图性能）==========
-    // 只有在频率有效时才进行降采样
-    if (result.frequency > 0.0) {
-        result.downsampleRatio = downsampleWaveform(
-            voltages, times, result.frequency,
-            result.downsampledVoltages, result.downsampledTimes
-        );
+    // ========== 阶段6：简化的数据输出（基于半周期数量）==========
+    if (result.frequency > 0.0 && crosses.size() >= 2) {
+        // 低频（<1kHz）：输出2个半周期（1个完整周期）
+        // 高频（≥1kHz）：输出8个半周期（4个完整周期）
+        int targetHalfCycles = (result.frequency < 1000.0) ? 2 : 8;
+        
+        // 确保不超过实际过零点数量
+        int availableHalfCycles = qMin(targetHalfCycles, crosses.size() - 1);
+        
+        if (availableHalfCycles >= 1) {
+            // 找到起始和结束时间
+            double startTime = crosses[0].time;
+            double endTime = crosses[availableHalfCycles].time;
+            
+            // 提取该时间范围内的所有数据点
+            result.downsampledVoltages.clear();
+            result.downsampledTimes.clear();
+            
+            for (int i = 0; i < n; ++i) {
+                if (times[i] >= startTime && times[i] <= endTime) {
+                    result.downsampledVoltages.append(voltages[i]);
+                    result.downsampledTimes.append(times[i]);
+                }
+            }
+            
+            result.downsampleRatio = n / qMax(1, result.downsampledVoltages.size());
+            qDebug() << "[数据输出] 输出" << availableHalfCycles << "个半周期，共" 
+                     << result.downsampledVoltages.size() << "个数据点";
+        } else {
+            // 数据不足，输出全部
+            result.downsampledVoltages = voltages;
+            result.downsampledTimes = times;
+            result.downsampleRatio = 1;
+        }
     } else {
-        // 频率无效，不降采样（可能是直流或异常信号）
+        // 频率无效，输出全部数据
         result.downsampledVoltages = voltages;
         result.downsampledTimes = times;
         result.downsampleRatio = 1;
@@ -434,14 +739,6 @@ WaveformAnalysisResult DataProcessor::performAnalysis(const QVector<double>& vol
 
 /**
  * @brief 线性插值计算精确过零时间
- * @param v1 前一个电压值
- * @param v2 当前电压值
- * @param t1 前一个时间戳
- * @param t2 当前时间戳
- * @param threshold 阈值
- * @return 插值后的过零时间（微秒）
- * 
- * 性能：内联函数，无分支预测失败
  */
 inline double DataProcessor::interpolateZeroCrossTime(
     double v1, double v2, 
@@ -450,218 +747,223 @@ inline double DataProcessor::interpolateZeroCrossTime(
 {
     double dv = v2 - v1;
     if (std::fabs(dv) < 1e-12) {
-        return (t1 + t2) * 0.5; // 避免除零
+        return (t1 + t2) * 0.5;
     }
     double fraction = (threshold - v1) / dv;
-    // 限制插值范围[0,1]（数值稳定性）
     fraction = std::max(0.0, std::min(1.0, fraction));
     return t1 + fraction * (t2 - t1);
 }
 
 /**
- * @brief 智能降采样算法：根据信号频率自适应减少数据点
- * @param voltages 原始电压数据
- * @param times 原始时间戳
- * @param frequency 检测到的信号频率（Hz）
- * @param outVoltages 输出：降采样后的电压
- * @param outTimes 输出：降采样后的时间戳
- * @return 降采样倍率
- * 
- * 核心策略：
- * 1. 根据频率自适应显示周期数：高频≥8个周期，低频≥3个周期
- * 2. 根据奈奎斯特定理动态调整每周期采样点数（高频更少，低频更多）
- * 3. 高频信号（>1MHz）：使用直接抽取法保持波形真实性
- * 4. 低频信号：使用极值保留法确保方波等信号不失真
- * 
- * 性能：
- * - 时间复杂度：O(n)
- * - 空间复杂度：O(n/ratio)
+ * @brief 计算下一个2的幂次方
+ * @param n 输入数字
+ * @return 大于等于n的最小2的幂次方
  */
-int DataProcessor::downsampleWaveform(
-    const QVector<double>& voltages, 
-    const QVector<double>& times, 
-    double frequency,
-    QVector<double>& outVoltages,
-    QVector<double>& outTimes) const 
-{
-    const int n = voltages.size();
-    
-    // 边界情况：数据太少，直接返回原数据
-    if (n < 20 || frequency <= 0.0) {
-        outVoltages = voltages;
-        outTimes = times;
-        return 1;
+int DataProcessor::nextPowerOfTwo(int n) const {
+    int power = 1;
+    while (power < n) {
+        power *= 2;
     }
+    return power;
+}
 
-    // ========== 计算需要显示的周期数 ==========
-    // 高频信号（>10kHz）：显示至少8个周期
-    // 低频信号（≤10kHz）：显示至少3个周期
-    const double HIGH_FREQ_THRESHOLD = 10000.0; // 10kHz
-    int targetCycles = (frequency > HIGH_FREQ_THRESHOLD) ? 8 : 3;
+/**
+ * @brief 应用Hann窗函数
+ * @param data 输入/输出数据
+ * 
+ * Hann窗：w(n) = 0.5 * (1 - cos(2πn/(N-1)))
+ * 作用：减少频谱泄漏，提高频率分辨率
+ */
+void DataProcessor::applyHannWindow(QVector<double>& data) const {
+    const int N = data.size();
+    if (N < 2) return;
     
-    // ========== 计算原始数据包含的周期数和时长 ==========
-    double timeSpan = times.last() - times.first(); // 微秒
-    double actualCycles = (frequency * timeSpan) / 1e6; // 实际周期数
+    const double PI = 3.14159265358979323846;
+    for (int i = 0; i < N; ++i) {
+        double window = 0.5 * (1.0 - std::cos(2.0 * PI * i / (N - 1)));
+        data[i] *= window;
+    }
+}
+
+/**
+ * @brief Cooley-Tukey FFT算法实现（原位计算）
+ * @param real 输入/输出：实部
+ * @param imag 输入/输出：虚部
+ * @param inverse false=正变换，true=逆变换
+ * 
+ * 要求：real.size() = imag.size() = 2^n
+ * 时间复杂度：O(N log N)
+ */
+void DataProcessor::fft(QVector<double>& real, QVector<double>& imag, bool inverse) const {
+    const int N = real.size();
+    if (N <= 1) return;
     
-    // 如果实际周期数不足目标周期数，显示所有数据
-    if (actualCycles < targetCycles) {
-        outVoltages = voltages;
-        outTimes = times;
-        return 1;
+    // 检查是否为2的幂次方
+    if ((N & (N - 1)) != 0) {
+        qWarning() << "FFT: 数据大小必须是2的幂次方，当前大小：" << N;
+        return;
     }
     
-    // ========== 计算需要截取的数据范围 ==========
-    // 计算目标周期对应的时间跨度（微秒）
-    double targetTimeSpan = (targetCycles / frequency) * 1e6; // 转换为微秒
-    
-    // 找到对应的数据点范围（只使用前 targetCycles 个周期的数据）
-    double startTime = times.first();
-    double endTime = startTime + targetTimeSpan;
-    
-    // 找到截止索引
-    int endIdx = 0;
-    for (int i = 0; i < n; ++i) {
-        if (times[i] > endTime) {
-            endIdx = i;
-            break;
+    // 位反转排序（Bit-reversal permutation）
+    int j = 0;
+    for (int i = 0; i < N - 1; ++i) {
+        if (i < j) {
+            std::swap(real[i], real[j]);
+            std::swap(imag[i], imag[j]);
         }
-    }
-    if (endIdx == 0) endIdx = n; // 防止没找到（使用所有数据）
-    
-    // ========== 自适应计算每周期采样点数 ==========
-    // 根据频率动态调整采样密度：
-    // - 超高频（>2MHz）：每周期20-30点（接近奈奎斯特极限，保证基本波形）
-    // - 高频（100kHz-2MHz）：每周期50-80点（平衡性能和质量）
-    // - 中频（10kHz-100kHz）：每周期100-150点（高质量显示）
-    // - 低频（<10kHz）：每周期200点（完美重现）
-    int POINTS_PER_CYCLE;
-    if (frequency > 2000000.0) {
-        // 超高频：接近奈奎斯特极限，每周期20-30点
-        POINTS_PER_CYCLE = 25;
-    } else if (frequency > 500000.0) {
-        // 高频：每周期50点
-        POINTS_PER_CYCLE = 50;
-    } else if (frequency > 100000.0) {
-        // 中高频：每周期80点
-        POINTS_PER_CYCLE = 80;
-    } else if (frequency > 10000.0) {
-        // 中频：每周期120点
-        POINTS_PER_CYCLE = 120;
-    } else {
-        // 低频：每周期200点
-        POINTS_PER_CYCLE = 200;
-    }
-    
-    int targetPoints = targetCycles * POINTS_PER_CYCLE;
-    
-    // 计算降采样倍率（基于截取后的数据范围）
-    int ratio = qMax(1, endIdx / targetPoints);
-    
-    // 限制降采样倍率
-    const int MAX_RATIO = 1000;
-    ratio = qMin(ratio, MAX_RATIO);
-    
-    // 如果降采样倍率<2，直接返回截取的数据
-    if (ratio < 2) {
-        outVoltages.reserve(endIdx);
-        outTimes.reserve(endIdx);
-        for (int i = 0; i < endIdx; ++i) {
-            outVoltages.append(voltages[i]);
-            outTimes.append(times[i]);
+        int k = N / 2;
+        while (k <= j) {
+            j -= k;
+            k /= 2;
         }
-        return 1;
+        j += k;
     }
-
-    // ========== 计算峰峰值（用于方波检测）==========
-    double vMin = voltages[0];
-    double vMax = voltages[0];
-    for (int i = 0; i < endIdx; ++i) {
-        if (voltages[i] < vMin) vMin = voltages[i];
-        if (voltages[i] > vMax) vMax = voltages[i];
-    }
-    double peakToPeak = vMax - vMin;
-
-    // ========== 执行降采样（策略根据频率选择）==========
-    outVoltages.reserve(targetPoints + 100);
-    outTimes.reserve(targetPoints + 100);
     
-    // 添加第一个点
-    outVoltages.append(voltages[0]);
-    outTimes.append(times[0]);
-
-    // 高频信号（>1MHz）：使用直接等间距抽取 + 局部极值保留
-    // 低频信号：使用窗口极值法确保方波不失真
-    const double VERY_HIGH_FREQ_THRESHOLD = 1000000.0; // 1MHz
+    // Cooley-Tukey FFT主算法
+    const double PI = 3.14159265358979323846;
+    const double direction = inverse ? 1.0 : -1.0;
     
-    if (frequency > VERY_HIGH_FREQ_THRESHOLD) {
-        // ========== 高频模式：直接等间距抽取（减少混叠）==========
-        for (int i = ratio; i < endIdx - ratio; i += ratio) {
-            // 直接取中心点（减少相位偏移）
-            outVoltages.append(voltages[i]);
-            outTimes.append(times[i]);
-        }
-    } else {
-        // ========== 中低频模式：窗口极值保留法（保证方波质量）==========
-        for (int i = ratio; i < endIdx - ratio; i += ratio) {
-            int windowStart = qMax(0, i - ratio / 2);
-            int windowEnd = qMin(endIdx, i + ratio / 2);
+    for (int len = 2; len <= N; len *= 2) {
+        double angle = direction * 2.0 * PI / len;
+        double wlen_real = std::cos(angle);
+        double wlen_imag = std::sin(angle);
+        
+        for (int i = 0; i < N; i += len) {
+            double w_real = 1.0;
+            double w_imag = 0.0;
             
-            // 在窗口内找到最大值和最小值
-            double maxVal = voltages[windowStart];
-            double minVal = voltages[windowStart];
-            int maxIdx = windowStart;
-            int minIdx = windowStart;
-            
-            for (int j = windowStart; j < windowEnd; ++j) {
-                if (voltages[j] > maxVal) {
-                    maxVal = voltages[j];
-                    maxIdx = j;
-                }
-                if (voltages[j] < minVal) {
-                    minVal = voltages[j];
-                    minIdx = j;
-                }
-            }
-            
-            // 判断窗口内变化幅度
-            double range = maxVal - minVal;
-            
-            // 如果窗口内变化>10%峰峰值，说明有显著变化（可能是方波边沿）
-            if (range > peakToPeak * 0.1) {
-                // 按时间顺序添加极值点
-                if (maxIdx < minIdx) {
-                    outVoltages.append(maxVal);
-                    outTimes.append(times[maxIdx]);
-                    if (minIdx != maxIdx) {
-                        outVoltages.append(minVal);
-                        outTimes.append(times[minIdx]);
-                    }
-                } else if (minIdx < maxIdx) {
-                    outVoltages.append(minVal);
-                    outTimes.append(times[minIdx]);
-                    if (maxIdx != minIdx) {
-                        outVoltages.append(maxVal);
-                        outTimes.append(times[maxIdx]);
-                    }
-                } else {
-                    // 极值点相同，只添加一次
-                    outVoltages.append(voltages[i]);
-                    outTimes.append(times[i]);
-                }
-            } else {
-                // 窗口内变化小，直接取中心点
-                outVoltages.append(voltages[i]);
-                outTimes.append(times[i]);
+            for (int j = 0; j < len / 2; ++j) {
+                int idx1 = i + j;
+                int idx2 = i + j + len / 2;
+                
+                double t_real = w_real * real[idx2] - w_imag * imag[idx2];
+                double t_imag = w_real * imag[idx2] + w_imag * real[idx2];
+                
+                real[idx2] = real[idx1] - t_real;
+                imag[idx2] = imag[idx1] - t_imag;
+                real[idx1] = real[idx1] + t_real;
+                imag[idx1] = imag[idx1] + t_imag;
+                
+                // 更新旋转因子
+                double w_temp = w_real;
+                w_real = w_real * wlen_real - w_imag * wlen_imag;
+                w_imag = w_temp * wlen_imag + w_imag * wlen_real;
             }
         }
     }
     
-    // 确保截取范围的最后一个点被包含（完成最后一个周期）
-    if (endIdx > 0 && (outTimes.isEmpty() || outTimes.last() != times[endIdx - 1])) {
-        outVoltages.append(voltages[endIdx - 1]);
-        outTimes.append(times[endIdx - 1]);
+    // 逆变换需要归一化
+    if (inverse) {
+        for (int i = 0; i < N; ++i) {
+            real[i] /= N;
+            imag[i] /= N;
+        }
     }
+}
 
-    // 返回实际的数据压缩比例
-    return (outVoltages.isEmpty()) ? 1 : (endIdx / outVoltages.size());
+/**
+ * @brief 基于FFT的频率检测（更准确，抗噪声能力强）
+ * @param voltages 电压数据
+ * @param sampleRate 采样率（Hz）
+ * @return 检测到的主频率（Hz），0表示检测失败
+ * 
+ * 算法流程：
+ * 1. 数据预处理：去除直流分量
+ * 2. 应用Hann窗函数减少频谱泄漏
+ * 3. 填充到2的幂次方大小
+ * 4. 执行FFT
+ * 5. 计算功率谱
+ * 6. 找出峰值频率（使用抛物线插值提高精度）
+ */
+double DataProcessor::calculateFrequencyFFT(const QVector<double>& voltages, double sampleRate) const {
+    const int N = voltages.size();
+    
+    // 最少需要32个采样点
+    if (N < 32 || sampleRate <= 0.0) {
+        return 0.0;
+    }
+    
+    // 限制FFT大小（避免内存占用过大）
+    // 对于50MHz采样率，使用最多65536点已足够
+    const int MAX_FFT_SIZE = 65536;
+    int fftSize = nextPowerOfTwo(qMin(N, MAX_FFT_SIZE));
+    
+    // 准备FFT输入数据
+    QVector<double> real(fftSize, 0.0);
+    QVector<double> imag(fftSize, 0.0);
+    
+    // 步骤1：去除直流分量（计算均值）
+    double mean = 0.0;
+    int usedSamples = qMin(N, fftSize);
+    for (int i = 0; i < usedSamples; ++i) {
+        mean += voltages[i];
+    }
+    mean /= usedSamples;
+    
+    // 复制数据并去除直流分量
+    for (int i = 0; i < usedSamples; ++i) {
+        real[i] = voltages[i] - mean;
+    }
+    
+    // 步骤2：应用Hann窗函数
+    applyHannWindow(real);
+    
+    // 步骤3：执行FFT
+    fft(real, imag, false);
+    
+    // 步骤4：计算功率谱（只需要前半部分，因为后半部分是镜像）
+    QVector<double> powerSpectrum(fftSize / 2);
+    for (int i = 0; i < fftSize / 2; ++i) {
+        powerSpectrum[i] = real[i] * real[i] + imag[i] * imag[i];
+    }
+    
+    // 步骤5：找出最大功率的频率分量（跳过DC分量，从索引1开始）
+    int maxIdx = 1;
+    double maxPower = powerSpectrum[1];
+    
+    for (int i = 2; i < powerSpectrum.size(); ++i) {
+        if (powerSpectrum[i] > maxPower) {
+            maxPower = powerSpectrum[i];
+            maxIdx = i;
+        }
+    }
+    
+    // 防护：功率太小可能是噪声
+    if (maxPower < 1e-10) {
+        qDebug() << "[FFT] 信号功率太小，可能是噪声";
+        return 0.0;
+    }
+    
+    // 步骤6：使用抛物线插值提高频率精度
+    // 三点抛物线插值公式：delta = 0.5 * (left - right) / (left - 2*center + right)
+    double peakFrequency = 0.0;
+    
+    if (maxIdx > 0 && maxIdx < powerSpectrum.size() - 1) {
+        double left = powerSpectrum[maxIdx - 1];
+        double center = powerSpectrum[maxIdx];
+        double right = powerSpectrum[maxIdx + 1];
+        
+        // 抛物线插值修正
+        double delta = 0.5 * (left - right) / (left - 2.0 * center + right);
+        double refinedIdx = maxIdx + delta;
+        
+        // 计算频率（频率分辨率 = sampleRate / fftSize）
+        peakFrequency = (refinedIdx * sampleRate) / fftSize;
+    } else {
+        // 边界情况，直接使用索引
+        peakFrequency = (maxIdx * sampleRate) / fftSize;
+    }
+    
+    // 频率验证：不应超过奈奎斯特频率
+    double nyquistFreq = sampleRate / 2.0;
+    if (peakFrequency > nyquistFreq) {
+        qDebug() << "[FFT] 检测到的频率超过奈奎斯特频率，可能是混叠";
+        return 0.0;
+    }
+    
+    qDebug() << "[FFT] 检测到主频率：" << QString::number(peakFrequency, 'f', 2) << "Hz"
+             << "（FFT点数：" << fftSize << "，频率分辨率：" 
+             << QString::number(sampleRate / fftSize, 'f', 2) << "Hz）";
+    
+    return peakFrequency;
 }
