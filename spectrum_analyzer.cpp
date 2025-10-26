@@ -10,6 +10,8 @@ SpectrumAnalyzer::SpectrumAnalyzer(QObject *parent)
     : QObject(parent)
     , targetCount(1024)
     , sampleRate(50000000.0) // 默认50MHz采样率
+    , analysisCount(0)
+    , updateInterval(5) // 每5次分析才更新一次结果
 {
 }
 
@@ -45,6 +47,8 @@ void SpectrumAnalyzer::reset()
 {
     accumulatedVoltages.clear();
     accumulatedTimes.clear();
+    analysisCount = 0;
+    recentResults.clear();
     qDebug() << "频谱分析器：数据已重置";
 }
 
@@ -63,8 +67,9 @@ void SpectrumAnalyzer::onDataReceived(const QVector<double> &voltages, const QVe
     if (accumulatedVoltages.size() >= static_cast<int>(targetCount)) {
         qDebug() << "频谱分析器：数据已满，开始FFT分析...";
         performFFT();
-        // 分析完成后清空，准备下一轮
-        reset();
+        // 分析完成后只清空采样数据，保留统计计数
+        accumulatedVoltages.clear();
+        accumulatedTimes.clear();
     }
 }
 
@@ -134,10 +139,14 @@ void SpectrumAnalyzer::performFFT()
     }
 
     // 应用汉宁窗减少频谱泄漏
+    double windowCorrection = 0.0;
     for (int i = 0; i < n; ++i) {
         double window = 0.5 * (1.0 - std::cos(2.0 * M_PI * i / (n - 1)));
         fftInput[i] *= window;
+        windowCorrection += window; // 累积窗函数系数用于幅度修正
     }
+    // 汉宁窗的平均值约为0.5，用于幅度修正
+    windowCorrection /= n;
 
     // 执行FFT
     fft(fftInput);
@@ -151,8 +160,9 @@ void SpectrumAnalyzer::performFFT()
 
     for (int i = 0; i < halfN; ++i) {
         frequencies[i] = i * freqResolution;
-        // 幅度 = |FFT[i]| * 2 / N （双边谱转单边谱）
-        amplitudes[i] = std::abs(fftInput[i]) * 2.0 / accumulatedVoltages.size();
+        // 幅度 = |FFT[i]| * 2 / N，并补偿汉宁窗衰减
+        // 汉宁窗会使幅度衰减约50%，需要除以窗函数的平均值
+        amplitudes[i] = std::abs(fftInput[i]) * 2.0 / (accumulatedVoltages.size() * windowCorrection);
     }
 
     // 找出主频率（忽略DC分量，从索引1开始）
@@ -234,14 +244,51 @@ void SpectrumAnalyzer::performFFT()
     result.frequencies = frequencies;
     result.amplitudes = amplitudes;
 
-    qDebug() << "频谱分析完成：";
-    qDebug() << "  主频率 =" << result.dominantFrequency << "Hz";
-    qDebug() << "  幅度 =" << result.dominantAmplitude << "V";
-    qDebug() << "  SNR =" << result.snr << "dB";
-    qDebug() << "  THD =" << result.thd << "%";
-    qDebug() << "  带宽 =" << result.bandwidth << "Hz";
-    qDebug() << "  谐波数 =" << result.harmonicCount;
-
-    // 发射结果信号
+    // 累积最近的结果用于平滑
+    recentResults.append(result);
+    analysisCount++;
+    
+    // 每次都发射频谱图数据（高刷新率）
     emit spectrumReady(result);
+    
+    // 每N次分析才更新一次参数显示，并对结果进行平均
+    if (analysisCount % updateInterval == 0) {
+        // 计算平均结果（仅用于日志显示）
+        double avgFreq = 0.0, avgAmp = 0.0, avgPower = 0.0;
+        double avgSNR = 0.0, avgTHD = 0.0, avgBW = 0.0;
+        int avgHarmonicCount = 0;
+        
+        for (const auto& r : recentResults) {
+            avgFreq += r.dominantFrequency;
+            avgAmp += r.dominantAmplitude;
+            avgPower += r.totalPower;
+            avgSNR += r.snr;
+            avgTHD += r.thd;
+            avgBW += r.bandwidth;
+            avgHarmonicCount += r.harmonicCount;
+        }
+        
+        int count = recentResults.size();
+        avgFreq /= count;
+        avgAmp /= count;
+        avgPower /= count;
+        avgSNR /= count;
+        avgTHD /= count;
+        avgBW /= count;
+        avgHarmonicCount = qRound(static_cast<double>(avgHarmonicCount) / count);
+        
+        qDebug() << "========== 频谱参数（平均" << count << "次）==========";
+        qDebug() << "  主频率 =" << QString::number(avgFreq, 'f', 2) << "Hz";
+        qDebug() << "  幅度 =" << QString::number(avgAmp, 'f', 3) << "V";
+        qDebug() << "  SNR =" << QString::number(avgSNR, 'f', 1) << "dB";
+        qDebug() << "  THD =" << QString::number(avgTHD, 'f', 2) << "%";
+        qDebug() << "  带宽 =" << QString::number(avgBW, 'f', 2) << "Hz";
+        qDebug() << "  谐波数 =" << avgHarmonicCount;
+        qDebug() << "==========================================";
+        
+        // 清空最近结果，准备下一轮统计
+        recentResults.clear();
+    } else {
+        qDebug() << "频谱分析：参数统计中 (" << (analysisCount % updateInterval) << "/" << updateInterval << ")";
+    }
 }

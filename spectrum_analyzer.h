@@ -98,6 +98,11 @@ private:
     double sampleRate;             ///< 采样率（Hz）
     QVector<double> accumulatedVoltages; ///< 累积的电压数据
     QVector<double> accumulatedTimes;    ///< 累积的时间戳数据
+    
+    // 统计平滑相关
+    int analysisCount;             ///< 已完成的分析次数
+    int updateInterval;            ///< 更新间隔（每N次分析才发射一次结果）
+    QVector<SpectrumAnalysisResult> recentResults; ///< 最近几次的分析结果
 };
 
 #endif // SPECTRUM_ANALYZER_H
