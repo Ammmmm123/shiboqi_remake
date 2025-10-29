@@ -115,6 +115,14 @@ private slots:
     void onDownsampledDataReady(const QVector<double> &voltages, const QVector<double> &times);
 
     /**
+     * @brief 采样参数推荐就绪的槽函数
+     * @param recommendation 推荐的采样参数（包含分频比）
+     * 
+     * 自动设置下位机的分频比和采样点数
+     */
+    void onSamplingRecommendationReady(const SamplingRecommendation &recommendation);
+
+    /**
      * @brief 波形切换按钮点击槽函数
      */
     void on_waveformSwitchButton_clicked();

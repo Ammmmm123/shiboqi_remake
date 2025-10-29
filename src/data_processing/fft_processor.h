@@ -37,8 +37,28 @@ public:
      */
     QVector<double> computePowerSpectrum(const QVector<std::complex<double>> &fftData);
     
+    /**
+     * @brief 寻找频谱中的主频率峰值
+     * @param magnitude 幅度谱
+     * @param samplingRate 采样率 (Hz)
+     * @param startIndex 搜索起始索引（跳过DC分量）
+     * @return 主频率 (Hz)
+     */
+    double findDominantFrequency(const QVector<double> &magnitude, double samplingRate, int startIndex = 1);
+    
 private:
-    // TODO: 添加私有成员变量和辅助函数
+    /**
+     * @brief Cooley-Tukey FFT算法实现（递归版本）
+     * @param data 复数数据（长度必须是2的幂）
+     */
+    void fft(QVector<std::complex<double>> &data);
+    
+    /**
+     * @brief 将数据填充到2的幂次长度
+     * @param data 原始数据
+     * @return 填充后的数据长度
+     */
+    int paddToNextPowerOfTwo(int n);
 };
 
 #endif // FFT_PROCESSOR_H

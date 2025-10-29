@@ -45,20 +45,22 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     dataProcessorThread->start();
     dataProcessor = dataProcessorThread->getProcessor();
 
+    // ========== 关键修复：注册自定义元类型，支持跨线程信号传递 ==========
+    qRegisterMetaType<SamplingRecommendation>("SamplingRecommendation");
+
     // 创建数据处理器并连接信号（跨线程信号连接，自动使用队列连接）
     // 修正：使用processWaveformData槽函数接收UDP数据
     connect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
     connect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
     connect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
     
-    qDebug() << "主窗口线程ID：" << QThread::currentThreadId();
-    qDebug() << "DataProcessor 已在独立线程中运行，避免阻塞GUI";
+
 
     // 初始化示波器（在 stackedWidget_2 的 displayStackedWidget 页面中）
     customPlot = ui->customPlot_4;
 
     customPlot->setOpenGl(true);
-    qDebug()<<"opengle="<<customPlot->openGl();
+
     customPlot->addGraph(); // 添加一个图层
     customPlot->graph(0)->setPen(QPen(Qt::blue)); // 设置线条颜色
     customPlot->xAxis->setLabel("Time (us)");
@@ -120,6 +122,11 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         udpReceiver->setExpectedDataCount(static_cast<quint32>(ui->dataNumSpinBox_4->value()));
     }
 
+    // 连接采样参数推荐信号（自动设置下位机分频比和采样点数）
+    connect(dataProcessor, &DataProcessor::samplingRecommendationReady, 
+            this, &shiboqi_remake::onSamplingRecommendationReady, 
+            Qt::QueuedConnection);  // 显式指定队列连接（跨线程安全）
+
     // --- 侧边栏导航按钮：切换不同页面（示波器 / 频谱 / DDS 设置 / 数字信号测量）
     
     // 示波器按钮
@@ -153,8 +160,6 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
             customPlot->yAxis->setLabel("Voltage (V)");
             customPlot->replot();
         }
-        
-        qDebug() << "已切换到示波器模式";
     });
     
     // 频谱分析按钮
@@ -185,8 +190,6 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
             customPlot_spectrum->yAxis->setLabel("Amplitude (V)");
             customPlot_spectrum->replot();
         }
-        
-        qDebug() << "已切换到频谱分析模式";
     });
     
     // DDS设置按钮
@@ -256,8 +259,6 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     spectrumAnalyzer = new SpectrumAnalyzer();
     spectrumAnalyzer->moveToThread(spectrumThread);
     spectrumThread->start();
-    
-    qDebug() << "频谱分析器已在独立线程中运行，避免FFT阻塞GUI";
     
     // 设置频谱分析器参数
     spectrumAnalyzer->setSampleRate(udpReceiver->getSampleRate());
@@ -332,8 +333,6 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     if (ui->navButton_digital) {
         ui->navButton_digital->setChecked(false);
     }
-    
-    qDebug() << "初始化完成：默认显示示波器模式";
 }
 
 /**
@@ -413,6 +412,17 @@ void shiboqi_remake::on_setButton_clicked()
     // ========== 新增：配置数据处理器的采样参数（智能低频支持）==========
     dataProcessor->setSamplingConfig(dataNum, udpReceiver->getSampleRate());
     
+    // ========== 同步频谱分析器的采样率和目标数据点数 ==========
+    if (spectrumAnalyzer) {
+        // 计算实际采样率：默认采样率 / 分频比
+        const double BASE_SAMPLE_RATE = 50000000.0; // 50MHz
+        double actualSampleRate = BASE_SAMPLE_RATE / (divider + 1);
+        spectrumAnalyzer->setSampleRate(actualSampleRate);
+        
+        // 设置目标数据点数
+        spectrumAnalyzer->setTargetDataCount(dataNum);
+    }
+    
     udpSender->sendChannelSelectCommand(); // 发送通道选择命令
     udpSender->sendDataNumCommand(); // 发送数据个数设置命令
     udpSender->sendDividerCommand(); // 发送分频系数设置命令
@@ -446,9 +456,11 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
                                  Q_ARG(quint32, dataNum),
                                  Q_ARG(double, actualSampleRate));
         
-        qDebug() << "启动监听 - 分频系数:" << divider 
-                 << ", 数据个数:" << dataNum
-                 << ", 实际采样率:" << actualSampleRate << "Hz";
+        // 同步频谱分析器的采样率和目标数据点数
+        if (spectrumAnalyzer) {
+            spectrumAnalyzer->setSampleRate(actualSampleRate);
+            spectrumAnalyzer->setTargetDataCount(dataNum);
+        }
         
         // 开始监听UDP数据
         udpSender->sendStopLoopCommand();
@@ -472,6 +484,10 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         // 线程安全的重置数据处理器（通过信号槽机制跨线程调用）
         QMetaObject::invokeMethod(dataProcessor, "reset", Qt::QueuedConnection);
         
+        // 立即清空LIFO队列中的波形数据，停止更新
+        plotVoltages.clear();
+        plotTimes.clear();
+        
         ui->listenButton_4->setText("开始监听");
         
         // 重新启用设置按钮和输入控件
@@ -481,7 +497,7 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         ui->targetIpLineEdit_4->setEnabled(true);
         ui->targetPortSpinBox_4->setEnabled(true);
         ui->dataNumSpinBox_4->setEnabled(true);
-        // 注意：通道和分频系数输入框已删除，不再需要启用
+        // 注意:通道和分频系数输入框已删除，不再需要启用
     }
 }
 
@@ -575,8 +591,6 @@ void shiboqi_remake::onDownsampledDataReady(const QVector<double> &voltages, con
     // LIFO队列模式：直接替换为最新数据（后进先出，丢弃旧数据）
     plotVoltages = voltages;
     plotTimes = times;
-    
-    qDebug() << "[波形队列] 收到最新数据：" << voltages.size() << "点（LIFO模式：自动丢弃旧数据）";
     
     // 仅在用户未手动缩放时自动缩放坐标轴到数据范围
     if (!hasUserZoomed && !plotVoltages.isEmpty() && !plotTimes.isEmpty()) {
@@ -865,6 +879,63 @@ void shiboqi_remake::onAnalysisReady(const WaveformAnalysisResult &result)
 }
 
 /**
+ * @brief 采样参数推荐就绪的槽函数
+ * @param recommendation 推荐的采样参数（包含分频比）
+ * 
+ * 自动设置下位机的分频比和采样点数
+ */
+void shiboqi_remake::onSamplingRecommendationReady(const SamplingRecommendation &recommendation)
+{
+    qDebug() << "";
+    qDebug() << "╔════════════════════════════════════════════════════════════════╗";
+    qDebug() << "║          🔔 收到采样参数推荐信号（槽函数已触发）              ║";
+    qDebug() << "╚════════════════════════════════════════════════════════════════╝";
+    qDebug() << "推荐采样率：" << recommendation.recommendedSampleRate << "Hz";
+    qDebug() << "推荐采样点数：" << recommendation.recommendedDataNum;
+    qDebug() << "推荐分频比：" << recommendation.recommendedDivider;
+    qDebug() << "推荐原因：" << recommendation.reason;
+    
+    // ========== 关键修复：正确设置分频比和同步采样率 ==========
+    // 下位机分频比 = 推荐分频比 - 1（根据下位机逻辑）
+    quint32 actualDivider = recommendation.recommendedDivider - 1;
+    
+    // 实际采样率 = 50MHz / 推荐分频比（注意：这里用推荐的分频比，不是actualDivider）
+    double actualSampleRate = 50000000.0 / recommendation.recommendedDivider;
+    
+    qDebug() << "";
+    qDebug() << "🎯 设置参数：";
+    qDebug() << "  └─ 下位机分频比：" << actualDivider << " (发送到FPGA)";
+    qDebug() << "  └─ 实际采样率：" << actualSampleRate << "Hz (软件同步)";
+    
+    // 设置下位机分频比
+    udpSender->setDivider(actualDivider);
+    qDebug() << "  └─ ✅ UdpSender 分频比已设置";
+    
+    // 同步更新 UDP 接收器的采样率（使用实际采样率）
+    udpReceiver->setSampleRate(actualSampleRate);
+    qDebug() << "  └─ ✅ UdpReceiver 采样率已同步";
+
+    // 同步更新数据处理器的采样配置
+    QMetaObject::invokeMethod(dataProcessor, "setSamplingConfig", Qt::QueuedConnection,
+                             Q_ARG(quint32, udpSender->getDataNum()),
+                             Q_ARG(double, actualSampleRate));
+    qDebug() << "  └─ ✅ DataProcessor 采样配置已同步";
+    
+    // 同步更新频谱分析器的采样率
+    if (spectrumAnalyzer) {
+        spectrumAnalyzer->setSampleRate(actualSampleRate);
+        qDebug() << "  └─ ✅ SpectrumAnalyzer 采样率已同步";
+    }
+    
+    // 发送分频比命令到下位机
+    udpSender->sendDividerCommand();
+    qDebug() << "";
+    qDebug() << "📡 已发送分频比命令到下位机 (UDP)";
+    qDebug() << "╚════════════════════════════════════════════════════════════════╝";
+    qDebug() << "";
+}
+
+/**
  * @brief 波形切换按钮点击槽函数
  */
 void shiboqi_remake::on_waveformSwitchButton_clicked()
@@ -885,8 +956,6 @@ void shiboqi_remake::on_waveformSwitchButton_clicked()
             QString("当前波形: %1 %2").arg(waveformEmojis[currentWaveformType]).arg(waveformNames[currentWaveformType])
         );
     }
-    
-    qDebug() << "切换到波形：" << waveformNames[currentWaveformType] << "(" << currentWaveformType << ")";
 }
 
 /**
@@ -895,7 +964,6 @@ void shiboqi_remake::on_waveformSwitchButton_clicked()
 void shiboqi_remake::on_frequencyUpButton_clicked()
 {
     udpSender->sendFrequencyUpCommand();
-    qDebug() << "发送频率增加命令";
 }
 
 /**
@@ -904,7 +972,6 @@ void shiboqi_remake::on_frequencyUpButton_clicked()
 void shiboqi_remake::on_frequencyDownButton_clicked()
 {
     udpSender->sendFrequencyDownCommand();
-    qDebug() << "发送频率减少命令";
 }
 
 /**
@@ -913,7 +980,6 @@ void shiboqi_remake::on_frequencyDownButton_clicked()
 void shiboqi_remake::on_amplitudeUpButton_clicked()
 {
     udpSender->sendAmplitudeUpCommand();
-    qDebug() << "发送幅度增加命令";
 }
 
 /**
@@ -922,7 +988,6 @@ void shiboqi_remake::on_amplitudeUpButton_clicked()
 void shiboqi_remake::on_amplitudeDownButton_clicked()
 {
     udpSender->sendAmplitudeDownCommand();
-    qDebug() << "发送幅度减少命令";
 }
 
 /**
@@ -936,9 +1001,8 @@ void shiboqi_remake::on_pushButton_2_toggled(bool checked)
         QString portName = ui->comboBox->currentText();
         if (!portName.isEmpty()) {
             if (uartReceiver->openPort(portName, 115200)) {
-                qDebug() << "串口" << portName << "连接成功";
+                // 连接成功
             } else {
-                qDebug() << "串口" << portName << "连接失败";
                 // 连接失败时，将按钮状态设置为未按下
                 ui->pushButton_2->blockSignals(true);
                 ui->pushButton_2->setChecked(false);
@@ -948,7 +1012,6 @@ void shiboqi_remake::on_pushButton_2_toggled(bool checked)
     } else {
         // 断开串口连接
         uartReceiver->closePort();
-        qDebug() << "串口连接已断开";
     }
 }
 
@@ -1035,7 +1098,6 @@ void shiboqi_remake::refreshSerialPorts()
         ui->pushButton_2->blockSignals(true);
         ui->pushButton_2->setChecked(false);
         ui->pushButton_2->blockSignals(false);
-        qDebug() << "已移除打开的串口，已关闭连接";
     }
 }
 
@@ -1048,11 +1110,8 @@ void shiboqi_remake::onSpectrumReady(const SpectrumAnalysisResult &result)
     
     // 性能优化：只在频谱模式激活时更新显示
     if (!isSpectrumMode) {
-        qDebug() << "频谱模式未激活，跳过显示更新（数据已接收）";
         return;
     }
-
-    qDebug() << "收到频谱分析结果：主频率 =" << result.dominantFrequency << "Hz, 幅度 =" << result.dominantAmplitude << "V";
 
     // 缓存最新的频谱分析结果，由定时器定期更新标签（减少跳动）
     lastSpectrumResult = result;
@@ -1062,13 +1121,11 @@ void shiboqi_remake::onSpectrumReady(const SpectrumAnalysisResult &result)
     QTimer::singleShot(30, this, [this, result]() {
         // 再次检查UI指针和频谱模式，防止切换模式后崩溃
         if (!ui || !customPlot_spectrum || !isSpectrumMode) {
-            qDebug() << "延时回调时模式已切换，取消频谱更新";
             return;
         }
 
         // 检查数据有效性
         if (result.frequencies.isEmpty() || result.amplitudes.isEmpty()) {
-            qWarning() << "频谱数据为空，跳过绘制";
             return;
         }
 
@@ -1099,8 +1156,6 @@ void shiboqi_remake::onSpectrumReady(const SpectrumAnalysisResult &result)
 
                     // 重绘
                     customPlot_spectrum->replot();
-
-                    qDebug() << "频谱图已绘制，频率范围：0 -" << result.frequencies.last() << "Hz";
                 }
             } catch (const std::exception &e) {
                 qWarning() << "频谱绘制异常：" << e.what();
@@ -1122,8 +1177,6 @@ void shiboqi_remake::on_handDrawButton_toggled(bool checked)
     isHandDrawMode = checked;
     
     if (checked) {
-        qDebug() << "手绘模式已开启";
-        
         // 禁用切换波形按钮
         if (ui->waveformSwitchButton) {
             ui->waveformSwitchButton->setEnabled(false);
@@ -1140,7 +1193,6 @@ void shiboqi_remake::on_handDrawButton_toggled(bool checked)
             ui->boxingxianshi->replot();
         }
     } else {
-        qDebug() << "手绘模式已关闭";
         isDrawing = false;
         
         // 启用切换波形按钮
@@ -1173,8 +1225,6 @@ void shiboqi_remake::on_clearDrawButton_clicked()
         ui->boxingxianshi->graph(0)->data()->clear();
         ui->boxingxianshi->replot();
     }
-    
-    qDebug() << "手绘波形已清除";
 }
 
 /**
@@ -1184,13 +1234,11 @@ void shiboqi_remake::on_saveAndSendButton_clicked()
 {
     // 检查是否有足够的绘制点
     if (handDrawnPoints.size() < 2) {
-        qDebug() << "绘制点不足，无法发送波形";
         return;
     }
     
     // 检查线程是否正在运行
     if (waveformSenderThread && waveformSenderThread->isRunning()) {
-        qDebug() << "波形正在发送中，请等待...";
         return;
     }
     
@@ -1202,8 +1250,6 @@ void shiboqi_remake::on_saveAndSendButton_clicked()
     
     // 发送波形数据
     sendHandDrawnWaveform();
-    
-    qDebug() << "手绘波形已保存并开始发送";
 }
 
 /**
@@ -1258,8 +1304,6 @@ void shiboqi_remake::interpolateHandDrawnWaveform()
             handDrawnWaveform.append(static_cast<quint16>(qBound(0.0, y, 1023.0)));
         }
     }
-    
-    qDebug() << "插值完成，生成" << handDrawnWaveform.size() << "个采样点";
 }
 
 /**
@@ -1273,8 +1317,6 @@ void shiboqi_remake::flipYAxisData()
     for (int i = 0; i < handDrawnWaveform.size(); ++i) {
         handDrawnWaveform[i] = 1023 - handDrawnWaveform[i];
     }
-    
-    qDebug() << "Y轴数据已翻转";
 }
 
 /**
@@ -1291,7 +1333,6 @@ void shiboqi_remake::sendHandDrawnWaveform()
 
     // 如果之前的线程还在运行，先停止它
     if (waveformSenderThread && waveformSenderThread->isRunning()) {
-        qDebug() << "正在发送波形，请等待上一次发送完成...";
         return;
     }
 
@@ -1302,8 +1343,6 @@ void shiboqi_remake::sendHandDrawnWaveform()
     // TODO: 如果需要，可以从UI读取目标地址
     // targetAddress = QHostAddress(ui->targetIpLineEdit_4->text());
     // targetPort = ui->targetPortSpinBox_4->value();
-
-    qDebug() << "创建波形发送线程...";
     
     // 创建新的发送线程
     waveformSenderThread = new WaveformSenderThread(
@@ -1332,7 +1371,6 @@ void shiboqi_remake::sendHandDrawnWaveform()
 
     // 启动线程
     waveformSenderThread->start();
-    qDebug() << "波形发送线程已启动（异步发送）";
 }
 
 /**
@@ -1343,7 +1381,7 @@ void shiboqi_remake::onWaveformSendProgress(int current, int total)
     if (total <= 0) return;
     
     int percentage = (current * 100) / total;
-    qDebug() << "波形发送进度：" << current << "/" << total << "(" << percentage << "%)";
+
     
     // 更新UI进度显示
     if (ui && ui->sendProgressLabel) {
@@ -1371,8 +1409,6 @@ void shiboqi_remake::onWaveformSendProgress(int current, int total)
  */
 void shiboqi_remake::onWaveformSendCompleted(int successCount, int totalCount)
 {
-    qDebug() << "✓ 波形发送完成！成功：" << successCount << "/" << totalCount;
-    
     // 将线程指针置空（线程会通过deleteLater自动删除）
     waveformSenderThread = nullptr;
     
@@ -1409,9 +1445,6 @@ void shiboqi_remake::onWaveformSendCompleted(int successCount, int totalCount)
             }
         });
     }
-    
-    qDebug() << "✓ 波形发送完成！波形已保留，可重复发送或点击'清除绘制'清空";
-    // TODO: 可以在UI上显示成功提示
 }
 
 /**
@@ -1419,8 +1452,6 @@ void shiboqi_remake::onWaveformSendCompleted(int successCount, int totalCount)
  */
 void shiboqi_remake::onWaveformSendFailed(const QString &errorMessage)
 {
-    qWarning() << "✗ 波形发送失败：" << errorMessage;
-    
     // 将线程指针置空（线程会通过deleteLater自动删除）
     waveformSenderThread = nullptr;
     

@@ -35,7 +35,6 @@ SOURCES += \
     src/data_processing/data_processor_thread.cpp \
     src/data_processing/fft_processor.cpp \
     src/data_processing/frequency_detector.cpp \
-    src/data_processing/waveform_downsampler.cpp \
     src/analysis/spectrum_analyzer.cpp \
     src/widgets/siprefixticker.cpp \
     src/widgets/waveform_sender_thread.cpp
@@ -50,7 +49,6 @@ HEADERS += \
     src/data_processing/data_processor_thread.h \
     src/data_processing/fft_processor.h \
     src/data_processing/frequency_detector.h \
-    src/data_processing/waveform_downsampler.h \
     src/analysis/spectrum_analyzer.h \
     src/widgets/siprefixticker.h \
     src/widgets/waveform_sender_thread.h

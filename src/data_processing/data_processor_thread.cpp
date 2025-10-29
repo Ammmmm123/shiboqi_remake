@@ -11,7 +11,7 @@ DataProcessorThread::DataProcessorThread(QObject *parent)
 {
     // 将处理器移动到这个线程的事件循环中
     processor->moveToThread(this);
-    qDebug() << "DataProcessorThread 构造函数 - processor 已创建";
+
 }
 
 /**
@@ -31,7 +31,7 @@ DataProcessorThread::~DataProcessorThread()
         processor = nullptr;
     }
     
-    qDebug() << "DataProcessorThread 析构函数";
+
 }
 
 /**
@@ -53,7 +53,7 @@ void DataProcessorThread::stop()
     quit();
     // 等待线程结束
     wait();
-    qDebug() << "DataProcessorThread 已停止";
+
 }
 
 /**
@@ -61,11 +61,10 @@ void DataProcessorThread::stop()
  */
 void DataProcessorThread::run()
 {
-    qDebug() << "DataProcessorThread::run() - 线程开始运行，线程ID:" << QThread::currentThreadId();
-    qDebug() << "DataProcessor 对象已在线程中运行";
+
     
     // 进入事件循环，处理槽函数调用
     exec();
     
-    qDebug() << "DataProcessorThread::run() - 线程退出";
+
 }

@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_shiboqi_remake_t {
-    QByteArrayData data[47];
-    char stringdata0[801];
+    QByteArrayData data[49];
+    char stringdata0[843];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -54,32 +54,34 @@ QT_MOC_LITERAL(17, 235, 22), // "onDownsampledDataReady"
 QT_MOC_LITERAL(18, 258, 15), // "QVector<double>"
 QT_MOC_LITERAL(19, 274, 8), // "voltages"
 QT_MOC_LITERAL(20, 283, 5), // "times"
-QT_MOC_LITERAL(21, 289, 31), // "on_waveformSwitchButton_clicked"
-QT_MOC_LITERAL(22, 321, 28), // "on_frequencyUpButton_clicked"
-QT_MOC_LITERAL(23, 350, 30), // "on_frequencyDownButton_clicked"
-QT_MOC_LITERAL(24, 381, 28), // "on_amplitudeUpButton_clicked"
-QT_MOC_LITERAL(25, 410, 30), // "on_amplitudeDownButton_clicked"
-QT_MOC_LITERAL(26, 441, 25), // "on_handDrawButton_toggled"
-QT_MOC_LITERAL(27, 467, 26), // "on_clearDrawButton_clicked"
-QT_MOC_LITERAL(28, 494, 28), // "on_saveAndSendButton_clicked"
-QT_MOC_LITERAL(29, 523, 23), // "on_pushButton_2_toggled"
-QT_MOC_LITERAL(30, 547, 18), // "refreshSerialPorts"
-QT_MOC_LITERAL(31, 566, 18), // "onParsedSerialData"
-QT_MOC_LITERAL(32, 585, 4), // "duty"
-QT_MOC_LITERAL(33, 590, 8), // "highTime"
-QT_MOC_LITERAL(34, 599, 7), // "lowTime"
-QT_MOC_LITERAL(35, 607, 9), // "frequency"
-QT_MOC_LITERAL(36, 617, 22), // "onWaveformSendProgress"
-QT_MOC_LITERAL(37, 640, 7), // "current"
-QT_MOC_LITERAL(38, 648, 5), // "total"
-QT_MOC_LITERAL(39, 654, 23), // "onWaveformSendCompleted"
-QT_MOC_LITERAL(40, 678, 12), // "successCount"
-QT_MOC_LITERAL(41, 691, 10), // "totalCount"
-QT_MOC_LITERAL(42, 702, 20), // "onWaveformSendFailed"
-QT_MOC_LITERAL(43, 723, 12), // "errorMessage"
-QT_MOC_LITERAL(44, 736, 15), // "onSpectrumReady"
-QT_MOC_LITERAL(45, 752, 22), // "SpectrumAnalysisResult"
-QT_MOC_LITERAL(46, 775, 25) // "on_viewModeButton_toggled"
+QT_MOC_LITERAL(21, 289, 29), // "onSamplingRecommendationReady"
+QT_MOC_LITERAL(22, 319, 22), // "SamplingRecommendation"
+QT_MOC_LITERAL(23, 342, 14), // "recommendation"
+QT_MOC_LITERAL(24, 357, 31), // "on_waveformSwitchButton_clicked"
+QT_MOC_LITERAL(25, 389, 28), // "on_frequencyUpButton_clicked"
+QT_MOC_LITERAL(26, 418, 30), // "on_frequencyDownButton_clicked"
+QT_MOC_LITERAL(27, 449, 28), // "on_amplitudeUpButton_clicked"
+QT_MOC_LITERAL(28, 478, 30), // "on_amplitudeDownButton_clicked"
+QT_MOC_LITERAL(29, 509, 25), // "on_handDrawButton_toggled"
+QT_MOC_LITERAL(30, 535, 26), // "on_clearDrawButton_clicked"
+QT_MOC_LITERAL(31, 562, 28), // "on_saveAndSendButton_clicked"
+QT_MOC_LITERAL(32, 591, 23), // "on_pushButton_2_toggled"
+QT_MOC_LITERAL(33, 615, 18), // "refreshSerialPorts"
+QT_MOC_LITERAL(34, 634, 18), // "onParsedSerialData"
+QT_MOC_LITERAL(35, 653, 4), // "duty"
+QT_MOC_LITERAL(36, 658, 8), // "highTime"
+QT_MOC_LITERAL(37, 667, 7), // "lowTime"
+QT_MOC_LITERAL(38, 675, 9), // "frequency"
+QT_MOC_LITERAL(39, 685, 22), // "onWaveformSendProgress"
+QT_MOC_LITERAL(40, 708, 7), // "current"
+QT_MOC_LITERAL(41, 716, 5), // "total"
+QT_MOC_LITERAL(42, 722, 23), // "onWaveformSendCompleted"
+QT_MOC_LITERAL(43, 746, 12), // "successCount"
+QT_MOC_LITERAL(44, 759, 10), // "totalCount"
+QT_MOC_LITERAL(45, 770, 20), // "onWaveformSendFailed"
+QT_MOC_LITERAL(46, 791, 12), // "errorMessage"
+QT_MOC_LITERAL(47, 804, 15), // "onSpectrumReady"
+QT_MOC_LITERAL(48, 820, 22) // "SpectrumAnalysisResult"
 
     },
     "shiboqi_remake\0on_setButton_clicked\0"
@@ -90,7 +92,9 @@ QT_MOC_LITERAL(46, 775, 25) // "on_viewModeButton_toggled"
     "onUdpBindFailed\0errorString\0onAnalysisReady\0"
     "WaveformAnalysisResult\0result\0"
     "onDownsampledDataReady\0QVector<double>\0"
-    "voltages\0times\0on_waveformSwitchButton_clicked\0"
+    "voltages\0times\0onSamplingRecommendationReady\0"
+    "SamplingRecommendation\0recommendation\0"
+    "on_waveformSwitchButton_clicked\0"
     "on_frequencyUpButton_clicked\0"
     "on_frequencyDownButton_clicked\0"
     "on_amplitudeUpButton_clicked\0"
@@ -104,7 +108,7 @@ QT_MOC_LITERAL(46, 775, 25) // "on_viewModeButton_toggled"
     "current\0total\0onWaveformSendCompleted\0"
     "successCount\0totalCount\0onWaveformSendFailed\0"
     "errorMessage\0onSpectrumReady\0"
-    "SpectrumAnalysisResult\0on_viewModeButton_toggled"
+    "SpectrumAnalysisResult"
 };
 #undef QT_MOC_LITERAL
 
@@ -131,22 +135,22 @@ static const uint qt_meta_data_shiboqi_remake[] = {
       12,    1,  153,    2, 0x08 /* Private */,
       14,    1,  156,    2, 0x08 /* Private */,
       17,    2,  159,    2, 0x08 /* Private */,
-      21,    0,  164,    2, 0x08 /* Private */,
-      22,    0,  165,    2, 0x08 /* Private */,
-      23,    0,  166,    2, 0x08 /* Private */,
+      21,    1,  164,    2, 0x08 /* Private */,
       24,    0,  167,    2, 0x08 /* Private */,
       25,    0,  168,    2, 0x08 /* Private */,
-      26,    1,  169,    2, 0x08 /* Private */,
-      27,    0,  172,    2, 0x08 /* Private */,
-      28,    0,  173,    2, 0x08 /* Private */,
-      29,    1,  174,    2, 0x08 /* Private */,
-      30,    0,  177,    2, 0x08 /* Private */,
-      31,    4,  178,    2, 0x08 /* Private */,
-      36,    2,  187,    2, 0x08 /* Private */,
-      39,    2,  192,    2, 0x08 /* Private */,
-      42,    1,  197,    2, 0x08 /* Private */,
-      44,    1,  200,    2, 0x08 /* Private */,
-      46,    1,  203,    2, 0x08 /* Private */,
+      26,    0,  169,    2, 0x08 /* Private */,
+      27,    0,  170,    2, 0x08 /* Private */,
+      28,    0,  171,    2, 0x08 /* Private */,
+      29,    1,  172,    2, 0x08 /* Private */,
+      30,    0,  175,    2, 0x08 /* Private */,
+      31,    0,  176,    2, 0x08 /* Private */,
+      32,    1,  177,    2, 0x08 /* Private */,
+      33,    0,  180,    2, 0x08 /* Private */,
+      34,    4,  181,    2, 0x08 /* Private */,
+      39,    2,  190,    2, 0x08 /* Private */,
+      42,    2,  195,    2, 0x08 /* Private */,
+      45,    1,  200,    2, 0x08 /* Private */,
+      47,    1,  203,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -158,6 +162,7 @@ static const uint qt_meta_data_shiboqi_remake[] = {
     QMetaType::Void, QMetaType::QString,   13,
     QMetaType::Void, 0x80000000 | 15,   16,
     QMetaType::Void, 0x80000000 | 18, 0x80000000 | 18,   19,   20,
+    QMetaType::Void, 0x80000000 | 22,   23,
     QMetaType::Void,
     QMetaType::Void,
     QMetaType::Void,
@@ -168,12 +173,11 @@ static const uint qt_meta_data_shiboqi_remake[] = {
     QMetaType::Void,
     QMetaType::Void, QMetaType::Bool,    4,
     QMetaType::Void,
-    QMetaType::Void, QMetaType::Int, QMetaType::Int, QMetaType::Int, QMetaType::Double,   32,   33,   34,   35,
-    QMetaType::Void, QMetaType::Int, QMetaType::Int,   37,   38,
+    QMetaType::Void, QMetaType::Int, QMetaType::Int, QMetaType::Int, QMetaType::Double,   35,   36,   37,   38,
     QMetaType::Void, QMetaType::Int, QMetaType::Int,   40,   41,
-    QMetaType::Void, QMetaType::QString,   43,
-    QMetaType::Void, 0x80000000 | 45,   16,
-    QMetaType::Void, QMetaType::Bool,    4,
+    QMetaType::Void, QMetaType::Int, QMetaType::Int,   43,   44,
+    QMetaType::Void, QMetaType::QString,   46,
+    QMetaType::Void, 0x80000000 | 48,   16,
 
        0        // eod
 };
@@ -194,22 +198,22 @@ void shiboqi_remake::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 6: _t->onUdpBindFailed((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 7: _t->onAnalysisReady((*reinterpret_cast< const WaveformAnalysisResult(*)>(_a[1]))); break;
         case 8: _t->onDownsampledDataReady((*reinterpret_cast< const QVector<double>(*)>(_a[1])),(*reinterpret_cast< const QVector<double>(*)>(_a[2]))); break;
-        case 9: _t->on_waveformSwitchButton_clicked(); break;
-        case 10: _t->on_frequencyUpButton_clicked(); break;
-        case 11: _t->on_frequencyDownButton_clicked(); break;
-        case 12: _t->on_amplitudeUpButton_clicked(); break;
-        case 13: _t->on_amplitudeDownButton_clicked(); break;
-        case 14: _t->on_handDrawButton_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 15: _t->on_clearDrawButton_clicked(); break;
-        case 16: _t->on_saveAndSendButton_clicked(); break;
-        case 17: _t->on_pushButton_2_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
-        case 18: _t->refreshSerialPorts(); break;
-        case 19: _t->onParsedSerialData((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< double(*)>(_a[4]))); break;
-        case 20: _t->onWaveformSendProgress((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 21: _t->onWaveformSendCompleted((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
-        case 22: _t->onWaveformSendFailed((*reinterpret_cast< const QString(*)>(_a[1]))); break;
-        case 23: _t->onSpectrumReady((*reinterpret_cast< const SpectrumAnalysisResult(*)>(_a[1]))); break;
-        case 24: _t->on_viewModeButton_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 9: _t->onSamplingRecommendationReady((*reinterpret_cast< const SamplingRecommendation(*)>(_a[1]))); break;
+        case 10: _t->on_waveformSwitchButton_clicked(); break;
+        case 11: _t->on_frequencyUpButton_clicked(); break;
+        case 12: _t->on_frequencyDownButton_clicked(); break;
+        case 13: _t->on_amplitudeUpButton_clicked(); break;
+        case 14: _t->on_amplitudeDownButton_clicked(); break;
+        case 15: _t->on_handDrawButton_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 16: _t->on_clearDrawButton_clicked(); break;
+        case 17: _t->on_saveAndSendButton_clicked(); break;
+        case 18: _t->on_pushButton_2_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 19: _t->refreshSerialPorts(); break;
+        case 20: _t->onParsedSerialData((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2])),(*reinterpret_cast< int(*)>(_a[3])),(*reinterpret_cast< double(*)>(_a[4]))); break;
+        case 21: _t->onWaveformSendProgress((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 22: _t->onWaveformSendCompleted((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
+        case 23: _t->onWaveformSendFailed((*reinterpret_cast< const QString(*)>(_a[1]))); break;
+        case 24: _t->onSpectrumReady((*reinterpret_cast< const SpectrumAnalysisResult(*)>(_a[1]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
@@ -221,6 +225,13 @@ void shiboqi_remake::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
             case 1:
             case 0:
                 *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< QVector<double> >(); break;
+            }
+            break;
+        case 9:
+            switch (*reinterpret_cast<int*>(_a[1])) {
+            default: *reinterpret_cast<int*>(_a[0]) = -1; break;
+            case 0:
+                *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< SamplingRecommendation >(); break;
             }
             break;
         }

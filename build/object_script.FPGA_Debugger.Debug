@@ -8,7 +8,6 @@ debug/data_processor.o
 debug/data_processor_thread.o
 debug/fft_processor.o
 debug/frequency_detector.o
-debug/waveform_downsampler.o
 debug/spectrum_analyzer.o
 debug/siprefixticker.o
 debug/waveform_sender_thread.o

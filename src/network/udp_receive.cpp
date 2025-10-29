@@ -107,7 +107,7 @@ void UdpReceiver::setExpectedDataCount(quint32 count)
 {
     expectedDataCount = count;
     currentDataCount = 0;
-    qDebug() << "设置期望接收数据个数:" << count;
+
 }
 
 /**
@@ -203,7 +203,6 @@ void UdpReceiver::processPendingDatagrams()
                     // 达到期望数据个数，重置时间戳
                     sampleIndex = 0;
                     currentDataCount = 0;
-                    qDebug() << "已接收" << expectedDataCount << "个数据点，重置时间戳";
                 }
             }
         }

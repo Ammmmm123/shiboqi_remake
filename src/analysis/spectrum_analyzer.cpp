@@ -294,14 +294,7 @@ void SpectrumAnalyzer::performFFT()
         avgBW /= count;
         avgHarmonicCount = qRound(static_cast<double>(avgHarmonicCount) / count);
         
-        qDebug() << "========== 频谱参数（平均" << count << "次）==========";
-        qDebug() << "  主频率 =" << QString::number(avgFreq, 'f', 2) << "Hz";
-        qDebug() << "  幅度 =" << QString::number(avgAmp, 'f', 3) << "V";
-        qDebug() << "  SNR =" << QString::number(avgSNR, 'f', 1) << "dB";
-        qDebug() << "  THD =" << QString::number(avgTHD, 'f', 2) << "%";
-        qDebug() << "  带宽 =" << QString::number(avgBW, 'f', 2) << "Hz";
-        qDebug() << "  谐波数 =" << avgHarmonicCount;
-        qDebug() << "==========================================";
+
         
         // 清空最近结果，准备下一轮统计
         recentResults.clear();
