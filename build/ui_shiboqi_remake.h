@@ -41,6 +41,8 @@ public:
     QPushButton *navButton_digital;
     QPushButton *navButton_spectrum;
     QSpacerItem *verticalSpacer;
+    QLabel *copyrightLabel1;
+    QLabel *copyrightLabel2;
     QStackedWidget *stackedWidget;
     QWidget *page_5;
     QHBoxLayout *horizontalLayout_3;
@@ -252,6 +254,30 @@ public:
 
         verticalLayout_sidebar->addItem(verticalSpacer);
 
+        copyrightLabel1 = new QLabel(sidebarWidget);
+        copyrightLabel1->setObjectName(QString::fromUtf8("copyrightLabel1"));
+        copyrightLabel1->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #ecf0f1;\n"
+"    padding: 5px 10px;\n"
+"    font-size: 11px;\n"
+"}"));
+        copyrightLabel1->setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+        copyrightLabel1->setWordWrap(true);
+
+        verticalLayout_sidebar->addWidget(copyrightLabel1);
+
+        copyrightLabel2 = new QLabel(sidebarWidget);
+        copyrightLabel2->setObjectName(QString::fromUtf8("copyrightLabel2"));
+        copyrightLabel2->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #ecf0f1;\n"
+"    padding: 5px 10px;\n"
+"    font-size: 11px;\n"
+"}"));
+        copyrightLabel2->setAlignment(Qt::AlignLeft|Qt::AlignVCenter);
+        copyrightLabel2->setWordWrap(true);
+
+        verticalLayout_sidebar->addWidget(copyrightLabel2);
+
 
         horizontalLayout_main->addWidget(sidebarWidget);
 
@@ -442,7 +468,7 @@ public:
         dataNumSpinBox_4->setFrame(false);
         dataNumSpinBox_4->setButtonSymbols(QAbstractSpinBox::NoButtons);
         dataNumSpinBox_4->setMinimum(1);
-        dataNumSpinBox_4->setMaximum(1000000);
+        dataNumSpinBox_4->setMaximum(2147483647);
         dataNumSpinBox_4->setValue(1);
 
         horizontalLayout_31->addWidget(dataNumSpinBox_4);
@@ -1359,7 +1385,7 @@ public:
         dataNumSpinBox_5->setFrame(false);
         dataNumSpinBox_5->setButtonSymbols(QAbstractSpinBox::NoButtons);
         dataNumSpinBox_5->setMinimum(1);
-        dataNumSpinBox_5->setMaximum(1000000);
+        dataNumSpinBox_5->setMaximum(2147483647);
         dataNumSpinBox_5->setValue(1);
 
         horizontalLayout_42->addWidget(dataNumSpinBox_5);
@@ -1575,6 +1601,8 @@ public:
         navButton_dds->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\216\233\357\270\217  DDS\350\256\276\347\275\256", nullptr));
         navButton_digital->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\223\241  \346\225\260\345\255\227\344\277\241\345\217\267", nullptr));
         navButton_spectrum->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\223\210  \351\242\221\350\260\261\345\210\206\346\236\220", nullptr));
+        copyrightLabel1->setText(QCoreApplication::translate("shiboqi_remake", "\345\207\272\345\223\201\346\226\271\357\274\232\344\272\272\345\226\204\350\242\253\344\272\272\346\254\272\357\274\214\351\251\254\345\226\204\351\251\254\345\230\211\347\245\272\351\230\237", nullptr));
+        copyrightLabel2->setText(QCoreApplication::translate("shiboqi_remake", "\345\215\227\344\272\254\345\255\235\351\231\265\345\215\253\351\236\255\347\202\256\345\216\202\347\240\224\345\217\221\344\270\255\345\277\203", nullptr));
         Frequency_2->setText(QCoreApplication::translate("shiboqi_remake", "Frequency :", nullptr));
         Frequency_in_2->setText(QCoreApplication::translate("shiboqi_remake", "0 Hz", nullptr));
         Amplitude_2->setText(QCoreApplication::translate("shiboqi_remake", "Amplitude :", nullptr));

@@ -7,7 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../../shiboqi_remake.h"
+#include "../../src/ui/shiboqi_remake.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #include <QtCore/QVector>

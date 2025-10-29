@@ -16,39 +16,53 @@ DEFINES += QCUSTOMPLOT_USE_OPENGL
 # In order to do so, uncomment the following line.
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
-INCLUDEPATH += qcustomplot-source
+# 包含路径
+INCLUDEPATH += src/thirdparty/qcustomplot-source \
+               src/ui \
+               src/network \
+               src/data_processing \
+               src/analysis \
+               src/widgets
 
 SOURCES += \
-    UART_receive.cpp \
     main.cpp \
-    qcustomplot-source/qcustomplot.cpp \
-    shiboqi_remake.cpp \
-    siprefixticker.cpp \
-    udp_receive.cpp \
-    udp_send.cpp \
-    data_processor.cpp \
-    spectrum_analyzer.cpp \
-    waveform_sender_thread.cpp
+    src/thirdparty/qcustomplot-source/qcustomplot.cpp \
+    src/ui/shiboqi_remake.cpp \
+    src/network/UART_receive.cpp \
+    src/network/udp_receive.cpp \
+    src/network/udp_send.cpp \
+    src/data_processing/data_processor.cpp \
+    src/data_processing/data_processor_thread.cpp \
+    src/data_processing/fft_processor.cpp \
+    src/data_processing/frequency_detector.cpp \
+    src/data_processing/waveform_downsampler.cpp \
+    src/analysis/spectrum_analyzer.cpp \
+    src/widgets/siprefixticker.cpp \
+    src/widgets/waveform_sender_thread.cpp
 
 HEADERS += \
-    UART_receive.h \
-    qcustomplot-source/qcustomplot.h \
-    shiboqi_remake.h \
-    siprefixticker.h \
-    udp_receive.h \
-    udp_send.h \
-    data_processor.h \
-    spectrum_analyzer.h \
-    waveform_sender_thread.h
+    src/thirdparty/qcustomplot-source/qcustomplot.h \
+    src/ui/shiboqi_remake.h \
+    src/network/UART_receive.h \
+    src/network/udp_receive.h \
+    src/network/udp_send.h \
+    src/data_processing/data_processor.h \
+    src/data_processing/data_processor_thread.h \
+    src/data_processing/fft_processor.h \
+    src/data_processing/frequency_detector.h \
+    src/data_processing/waveform_downsampler.h \
+    src/analysis/spectrum_analyzer.h \
+    src/widgets/siprefixticker.h \
+    src/widgets/waveform_sender_thread.h
 
 FORMS += \
-    shiboqi_remake.ui
+    src/ui/shiboqi_remake.ui
 
 RESOURCES += \
-    resources.qrc
+    resources/resources.qrc
 
 # Windows应用程序图标
-win32:RC_ICONS = tubiao.ico
+win32:RC_ICONS = resources/tubiao.ico
 
 # Default rules for deployment.
 qnx: target.path = /tmp/$${TARGET}/bin

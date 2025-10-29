@@ -7,7 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../../spectrum_analyzer.h"
+#include "../../src/analysis/spectrum_analyzer.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #include <QtCore/QVector>
@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_SpectrumAnalyzer_t {
-    QByteArrayData data[9];
-    char stringdata0[108];
+    QByteArrayData data[10];
+    char stringdata0[114];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -38,14 +38,15 @@ QT_MOC_LITERAL(1, 17, 13), // "spectrumReady"
 QT_MOC_LITERAL(2, 31, 0), // ""
 QT_MOC_LITERAL(3, 32, 22), // "SpectrumAnalysisResult"
 QT_MOC_LITERAL(4, 55, 6), // "result"
-QT_MOC_LITERAL(5, 62, 14), // "onDataReceived"
-QT_MOC_LITERAL(6, 77, 15), // "QVector<double>"
-QT_MOC_LITERAL(7, 93, 8), // "voltages"
-QT_MOC_LITERAL(8, 102, 5) // "times"
+QT_MOC_LITERAL(5, 62, 5), // "reset"
+QT_MOC_LITERAL(6, 68, 14), // "onDataReceived"
+QT_MOC_LITERAL(7, 83, 15), // "QVector<double>"
+QT_MOC_LITERAL(8, 99, 8), // "voltages"
+QT_MOC_LITERAL(9, 108, 5) // "times"
 
     },
     "SpectrumAnalyzer\0spectrumReady\0\0"
-    "SpectrumAnalysisResult\0result\0"
+    "SpectrumAnalysisResult\0result\0reset\0"
     "onDataReceived\0QVector<double>\0voltages\0"
     "times"
 };
@@ -57,7 +58,7 @@ static const uint qt_meta_data_SpectrumAnalyzer[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-       2,   14, // methods
+       3,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -65,16 +66,18 @@ static const uint qt_meta_data_SpectrumAnalyzer[] = {
        1,       // signalCount
 
  // signals: name, argc, parameters, tag, flags
-       1,    1,   24,    2, 0x06 /* Public */,
+       1,    1,   29,    2, 0x06 /* Public */,
 
  // slots: name, argc, parameters, tag, flags
-       5,    2,   27,    2, 0x0a /* Public */,
+       5,    0,   32,    2, 0x0a /* Public */,
+       6,    2,   33,    2, 0x0a /* Public */,
 
  // signals: parameters
     QMetaType::Void, 0x80000000 | 3,    4,
 
  // slots: parameters
-    QMetaType::Void, 0x80000000 | 6, 0x80000000 | 6,    7,    8,
+    QMetaType::Void,
+    QMetaType::Void, 0x80000000 | 7, 0x80000000 | 7,    8,    9,
 
        0        // eod
 };
@@ -86,13 +89,14 @@ void SpectrumAnalyzer::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int
         Q_UNUSED(_t)
         switch (_id) {
         case 0: _t->spectrumReady((*reinterpret_cast< const SpectrumAnalysisResult(*)>(_a[1]))); break;
-        case 1: _t->onDataReceived((*reinterpret_cast< const QVector<double>(*)>(_a[1])),(*reinterpret_cast< const QVector<double>(*)>(_a[2]))); break;
+        case 1: _t->reset(); break;
+        case 2: _t->onDataReceived((*reinterpret_cast< const QVector<double>(*)>(_a[1])),(*reinterpret_cast< const QVector<double>(*)>(_a[2]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
         switch (_id) {
         default: *reinterpret_cast<int*>(_a[0]) = -1; break;
-        case 1:
+        case 2:
             switch (*reinterpret_cast<int*>(_a[1])) {
             default: *reinterpret_cast<int*>(_a[0]) = -1; break;
             case 1:
@@ -142,13 +146,13 @@ int SpectrumAnalyzer::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 2)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 3;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 2)
+        if (_id < 3)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 2;
+        _id -= 3;
     }
     return _id;
 }

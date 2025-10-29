@@ -3,17 +3,41 @@
         {
             "name": "Win32",
             "includePath": [
-                "${workspaceFolder}/**",
-                "D:/Qt/5.15.2/mingw81_64/include/**"
+                "${workspaceFolder}",
+                "${workspaceFolder}/build",
+                "${workspaceFolder}/build/debug",
+                "${workspaceFolder}/build/release",
+                "${workspaceFolder}/src/ui",
+                "${workspaceFolder}/src/network",
+                "${workspaceFolder}/src/data_processing",
+                "${workspaceFolder}/src/analysis",
+                "${workspaceFolder}/src/widgets",
+                "${workspaceFolder}/src/thirdparty/qcustomplot-source",
+                "D:/Qt/5.15.2/mingw81_64/include",
+                "D:/Qt/5.15.2/mingw81_64/include/QtCore",
+                "D:/Qt/5.15.2/mingw81_64/include/QtGui",
+                "D:/Qt/5.15.2/mingw81_64/include/QtWidgets",
+                "D:/Qt/5.15.2/mingw81_64/include/QtNetwork",
+                "D:/Qt/5.15.2/mingw81_64/include/QtSerialPort",
+                "D:/Qt/5.15.2/mingw81_64/include/QtPrintSupport",
+                "D:/Qt/5.15.2/mingw81_64/include/QtOpenGL"
             ],
             "defines": [
                 "_DEBUG",
                 "UNICODE",
-                "_UNICODE"
+                "_UNICODE",
+                "QCUSTOMPLOT_USE_OPENGL",
+                "QT_CORE_LIB",
+                "QT_GUI_LIB",
+                "QT_WIDGETS_LIB",
+                "QT_NETWORK_LIB",
+                "QT_SERIALPORT_LIB",
+                "QT_PRINTSUPPORT_LIB",
+                "QT_OPENGL_LIB"
             ],
             "compilerPath": "D:/Qt/Tools/mingw810_64/bin/g++.exe",
             "cStandard": "c17",
-            "cppStandard": "gnu++14",
+            "cppStandard": "c++17",
             "intelliSenseMode": "windows-gcc-x64"
         }
     ],

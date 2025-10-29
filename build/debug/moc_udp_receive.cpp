@@ -7,7 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../../udp_receive.h"
+#include "../../src/network/udp_receive.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #include <QtCore/QVector>

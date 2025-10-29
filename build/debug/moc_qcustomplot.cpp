@@ -7,7 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../../qcustomplot-source/qcustomplot.h"
+#include "../../src/thirdparty/qcustomplot-source/qcustomplot.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #include <QtCore/QSharedPointer>

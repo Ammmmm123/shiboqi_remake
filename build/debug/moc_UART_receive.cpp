@@ -7,7 +7,7 @@
 *****************************************************************************/
 
 #include <memory>
-#include "../../UART_receive.h"
+#include "../../src/network/UART_receive.h"
 #include <QtCore/qbytearray.h>
 #include <QtCore/qmetatype.h>
 #if !defined(Q_MOC_OUTPUT_REVISION)
