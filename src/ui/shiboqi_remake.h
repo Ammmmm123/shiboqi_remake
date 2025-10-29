@@ -194,25 +194,11 @@ private slots:
      */
     void onWaveformSendFailed(const QString &errorMessage);
 
-    // ===== page_8 频谱页面的槽函数（复制自page_5） =====
-    void on_setButton_5_clicked();
-    void on_listenButton_5_toggled(bool checked);
-    void on_loopSendButton_5_toggled(bool checked);
-    void on_restartButton_5_clicked();
-    void onUdpBindFailed_page8(const QString &errorString);
-    
     /**
      * @brief 频谱分析结果就绪槽函数
      * @param result 频谱分析结果
      */
     void onSpectrumReady(const SpectrumAnalysisResult &result);
-    
-    /**
-     * @brief 同步 page_5 的设置参数到 page_8
-     * 
-     * 定期将 page_5 的 IP、端口、数据个数、分频系数、通道等参数同步到 page_8
-     */
-    void syncSettingsToPage8();
 
 private:
     /**
@@ -260,21 +246,16 @@ private:
     QTimer *portRefreshTimer;     ///< 定期刷新串口列表的定时器
     QString openPortName;         ///< 记录当前已打开的串口名称（便于在端口消失时处理）
 
-    // page_8 频谱页面相关（不包含时域示波器逻辑）
-    QCustomPlot *customPlot_page8;     ///< page_8 的绘图控件（仅用于频谱显示）
-    bool errorDialogShown_page8;       ///< page_8 的错误对话框标志
-    
-    // 频谱分析多线程架构
+    // 频谱分析多线程架构（与示波器共享 page_5 的 stackedWidget）
+    QCustomPlot *customPlot_spectrum; ///< 频谱分析的绘图控件（在 stackedWidget 中）
     QThread *spectrumThread;           ///< 频谱分析专用线程
     SpectrumAnalyzer *spectrumAnalyzer; ///< 频谱分析器实例（运行在独立线程中）
     
-    QTimer *settingsSyncTimer;         ///< page_5 到 page_8 的设置同步定时器
     QTimer *spectrumLabelUpdateTimer;  ///< 频谱数据标签更新定时器（节流）
     SpectrumAnalysisResult lastSpectrumResult; ///< 缓存最新的频谱分析结果
     
-    // 页面激活状态标志（性能优化）
-    bool isOscilloscopePageActive;     ///< 示波器页面是否激活
-    bool isSpectrumPageActive;         ///< 频谱页面是否激活
+    // 视图模式标志
+    bool isSpectrumMode;               ///< true=频谱模式，false=示波器模式
     bool hasUserZoomed;                ///< 用户是否手动缩放过示波器（禁用自动缩放）
 };
 #endif // SHIBOQI_REMAKE_H

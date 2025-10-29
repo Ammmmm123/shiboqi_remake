@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1116</width>
+    <width>1182</width>
     <height>696</height>
    </rect>
   </property>
@@ -195,7 +195,7 @@ QLabel {
           <string>出品方：人善被人欺，马善马嘉祺队</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -215,7 +215,7 @@ QLabel {
           <string>南京孝陵卫鞭炮厂研发中心</string>
          </property>
          <property name="alignment">
-          <set>Qt::AlignLeft|Qt::AlignVCenter</set>
+          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
          </property>
          <property name="wordWrap">
           <bool>true</bool>
@@ -245,154 +245,292 @@ QLabel {
        </property>
        <layout class="QHBoxLayout" name="horizontalLayout_3">
         <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="3,0">
+         <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="0,0">
           <item>
-           <layout class="QVBoxLayout" name="verticalLayout_9" stretch="9,0">
-            <item>
-             <widget class="QCustomPlot" name="customPlot_2" native="true">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_27">
-              <property name="leftMargin">
-               <number>60</number>
-              </property>
-              <item alignment="Qt::AlignRight">
-               <widget class="QLabel" name="Frequency_2">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
+           <widget class="QStackedWidget" name="stackedWidget_2">
+            <widget class="QWidget" name="page_9">
+             <layout class="QHBoxLayout" name="horizontalLayout_8">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_3" stretch="3,0">
+                <item>
+                 <widget class="QCustomPlot" name="customPlot_spectrum" native="true"/>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_9">
+                  <item>
+                   <widget class="QLabel" name="spectrum_freq_label">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
     color: #2c3e50;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 2px 5px;
+    padding: 4px 8px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
 }</string>
-                </property>
-                <property name="text">
-                 <string>Frequency :</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="Frequency_in_2">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #3498db;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 2px 5px;
+                    </property>
+                    <property name="text">
+                     <string>主频率 ：</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #e74c3c;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    background-color: #fee;
+    border: 1px solid #e74c3c;
+    border-radius: 4px;
 }</string>
-                </property>
-                <property name="text">
-                 <string>0 Hz</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignRight">
-               <widget class="QLabel" name="Amplitude_2">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
+                    </property>
+                    <property name="text">
+                     <string>0.00 Hz</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="spectrum_amp_label">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
     color: #2c3e50;
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    padding: 2px 5px;
+    padding: 4px 8px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
 }</string>
-                </property>
-                <property name="text">
-                 <string>Amplitude :</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="Amplitude_in_2">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #3498db;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 2px 5px;
+                    </property>
+                    <property name="text">
+                     <string>主幅度 ：</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_2">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #e74c3c;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    background-color: #fee;
+    border: 1px solid #e74c3c;
+    border-radius: 4px;
 }</string>
-                </property>
-                <property name="text">
-                 <string>0 V</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignRight">
-               <widget class="QLabel" name="VPP_2">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #2c3e50;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>vp-p :</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="VPP_in_2">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #3498db;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0 V</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignRight">
-               <widget class="QLabel" name="V_MAX_2">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #2c3e50;
-    font-size: 14px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>Vmax :</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="V_MAX_in_2">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #3498db;
-    font-size: 14px;
-    font-weight: 500;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0 V</string>
-                </property>
-               </widget>
+                    </property>
+                    <property name="text">
+                     <string>0.000 V</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
               </item>
              </layout>
-            </item>
-           </layout>
+            </widget>
+            <widget class="QWidget" name="displayStackedWidget">
+             <layout class="QHBoxLayout" name="horizontalLayout_6">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_2" stretch="3,0">
+                <item>
+                 <widget class="QCustomPlot" name="customPlot_4" native="true"/>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_7">
+                  <item>
+                   <widget class="QLabel" name="Frequency_4">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>频率 ：</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="Frequency_4_in">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #16a085;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    background-color: #e8f5e9;
+    border: 1px solid #16a085;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>0 Hz</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="Amplitude_4">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>幅度 ：</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="Amplitude_4_in">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #16a085;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    background-color: #e8f5e9;
+    border: 1px solid #16a085;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>0 V</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="Vpp">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>Vpp ：</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="Vpp_in">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #16a085;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    background-color: #e8f5e9;
+    border: 1px solid #16a085;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>0 V</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="Vmax">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>Vmax ：</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="Vmax_in">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #16a085;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    background-color: #e8f5e9;
+    border: 1px solid #16a085;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>0 V</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="Vmin">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>Vmin ：</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="Vmin_in">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #16a085;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    background-color: #e8f5e9;
+    border: 1px solid #16a085;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>0 V</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+               </layout>
+              </item>
+             </layout>
+            </widget>
+           </widget>
           </item>
           <item>
            <widget class="QGroupBox" name="groupBox">
             <property name="title">
              <string>UDP设置</string>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_10" stretch="0,0,2,0,0">
+            <layout class="QVBoxLayout" name="verticalLayout_10" stretch="0,0,0,2,0,0">
              <property name="spacing">
               <number>10</number>
              </property>
@@ -465,15 +603,33 @@ QLabel {
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>0</height>
+                     <width>100</width>
+                     <height>32</height>
                     </size>
                    </property>
                    <property name="layoutDirection">
                     <enum>Qt::LeftToRight</enum>
                    </property>
                    <property name="styleSheet">
-                    <string notr="true">padding: 0px; margin-left: -0;</string>
+                    <string notr="true">QSpinBox {
+    background-color: white;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+QSpinBox:hover {
+    border-color: #2980b9;
+    background-color: #ecf8ff;
+}
+
+QSpinBox:focus {
+    border-color: #1abc9c;
+    background-color: #e8f8f5;
+}</string>
                    </property>
                    <property name="alignment">
                     <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
@@ -525,15 +681,33 @@ QLabel {
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>0</height>
+                     <width>100</width>
+                     <height>32</height>
                     </size>
                    </property>
                    <property name="styleSheet">
-                    <string>padding: 0px;</string>
+                    <string notr="true">QSpinBox {
+    background-color: white;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+QSpinBox:hover {
+    border-color: #2980b9;
+    background-color: #ecf8ff;
+}
+
+QSpinBox:focus {
+    border-color: #1abc9c;
+    background-color: #e8f8f5;
+}</string>
                    </property>
                    <property name="frame">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="buttonSymbols">
                     <enum>QAbstractSpinBox::NoButtons</enum>
@@ -582,15 +756,33 @@ QLabel {
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>80</width>
-                     <height>0</height>
+                     <width>100</width>
+                     <height>32</height>
                     </size>
                    </property>
                    <property name="styleSheet">
-                    <string>padding: 0px;</string>
+                    <string notr="true">QSpinBox {
+    background-color: white;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+QSpinBox:hover {
+    border-color: #2980b9;
+    background-color: #ecf8ff;
+}
+
+QSpinBox:focus {
+    border-color: #1abc9c;
+    background-color: #e8f8f5;
+}</string>
                    </property>
                    <property name="frame">
-                    <bool>false</bool>
+                    <bool>true</bool>
                    </property>
                    <property name="buttonSymbols">
                     <enum>QAbstractSpinBox::NoButtons</enum>
@@ -636,12 +828,30 @@ QLabel {
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>120</width>
-                     <height>0</height>
+                     <width>150</width>
+                     <height>32</height>
                     </size>
                    </property>
                    <property name="styleSheet">
-                    <string>padding: 0px;</string>
+                    <string notr="true">QLineEdit {
+    background-color: white;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+QLineEdit:hover {
+    border-color: #2980b9;
+    background-color: #ecf8ff;
+}
+
+QLineEdit:focus {
+    border-color: #1abc9c;
+    background-color: #e8f8f5;
+}</string>
                    </property>
                    <property name="text">
                     <string>192.168.0.2</string>
@@ -678,12 +888,30 @@ QLabel {
                    </property>
                    <property name="minimumSize">
                     <size>
-                     <width>120</width>
-                     <height>0</height>
+                     <width>150</width>
+                     <height>32</height>
                     </size>
                    </property>
                    <property name="styleSheet">
-                    <string>padding: 0px;</string>
+                    <string notr="true">QLineEdit {
+    background-color: white;
+    border: 2px solid #3498db;
+    border-radius: 6px;
+    padding: 5px 10px;
+    font-size: 13px;
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+QLineEdit:hover {
+    border-color: #2980b9;
+    background-color: #ecf8ff;
+}
+
+QLineEdit:focus {
+    border-color: #1abc9c;
+    background-color: #e8f8f5;
+}</string>
                    </property>
                    <property name="text">
                     <string>192.168.0.3</string>
@@ -1514,706 +1742,6 @@ QComboBox QAbstractItemView {
              </widget>
             </item>
            </layout>
-          </item>
-         </layout>
-        </item>
-       </layout>
-      </widget>
-      <widget class="QWidget" name="page_8">
-       <layout class="QHBoxLayout" name="horizontalLayout">
-        <item>
-         <layout class="QHBoxLayout" name="horizontalLayout_35" stretch="3,0">
-          <item>
-           <layout class="QVBoxLayout" name="verticalLayout_14" stretch="9,0,0">
-            <item>
-             <widget class="QCustomPlot" name="customPlot_3" native="true">
-              <property name="sizePolicy">
-               <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                <horstretch>0</horstretch>
-                <verstretch>0</verstretch>
-               </sizepolicy>
-              </property>
-             </widget>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_38">
-              <property name="spacing">
-               <number>15</number>
-              </property>
-              <property name="leftMargin">
-               <number>20</number>
-              </property>
-              <property name="rightMargin">
-               <number>20</number>
-              </property>
-              <item alignment="Qt::AlignRight">
-               <widget class="QLabel" name="Frequency_3">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #2c3e50;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>主频率:</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="Frequency_in_3">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #3498db;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0 Hz</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignRight">
-               <widget class="QLabel" name="Amplitude_3">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #2c3e50;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>幅度:</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="Amplitude_in_3">
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #3498db;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0 V</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignRight">
-               <widget class="QLabel" name="label_snr">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #2c3e50;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>SNR:</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="label_snr_value">
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #27ae60;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0 dB</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-            <item>
-             <layout class="QHBoxLayout" name="horizontalLayout_spectrum_info2">
-              <property name="spacing">
-               <number>15</number>
-              </property>
-              <property name="leftMargin">
-               <number>20</number>
-              </property>
-              <property name="rightMargin">
-               <number>20</number>
-              </property>
-              <item alignment="Qt::AlignRight">
-               <widget class="QLabel" name="label_thd">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #2c3e50;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>THD:</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="label_thd_value">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #e67e22;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0 %</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignRight">
-               <widget class="QLabel" name="label_bandwidth">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #2c3e50;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>带宽:</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="label_bandwidth_value">
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #9b59b6;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0 Hz</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignRight">
-               <widget class="QLabel" name="label_harmonics">
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #2c3e50;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>谐波数:</string>
-                </property>
-               </widget>
-              </item>
-              <item alignment="Qt::AlignLeft">
-               <widget class="QLabel" name="label_harmonics_value">
-                <property name="minimumSize">
-                 <size>
-                  <width>80</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="styleSheet">
-                 <string notr="true">QLabel {
-    color: #e74c3c;
-    font-size: 13px;
-    font-weight: 600;
-    padding: 2px 5px;
-}</string>
-                </property>
-                <property name="text">
-                 <string>0</string>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </item>
-           </layout>
-          </item>
-          <item>
-           <widget class="QGroupBox" name="groupBox_2">
-            <property name="title">
-             <string>UDP设置</string>
-            </property>
-            <layout class="QVBoxLayout" name="verticalLayout_15" stretch="0,0,2,0,0">
-             <property name="spacing">
-              <number>10</number>
-             </property>
-             <item>
-              <layout class="QVBoxLayout" name="verticalLayout_16" stretch="0,0,0,0,0">
-               <property name="spacing">
-                <number>20</number>
-               </property>
-               <property name="sizeConstraint">
-                <enum>QLayout::SetDefaultConstraint</enum>
-               </property>
-               <property name="leftMargin">
-                <number>0</number>
-               </property>
-               <property name="rightMargin">
-                <number>0</number>
-               </property>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_39" stretch="0,0">
-                 <property name="spacing">
-                  <number>5</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>30</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label_29">
-                   <property name="enabled">
-                    <bool>true</bool>
-                   </property>
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Preferred" vsizetype="Preferred">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>144</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="maximumSize">
-                    <size>
-                     <width>144</width>
-                     <height>16777215</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string>margin: 0px; padding: 0px;</string>
-                   </property>
-                   <property name="lineWidth">
-                    <number>1</number>
-                   </property>
-                   <property name="text">
-                    <string> 端口:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="portSpinBox_5">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="layoutDirection">
-                    <enum>Qt::LeftToRight</enum>
-                   </property>
-                   <property name="styleSheet">
-                    <string notr="true">padding: 0px; margin-left: -0;</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-                   </property>
-                   <property name="buttonSymbols">
-                    <enum>QAbstractSpinBox::NoButtons</enum>
-                   </property>
-                   <property name="minimum">
-                    <number>1</number>
-                   </property>
-                   <property name="maximum">
-                    <number>65535</number>
-                   </property>
-                   <property name="value">
-                    <number>6102</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_42">
-                 <property name="spacing">
-                  <number>5</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>30</number>
-                 </property>
-                 <item alignment="Qt::AlignVCenter">
-                  <widget class="QLabel" name="label_32">
-                   <property name="styleSheet">
-                    <string>margin: 0px; padding: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string>数据个数:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="dataNumSpinBox_5">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string>padding: 0px;</string>
-                   </property>
-                   <property name="frame">
-                    <bool>false</bool>
-                   </property>
-                   <property name="buttonSymbols">
-                    <enum>QAbstractSpinBox::NoButtons</enum>
-                   </property>
-                   <property name="minimum">
-                    <number>1</number>
-                   </property>
-                   <property name="maximum">
-                    <number>2147483647</number>
-                   </property>
-                   <property name="value">
-                    <number>1</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_43">
-                 <property name="spacing">
-                  <number>5</number>
-                 </property>
-                 <property name="rightMargin">
-                  <number>30</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label_33">
-                   <property name="styleSheet">
-                    <string>margin: 0px; padding: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string>目标端口:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QSpinBox" name="targetPortSpinBox_5">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>80</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string>padding: 0px;</string>
-                   </property>
-                   <property name="frame">
-                    <bool>false</bool>
-                   </property>
-                   <property name="buttonSymbols">
-                    <enum>QAbstractSpinBox::NoButtons</enum>
-                   </property>
-                   <property name="minimum">
-                    <number>1</number>
-                   </property>
-                   <property name="maximum">
-                    <number>65535</number>
-                   </property>
-                   <property name="value">
-                    <number>5000</number>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_44">
-                 <property name="spacing">
-                  <number>5</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label_34">
-                   <property name="styleSheet">
-                    <string>margin: 0px; padding: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string>目标IP地址:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="targetIpLineEdit_5">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>120</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string>padding: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string>192.168.0.2</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-               <item>
-                <layout class="QHBoxLayout" name="horizontalLayout_45">
-                 <property name="spacing">
-                  <number>5</number>
-                 </property>
-                 <item>
-                  <widget class="QLabel" name="label_35">
-                   <property name="styleSheet">
-                    <string>margin: 0px; padding: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string>本机IP地址:</string>
-                   </property>
-                   <property name="alignment">
-                    <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
-                   </property>
-                  </widget>
-                 </item>
-                 <item>
-                  <widget class="QLineEdit" name="ipLineEdit_5">
-                   <property name="sizePolicy">
-                    <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
-                     <horstretch>0</horstretch>
-                     <verstretch>0</verstretch>
-                    </sizepolicy>
-                   </property>
-                   <property name="minimumSize">
-                    <size>
-                     <width>120</width>
-                     <height>0</height>
-                    </size>
-                   </property>
-                   <property name="styleSheet">
-                    <string>padding: 0px;</string>
-                   </property>
-                   <property name="text">
-                    <string>192.168.0.3</string>
-                   </property>
-                  </widget>
-                 </item>
-                </layout>
-               </item>
-              </layout>
-             </item>
-             <item>
-              <widget class="QPushButton" name="setButton_5">
-               <property name="styleSheet">
-                <string notr="true">QPushButton {
-    background-color: #3498db;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-QPushButton:hover {
-    background-color: #2980b9;
-}
-
-QPushButton:pressed {
-    background-color: #21618c;
-}</string>
-               </property>
-               <property name="text">
-                <string>设置UDP连接参数</string>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="listenButton_5">
-               <property name="styleSheet">
-                <string notr="true">QPushButton {
-    background-color: #27ae60;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-QPushButton:hover {
-    background-color: #229954;
-}
-
-QPushButton:pressed {
-    background-color: #1e8449;
-}
-
-QPushButton:checked {
-    background-color: #e74c3c;
-}
-
-QPushButton:checked:hover {
-    background-color: #c0392b;
-}</string>
-               </property>
-               <property name="text">
-                <string>开始监听</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="loopSendButton_5">
-               <property name="styleSheet">
-                <string notr="true">QPushButton {
-    background-color: #f39c12;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-QPushButton:hover {
-    background-color: #e67e22;
-}
-
-QPushButton:pressed {
-    background-color: #d35400;
-}
-
-QPushButton:checked {
-    background-color: #e74c3c;
-}
-
-QPushButton:checked:hover {
-    background-color: #c0392b;
-}</string>
-               </property>
-               <property name="text">
-                <string>循环发送</string>
-               </property>
-               <property name="checkable">
-                <bool>true</bool>
-               </property>
-              </widget>
-             </item>
-             <item>
-              <widget class="QPushButton" name="restartButton_5">
-               <property name="styleSheet">
-                <string notr="true">QPushButton {
-    background-color: #9b59b6;
-    color: white;
-    border: none;
-    border-radius: 8px;
-    padding: 10px 15px;
-    font-size: 14px;
-    font-weight: 500;
-}
-
-QPushButton:hover {
-    background-color: #8e44ad;
-}
-
-QPushButton:pressed {
-    background-color: #7d3c98;
-}</string>
-               </property>
-               <property name="text">
-                <string>发送采集命令</string>
-               </property>
-              </widget>
-             </item>
-            </layout>
-           </widget>
           </item>
          </layout>
         </item>
