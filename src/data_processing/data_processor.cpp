@@ -13,7 +13,6 @@ DataProcessor::DataProcessor(QObject *parent)
     , dataNum(0)
     , sampleRate(50000000.0)  // 默认 50MHz
 {
-    qDebug() << "DataProcessor 构造函数";
 }
 
 /**
@@ -22,7 +21,6 @@ DataProcessor::DataProcessor(QObject *parent)
 DataProcessor::~DataProcessor()
 {
     // TODO: 清理资源
-    qDebug() << "DataProcessor 析构函数";
 }
 
 /**
@@ -34,7 +32,6 @@ void DataProcessor::setSamplingConfig(quint32 dataNum, double sampleRate)
 {
     this->dataNum = dataNum;
     this->sampleRate = sampleRate;
-    qDebug() << "DataProcessor 设置采样配置: dataNum =" << dataNum << ", sampleRate =" << sampleRate << "Hz";
 }
 
 /**
@@ -43,7 +40,6 @@ void DataProcessor::setSamplingConfig(quint32 dataNum, double sampleRate)
 void DataProcessor::reset()
 {
     // TODO: 重置内部状态
-    qDebug() << "DataProcessor 已重置";
 }
 
 /**
@@ -54,19 +50,14 @@ void DataProcessor::reset()
 void DataProcessor::processWaveformData(const QVector<double> &voltages, const QVector<double> &times)
 {
     if (voltages.isEmpty() || times.isEmpty() || voltages.size() != times.size()) {
-        qDebug() << "数据无效或长度不匹配，跳过处理";
         return;
     }
-    
-    qDebug() << "开始处理波形数据，共" << voltages.size() << "个数据点";
     
     // ========== 1. 使用已同步的采样率 ==========
     // 采样率已在模块间同步，直接使用成员变量 sampleRate
     const double BASE_CLOCK = 50000000.0;
-    quint32 currentDivider = static_cast<quint32>(BASE_CLOCK / sampleRate + 0.5);
+    quint32 currentDivider = static_cast<quint32>(BASE_CLOCK / sampleRate );
     if (currentDivider < 1) currentDivider = 1;
-    
-    qDebug() << "当前采样率：" << sampleRate << "Hz，分频比：" << currentDivider;
     
     // ========== 2. 频率检测（使用 FrequencyDetector）==========
     FrequencyDetector freqDetector;
@@ -110,8 +101,6 @@ void DataProcessor::processWaveformData(const QVector<double> &voltages, const Q
     // ========== 5. 降采样处理（用于绘图）==========
     // 暂时直接发送原始数据，后续可添加降采样算法
     emit downsampledDataReady(voltages, times);
-    
-    qDebug() << "波形数据处理完成";
 }
 
 /**
@@ -153,9 +142,6 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
     
     // 如果 FrequencyDetector 检测到周期数不足，需要更激进的调整
     bool needMoreCycles = qualityInfo.reason.contains("周期") || qualityInfo.reason.contains("cycle");
-    if (needMoreCycles) {
-        qDebug() << "⚠️ FrequencyDetector 检测到周期数不足，将采用更激进的分频调整策略";
-    }
     
     double minSampleRate = signalFreq * minOversamplingRatio;
     double idealSampleRate = signalFreq * idealOversamplingRatio;
@@ -163,7 +149,7 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
     // 下位机基础时钟频率
     const double BASE_CLOCK = 50000000.0; // 50MHz
     
-    // 支持的分频范围：1~10000
+    // 支持的分频范围：1~4000
     // 计算理想分频比（频率越低，分频比越大）
     double idealDivider = BASE_CLOCK / idealSampleRate;
     
@@ -172,8 +158,6 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
     if (needMoreCycles && qualityInfo.recommendedDivider > 0) {
         double freqDetectorDivider = static_cast<double>(qualityInfo.recommendedDivider);
         if (freqDetectorDivider > idealDivider) {
-            qDebug() << "采纳 FrequencyDetector 的激进建议，分频比从" << idealDivider 
-                     << "提升到" << freqDetectorDivider;
             idealDivider = freqDetectorDivider;
         }
     }
@@ -181,22 +165,17 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
     // 限制在合理范围内
     if (idealDivider < 1.0) {
         idealDivider = 1.0;
-    } else if (idealDivider > 10000.0) {
-        idealDivider = 10000.0;
+    } else if (idealDivider > 4000.0) {
+        idealDivider = 4000.0;
     }
     
     // 向上取整（对于低频信号，宁可分频比大一点，降低采样率）
     rec.recommendedDivider = static_cast<quint32>(std::ceil(idealDivider));
     if (rec.recommendedDivider < 1) rec.recommendedDivider = 1;
-    if (rec.recommendedDivider > 10000) rec.recommendedDivider = 10000;
+    if (rec.recommendedDivider > 4000) rec.recommendedDivider = 4000;
     
     // 计算实际采样率
     rec.recommendedSampleRate = BASE_CLOCK / rec.recommendedDivider;
-    
-    qDebug() << "信号频率:" << signalFreq << "Hz";
-    qDebug() << "理想采样率:" << idealSampleRate << "Hz (过采样" << idealOversamplingRatio << "x)";
-    qDebug() << "理想分频比:" << idealDivider << " (向上取整到" << rec.recommendedDivider << ")";
-    qDebug() << "实际采样率:" << rec.recommendedSampleRate << "Hz";
     
     // 验证过采样倍数
     double actualOversampling = rec.recommendedSampleRate / signalFreq;
@@ -207,12 +186,7 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
         rec.recommendedDivider--;
         rec.recommendedSampleRate = BASE_CLOCK / rec.recommendedDivider;
         actualOversampling = rec.recommendedSampleRate / signalFreq;
-        qDebug() << "过采样不足，降低分频比到" << rec.recommendedDivider << "，采样率" << rec.recommendedSampleRate << "Hz";
     }
-    
-    qDebug() << "✅ 最终分频比:" << rec.recommendedDivider 
-             << ", 采样率:" << rec.recommendedSampleRate << "Hz"
-             << ", 过采样倍数:" << actualOversampling << "x";
     
     // 如果采样率仍不足，给出警告
     if (rec.recommendedSampleRate < minSampleRate) {
@@ -227,44 +201,16 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
                      .arg(rec.recommendedSampleRate, 0, 'f', 0);
     }
     
-    // ========== 采样点数推荐策略 ==========
-    // 目标：捕获至少3-5个完整周期，且总采样时间适中
-    // 如果 FrequencyDetector 建议需要更多采样点，优先采纳
+    // ========== 采样点数固定策略 ==========
+    // 固定使用1500个采样点，不再动态推荐修改
+    rec.recommendedDataNum = 1500;
     
-    const int minCycles = 6;      // 最少周期数
-    const int idealCycles = 9;    // 理想周期数
-    
-    // 如果 FrequencyDetector 提供了采样点数建议，将其作为参考
-    int targetCycles = idealCycles;
-    if (needMoreCycles && qualityInfo.recommendedDataNum > 0) {
-        // 计算 FrequencyDetector 建议的周期数
-        double freqDetectorCycles = (qualityInfo.recommendedDataNum / qualityInfo.recommendedSampleRate) * signalFreq;
-        if (freqDetectorCycles > idealCycles) {
-            qDebug() << "采纳 FrequencyDetector 的建议，目标周期数从" << idealCycles 
-                     << "提升到" << static_cast<int>(freqDetectorCycles);
-            targetCycles = static_cast<int>(std::ceil(freqDetectorCycles));
-        }
-    }
-    
+    // 计算在固定采样点数下能捕获的周期数
     double signalPeriod = 1.0 / signalFreq; // 秒
-    double idealSamplingTime = signalPeriod * targetCycles; // 秒（使用动态目标周期数）
+    double samplingTime = rec.recommendedDataNum / rec.recommendedSampleRate; // 秒
+    double actualCycles = samplingTime / signalPeriod;
     
-    // 采样点数 = 采样时间 × 采样率
-    rec.recommendedDataNum = static_cast<quint32>(idealSamplingTime * rec.recommendedSampleRate);
-    
-    // 限制在合理范围内（100 ~ 100000点）
-    if (rec.recommendedDataNum < 100) {
-        rec.recommendedDataNum = 100;
-    } else if (rec.recommendedDataNum > 100000) {
-        rec.recommendedDataNum = 100000;
-    }
-    
-    // 圆整到方便的数值（如100的倍数）
-    rec.recommendedDataNum = (rec.recommendedDataNum / 100) * 100;
-    
-    double actualCycles = (rec.recommendedDataNum / rec.recommendedSampleRate) * signalFreq;
-    rec.reason += QString("\n推荐采样点数=%1，可捕获约%2个完整周期")
-                  .arg(rec.recommendedDataNum)
+    rec.reason += QString("\n采样点数=1500（固定），可捕获约%1个完整周期")
                   .arg(actualCycles, 0, 'f', 1);
     
     return rec;

@@ -61,7 +61,6 @@ bool UARTReceiver::openPort(const QString &portName, qint32 baudRate)
     serialPort->setFlowControl(QSerialPort::NoFlowControl);
 
     if (serialPort->open(QIODevice::ReadOnly)) {
-        qDebug() << "UART port opened:" << portName << "at" << baudRate << "baud";
         return true;
     } else {
         qWarning() << "Failed to open UART port:" << portName << "Error:" << serialPort->errorString();
@@ -76,7 +75,6 @@ void UARTReceiver::closePort()
 {
     if (serialPort->isOpen()) {
         serialPort->close();
-        qDebug() << "UART port closed";
     }
 }
 

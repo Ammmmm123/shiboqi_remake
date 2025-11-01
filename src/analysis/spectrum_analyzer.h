@@ -11,13 +11,8 @@
 struct SpectrumAnalysisResult {
     double dominantFrequency;    ///< 主频率（Hz）
     double dominantAmplitude;    ///< 主频率对应的幅度（V）
-    double totalPower;           ///< 总功率（V²）
-    double snr;                  ///< 信噪比（dB）
-    double thd;                  ///< 总谐波失真（%）
-    double bandwidth;            ///< -3dB带宽（Hz）
-    int harmonicCount;           ///< 检测到的谐波数量
-    QVector<double> harmonicFreqs;  ///< 谐波频率列表
-    QVector<double> harmonicAmps;   ///< 谐波幅度列表
+    double secondFrequency;      ///< 次频率（Hz）
+    double secondAmplitude;      ///< 次频率对应的幅度（V）
     QVector<double> frequencies; ///< 频率轴数据（Hz）
     QVector<double> amplitudes;  ///< 幅度谱数据（V）
 };
@@ -25,7 +20,7 @@ struct SpectrumAnalysisResult {
 /**
  * @brief 频谱分析器类
  * 
- * 累积UDP接收的电压数据，达到指定数量后进行FFT频谱分析
+ * 每次接收到电压数据后直接进行FFT频谱分析
  */
 class SpectrumAnalyzer : public QObject
 {
@@ -43,18 +38,6 @@ public:
      */
     ~SpectrumAnalyzer();
 
-    /**
-     * @brief 设置目标数据点数量
-     * @param count 需要累积的数据点数量
-     */
-    void setTargetDataCount(quint32 count);
-
-    /**
-     * @brief 设置采样率
-     * @param rate 采样率（Hz）
-     */
-    void setSampleRate(double rate);
-
 signals:
     /**
      * @brief 频谱分析完成信号
@@ -69,7 +52,7 @@ public slots:
     void reset();
 
     /**
-     * @brief 接收电压数据并累积
+     * @brief 接收电压数据并直接分析
      * @param voltages 电压数据
      * @param times 时间戳（微秒）
      */
@@ -94,10 +77,8 @@ private:
      */
     int nextPowerOf2(int n);
 
-    quint32 targetCount;           ///< 目标数据点数量
-    double sampleRate;             ///< 采样率（Hz）
-    QVector<double> accumulatedVoltages; ///< 累积的电压数据
-    QVector<double> accumulatedTimes;    ///< 累积的时间戳数据
+    QVector<double> accumulatedVoltages; ///< 临时存储的电压数据
+    QVector<double> accumulatedTimes;    ///< 临时存储的时间戳数据
     
     // 统计平滑相关
     int analysisCount;             ///< 已完成的分析次数

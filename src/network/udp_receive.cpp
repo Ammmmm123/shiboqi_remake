@@ -46,7 +46,6 @@ void UdpReceiver::startListening()
         connect(socket, &QUdpSocket::readyRead, this, &UdpReceiver::processPendingDatagrams);
     } else {
         emit bindFailed(socket->errorString());
-        qDebug() << "Bind failed:" << socket->errorString();
     }
     sampleIndex = 0; // 重置样本索引
 }
@@ -128,7 +127,6 @@ void UdpReceiver::resetSampleIndex()
 {
     sampleIndex = 0;
     currentDataCount = 0;
-    qDebug() << "手动重置时间戳";
 }
 
 /**

@@ -45,11 +45,6 @@ void WaveformSenderThread::run()
     // 在线程中创建UDP socket
     QUdpSocket socket;
     
-    qDebug() << "[波形发送线程] 开始发送手绘波形数据...";
-    qDebug() << "[波形发送线程] 目标地址：" << m_targetAddress.toString() << ":" << m_targetPort;
-    qDebug() << "[波形发送线程] 数据点数：" << m_waveformData.size();
-    qDebug() << "[波形发送线程] 发送延迟：" << m_delayMs << "ms";
-
     int successCount = 0;
     int totalCount = m_waveformData.size();
 
@@ -57,7 +52,6 @@ void WaveformSenderThread::run()
     for (int i = 0; i < m_waveformData.size(); ++i) {
         // 检查线程是否被请求停止
         if (isInterruptionRequested()) {
-            qDebug() << "[波形发送线程] 发送被中断";
             emit sendingFailed("发送被用户中断");
             return;
         }
@@ -85,7 +79,6 @@ void WaveformSenderThread::run()
         }
     }
 
-    qDebug() << "[波形发送线程] 发送完成！成功：" << successCount << "/" << totalCount;
     emit sendingCompleted(successCount, totalCount);
 }
 

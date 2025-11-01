@@ -57,6 +57,10 @@ public:
     QLabel *label;
     QLabel *spectrum_amp_label;
     QLabel *label_2;
+    QLabel *spectrum_second_freq_label;
+    QLabel *label_3;
+    QLabel *spectrum_second_amp_label;
+    QLabel *label_4;
     QWidget *displayStackedWidget;
     QHBoxLayout *horizontalLayout_6;
     QVBoxLayout *verticalLayout_2;
@@ -337,6 +341,60 @@ public:
 "}"));
 
         horizontalLayout_9->addWidget(label_2);
+
+        spectrum_second_freq_label = new QLabel(page_9);
+        spectrum_second_freq_label->setObjectName(QString::fromUtf8("spectrum_second_freq_label"));
+        spectrum_second_freq_label->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 4px 8px;\n"
+"    background-color: #ecf0f1;\n"
+"    border-radius: 4px;\n"
+"}"));
+
+        horizontalLayout_9->addWidget(spectrum_second_freq_label);
+
+        label_3 = new QLabel(page_9);
+        label_3->setObjectName(QString::fromUtf8("label_3"));
+        label_3->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 13px;\n"
+"    font-weight: 700;\n"
+"    padding: 4px 12px;\n"
+"    background-color: #e3f2fd;\n"
+"    border: 1px solid #3498db;\n"
+"    border-radius: 4px;\n"
+"}"));
+
+        horizontalLayout_9->addWidget(label_3);
+
+        spectrum_second_amp_label = new QLabel(page_9);
+        spectrum_second_amp_label->setObjectName(QString::fromUtf8("spectrum_second_amp_label"));
+        spectrum_second_amp_label->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 4px 8px;\n"
+"    background-color: #ecf0f1;\n"
+"    border-radius: 4px;\n"
+"}"));
+
+        horizontalLayout_9->addWidget(spectrum_second_amp_label);
+
+        label_4 = new QLabel(page_9);
+        label_4->setObjectName(QString::fromUtf8("label_4"));
+        label_4->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 13px;\n"
+"    font-weight: 700;\n"
+"    padding: 4px 12px;\n"
+"    background-color: #e3f2fd;\n"
+"    border: 1px solid #3498db;\n"
+"    border-radius: 4px;\n"
+"}"));
+
+        horizontalLayout_9->addWidget(label_4);
 
 
         verticalLayout_3->addLayout(horizontalLayout_9);
@@ -1377,6 +1435,10 @@ public:
         label->setText(QCoreApplication::translate("shiboqi_remake", "0.00 Hz", nullptr));
         spectrum_amp_label->setText(QCoreApplication::translate("shiboqi_remake", "\344\270\273\345\271\205\345\272\246 \357\274\232", nullptr));
         label_2->setText(QCoreApplication::translate("shiboqi_remake", "0.000 V", nullptr));
+        spectrum_second_freq_label->setText(QCoreApplication::translate("shiboqi_remake", "\346\254\241\351\242\221\347\216\207 \357\274\232", nullptr));
+        label_3->setText(QCoreApplication::translate("shiboqi_remake", "0.00 Hz", nullptr));
+        spectrum_second_amp_label->setText(QCoreApplication::translate("shiboqi_remake", "\346\254\241\345\271\205\345\272\246 \357\274\232", nullptr));
+        label_4->setText(QCoreApplication::translate("shiboqi_remake", "0.000 V", nullptr));
         Frequency_4->setText(QCoreApplication::translate("shiboqi_remake", "\351\242\221\347\216\207 \357\274\232", nullptr));
         Frequency_4_in->setText(QCoreApplication::translate("shiboqi_remake", "0 Hz", nullptr));
         Amplitude_4->setText(QCoreApplication::translate("shiboqi_remake", "\345\271\205\345\272\246 \357\274\232", nullptr));

@@ -12,7 +12,6 @@
  */
 FFTProcessor::FFTProcessor()
 {
-    qDebug() << "FFTProcessor 构造函数";
 }
 
 /**
@@ -20,7 +19,6 @@ FFTProcessor::FFTProcessor()
  */
 FFTProcessor::~FFTProcessor()
 {
-    qDebug() << "FFTProcessor 析构函数";
 }
 
 /**

@@ -29,8 +29,8 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     , errorDialogShown(false)
     , customPlot(nullptr)
     , updateTimer(new QTimer(this))
-    , dataProcessorThread(new DataProcessorThread(this)) // 创建数据处理线程
-    , dataProcessor(nullptr) // 稍后从线程对象获取
+    , dataProcessorThread(nullptr) // 线程延迟创建（监听时创建）
+    , dataProcessor(nullptr) // 线程延迟创建（监听时创建）
     , currentWaveformType(0) // 初始化为锯齿波
     , isHandDrawMode(false)  // 初始化手绘模式为关闭
     , isDrawing(false)       // 初始化绘制状态为未绘制
@@ -38,21 +38,15 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     , uartReceiver(new UARTReceiver(this)) // 创建UART接收器对象
     , isSpectrumMode(false)          // 初始为示波器模式
     , hasUserZoomed(false)            // 初始未手动缩放，允许自动缩放
+    , spectrumThread(nullptr)         // 频谱线程延迟创建（监听时创建）
+    , spectrumAnalyzer(nullptr)       // 频谱分析器延迟创建（监听时创建）
 {
     ui->setupUi(this);
-
-    // 启动数据处理线程
-    dataProcessorThread->start();
-    dataProcessor = dataProcessorThread->getProcessor();
 
     // ========== 关键修复：注册自定义元类型，支持跨线程信号传递 ==========
     qRegisterMetaType<SamplingRecommendation>("SamplingRecommendation");
 
-    // 创建数据处理器并连接信号（跨线程信号连接，自动使用队列连接）
-    // 修正：使用processWaveformData槽函数接收UDP数据
-    connect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
-    connect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
-    connect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+    // 注意：数据处理器的信号连接将在监听按钮按下时创建线程后进行
     
 
 
@@ -60,7 +54,6 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     customPlot = ui->customPlot_4;
 
     customPlot->setOpenGl(true);
-
     customPlot->addGraph(); // 添加一个图层
     customPlot->graph(0)->setPen(QPen(Qt::blue)); // 设置线条颜色
     customPlot->xAxis->setLabel("Time (us)");
@@ -114,7 +107,6 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     // 连接数据个数输入框的值变化信号，自动更新 UdpReceiver 的期望数据个数
     connect(ui->dataNumSpinBox_4, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
         udpReceiver->setExpectedDataCount(static_cast<quint32>(value));
-        qDebug() << "示波器页面：数据个数已更新为" << value;
     });
     
     // 初始化时设置一次期望数据个数
@@ -122,10 +114,7 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         udpReceiver->setExpectedDataCount(static_cast<quint32>(ui->dataNumSpinBox_4->value()));
     }
 
-    // 连接采样参数推荐信号（自动设置下位机分频比和采样点数）
-    connect(dataProcessor, &DataProcessor::samplingRecommendationReady, 
-            this, &shiboqi_remake::onSamplingRecommendationReady, 
-            Qt::QueuedConnection);  // 显式指定队列连接（跨线程安全）
+    // 注意：采样参数推荐信号将在监听按钮按下时创建线程后连接
 
     // --- 侧边栏导航按钮：切换不同页面（示波器 / 频谱 / DDS 设置 / 数字信号测量）
     
@@ -147,6 +136,25 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         
         // 停止频谱标签更新定时器
         if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->stop();
+        
+        // ========== 断开频谱分析器连接，减少CPU占用 ==========
+        if (spectrumAnalyzer && udpReceiver) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
+            disconnect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+        }
+        
+        // ========== 重新连接数据处理器（如果已创建）==========
+        if (dataProcessor && udpReceiver) {
+            // 先断开，防止重复连接
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
+            disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+            
+            // 重新连接
+            connect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
+            connect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
+            connect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+        }
         
         // 启动示波器更新定时器
         if (updateTimer) updateTimer->start(50);
@@ -181,6 +189,24 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         // 停止示波器更新定时器
         if (updateTimer) updateTimer->stop();
         
+        // ========== 断开数据处理器连接，减少CPU占用 ==========
+        if (dataProcessor && udpReceiver) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
+            disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+        }
+        
+        // ========== 重新连接频谱分析器（如果已创建）==========
+        if (spectrumAnalyzer && udpReceiver) {
+            // 先断开，防止重复连接
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
+            disconnect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+            
+            // 重新连接
+            connect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
+            connect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+        }
+        
         // 启动频谱标签更新定时器
         if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->start();
         
@@ -208,6 +234,18 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         // 停止频谱标签更新定时器
         if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->stop();
         
+        // ========== 断开所有数据处理连接，节省资源 ==========
+        if (dataProcessor && udpReceiver) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
+            disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+        }
+        
+        if (spectrumAnalyzer && udpReceiver) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
+            disconnect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+        }
+        
         // 保持手绘波形显示（不清空，确保切换回来时能看到）
         if (ui->boxingxianshi) {
             ui->boxingxianshi->replot();
@@ -227,6 +265,18 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         // 停止所有绘图更新定时器
         if (updateTimer) updateTimer->stop();
         if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->stop();
+        
+        // ========== 断开所有数据处理连接，节省资源 ==========
+        if (dataProcessor && udpReceiver) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
+            disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+        }
+        
+        if (spectrumAnalyzer && udpReceiver) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
+            disconnect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+        }
     });
 
     // 初始化串口comboBox
@@ -252,34 +302,26 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     customPlot_spectrum->setOpenGl(true);
     customPlot_spectrum->setInteractions(QCP::iNone);  // 禁用所有交互，包括缩放
 
-    // 连接 dataProcessor 的分析结果（page_5 使用 onAnalysisReady）
-
-    // ===== 初始化频谱分析器（多线程架构） =====
-    spectrumThread = new QThread(this);
-    spectrumAnalyzer = new SpectrumAnalyzer();
-    spectrumAnalyzer->moveToThread(spectrumThread);
-    spectrumThread->start();
-    
-    // 设置频谱分析器参数
-    spectrumAnalyzer->setSampleRate(udpReceiver->getSampleRate());
-    
-    // 连接 UDP 数据到频谱分析器（跨线程，自动队列连接）
-    connect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
-    
-    // 连接频谱分析结果到 UI 更新槽（跨线程，自动队列连接）
-    connect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+    // 注意：频谱分析器将在监听按钮按下时创建线程
     
     // 初始化频谱数据标签更新定时器（每 500ms 更新一次，减少跳动）
     spectrumLabelUpdateTimer = new QTimer(this);
     spectrumLabelUpdateTimer->setInterval(500);
     connect(spectrumLabelUpdateTimer, &QTimer::timeout, this, [this]() {
         if (isSpectrumMode && ui) {
-            // 更新所有频谱数据标签（使用新的控件名称）
-            if (ui->label) {  // 频率标签
+            // 更新主频率和主幅度标签
+            if (ui->label) {  // 主频率标签
                 ui->label->setText(QString("%1 Hz").arg(QString::number(lastSpectrumResult.dominantFrequency, 'f', 2)));
             }
-            if (ui->label_2) {  // 幅度标签
+            if (ui->label_2) {  // 主幅度标签
                 ui->label_2->setText(QString("%1 V").arg(QString::number(lastSpectrumResult.dominantAmplitude, 'f', 3)));
+            }
+            // 更新次频率和次幅度标签
+            if (ui->label_3) {  // 次频率标签
+                ui->label_3->setText(QString("%1 Hz").arg(QString::number(lastSpectrumResult.secondFrequency, 'f', 2)));
+            }
+            if (ui->label_4) {  // 次幅度标签
+                ui->label_4->setText(QString("%1 V").arg(QString::number(lastSpectrumResult.secondAmplitude, 'f', 3)));
             }
         }
     });
@@ -342,21 +384,19 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
  */
 shiboqi_remake::~shiboqi_remake()
 {
-    // 停止并清理数据处理线程（使用封装的stop方法）
+    // 如果线程仍在运行，先停止它们
+    // （正常情况下应该在停止监听时已经清理）
     if (dataProcessorThread) {
         dataProcessorThread->stop();
+        dataProcessorThread = nullptr;
     }
     
-    // 停止并清理频谱分析线程
     if (spectrumThread) {
         spectrumThread->quit();
         spectrumThread->wait();
-    }
-    
-    // 删除频谱分析器（在线程停止后）
-    if (spectrumAnalyzer) {
         delete spectrumAnalyzer;
         spectrumAnalyzer = nullptr;
+        spectrumThread = nullptr;
     }
     
     delete ui;
@@ -412,16 +452,7 @@ void shiboqi_remake::on_setButton_clicked()
     // ========== 新增：配置数据处理器的采样参数（智能低频支持）==========
     dataProcessor->setSamplingConfig(dataNum, udpReceiver->getSampleRate());
     
-    // ========== 同步频谱分析器的采样率和目标数据点数 ==========
-    if (spectrumAnalyzer) {
-        // 计算实际采样率：默认采样率 / 分频比
-        const double BASE_SAMPLE_RATE = 50000000.0; // 50MHz
-        double actualSampleRate = BASE_SAMPLE_RATE / (divider + 1);
-        spectrumAnalyzer->setSampleRate(actualSampleRate);
-        
-        // 设置目标数据点数
-        spectrumAnalyzer->setTargetDataCount(dataNum);
-    }
+    // ========== 同步频谱分析器（不再需要设置采样率，从时间戳自动计算）==========
     
     udpSender->sendChannelSelectCommand(); // 发送通道选择命令
     udpSender->sendDataNumCommand(); // 发送数据个数设置命令
@@ -440,13 +471,45 @@ void shiboqi_remake::on_setButton_clicked()
 void shiboqi_remake::on_listenButton_toggled(bool checked)
 {
     if (checked) {
+        // ========== 创建并启动数据处理线程 ==========
+        if (!dataProcessorThread) {
+            dataProcessorThread = new DataProcessorThread(this);
+            dataProcessorThread->start();
+            dataProcessor = dataProcessorThread->getProcessor();
+            
+            // 连接数据处理器信号（跨线程信号连接，自动使用队列连接）
+            connect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
+            connect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
+            connect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+            connect(dataProcessor, &DataProcessor::samplingRecommendationReady, 
+                    this, &shiboqi_remake::onSamplingRecommendationReady, 
+                    Qt::QueuedConnection);
+        }
+        
+        // ========== 创建并启动频谱分析线程 ==========
+        if (!spectrumThread) {
+            spectrumThread = new QThread(this);
+            spectrumAnalyzer = new SpectrumAnalyzer();
+            spectrumAnalyzer->moveToThread(spectrumThread);
+            spectrumThread->start();
+            
+            // 连接 UDP 数据到频谱分析器（跨线程，自动队列连接）
+            connect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
+            
+            // 连接频谱分析结果到 UI 更新槽（跨线程，自动队列连接）
+            connect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+        }
+        
         on_setButton_clicked();//预先设置参数
         
-        // 获取分频系数并计算实际采样率
-        quint32 divider = udpSender->getDivider();
+        // ========== 强制设置分频比为1，使用默认50MHz采样率 ==========
+        quint32 defaultDivider = 0;  // 下位机分频比 = 0 (实际分频比为1)
         quint32 dataNum = udpSender->getDataNum();
         const double BASE_SAMPLE_RATE = 50000000.0; // 50MHz 基础采样率
-        double actualSampleRate = BASE_SAMPLE_RATE / (divider+1);
+        double actualSampleRate = BASE_SAMPLE_RATE; // 分频比为1时，采样率为50MHz
+        
+        // 设置下位机分频比为0（实际分频比为1）
+        udpSender->setDivider(defaultDivider);
         
         // 配置 UDP 接收器的采样率
         udpReceiver->setSampleRate(actualSampleRate);
@@ -456,11 +519,10 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
                                  Q_ARG(quint32, dataNum),
                                  Q_ARG(double, actualSampleRate));
         
-        // 同步频谱分析器的采样率和目标数据点数
-        if (spectrumAnalyzer) {
-            spectrumAnalyzer->setSampleRate(actualSampleRate);
-            spectrumAnalyzer->setTargetDataCount(dataNum);
-        }
+        // 频谱分析器不再需要设置采样率（从时间戳自动计算）
+        
+        // 发送分频比命令到下位机
+        udpSender->sendDividerCommand();
         
         // 开始监听UDP数据
         udpSender->sendStopLoopCommand();
@@ -477,16 +539,59 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         ui->dataNumSpinBox_4->setEnabled(false);
         // 注意：通道和分频系数输入框已删除，不再需要禁用
     } else {
+        // ========== 立即断开信号连接，防止新数据进入队列 ==========
+        if (dataProcessor) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
+            disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+            disconnect(dataProcessor, &DataProcessor::samplingRecommendationReady, 
+                       this, &shiboqi_remake::onSamplingRecommendationReady);
+        }
+        
+        if (spectrumAnalyzer) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
+            disconnect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+        }
+        
         // 停止监听UDP数据
         udpSender->sendStopLoopCommand();
         udpReceiver->stopListening();
         
-        // 线程安全的重置数据处理器（通过信号槽机制跨线程调用）
-        QMetaObject::invokeMethod(dataProcessor, "reset", Qt::QueuedConnection);
-        
         // 立即清空LIFO队列中的波形数据，停止更新
         plotVoltages.clear();
         plotTimes.clear();
+        
+
+        
+        // ========== 快速停止数据处理线程（不等待队列处理完） ==========
+        if (dataProcessorThread) {
+            // 立即退出线程（不等待事件队列）
+            dataProcessorThread->quit();
+            
+            // 设置最大等待时间为100ms，超时则强制终止
+            if (!dataProcessorThread->wait(100)) {
+                dataProcessorThread->terminate();  // 强制终止
+                dataProcessorThread->wait();       // 等待终止完成
+            }
+            
+            dataProcessorThread = nullptr;
+            dataProcessor = nullptr;
+        }
+        
+        // ========== 快速停止频谱分析线程（不等待队列处理完） ==========
+        if (spectrumThread) {
+            spectrumThread->quit();
+            
+            // 设置最大等待时间为100ms，超时则强制终止
+            if (!spectrumThread->wait(100)) {
+                spectrumThread->terminate();  // 强制终止
+                spectrumThread->wait();       // 等待终止完成
+            }
+            
+            delete spectrumAnalyzer;
+            spectrumAnalyzer = nullptr;
+            spectrumThread = nullptr;
+        }
         
         ui->listenButton_4->setText("开始监听");
         
@@ -555,6 +660,26 @@ void shiboqi_remake::onUdpBindFailed(const QString &errorString)
 void shiboqi_remake::on_loopSendButton_toggled(bool checked)
 {
     if (checked) {
+        // ========== 强制设置分频比为1，使用默认50MHz采样率 ==========
+        quint32 defaultDivider = 0;  // 下位机分频比 = 0 (实际分频比为1)
+        quint32 dataNum = udpSender->getDataNum();
+        const double BASE_SAMPLE_RATE = 50000000.0; // 50MHz 基础采样率
+        double actualSampleRate = BASE_SAMPLE_RATE; // 分频比为1时，采样率为50MHz
+        
+        // 设置下位机分频比为0（实际分频比为1）
+        udpSender->setDivider(defaultDivider);
+        
+        // 配置 UDP 接收器的采样率
+        udpReceiver->setSampleRate(actualSampleRate);
+        
+        // 配置数据处理器的采样配置
+        QMetaObject::invokeMethod(dataProcessor, "setSamplingConfig", Qt::QueuedConnection,
+                                 Q_ARG(quint32, dataNum),
+                                 Q_ARG(double, actualSampleRate));
+        
+        // 发送分频比命令到下位机
+        udpSender->sendDividerCommand();
+        
         // 开始循环发送
         udpSender->sendStartLoopCommand();
         ui->loopSendButton_4->setText("停止循环发送");
@@ -766,7 +891,6 @@ bool shiboqi_remake::eventFilter(QObject *obj, QEvent *event)
             if (me->button() == Qt::LeftButton && isDrawing) {
                 // 结束绘制
                 isDrawing = false;
-                qDebug() << "手绘波形已完成，共" << handDrawnPoints.size() << "个点，点击'保存并发送'按钮以发送波形";
                 
                 return true;
             }
@@ -921,11 +1045,7 @@ void shiboqi_remake::onSamplingRecommendationReady(const SamplingRecommendation 
                              Q_ARG(double, actualSampleRate));
     qDebug() << "  └─ ✅ DataProcessor 采样配置已同步";
     
-    // 同步更新频谱分析器的采样率
-    if (spectrumAnalyzer) {
-        spectrumAnalyzer->setSampleRate(actualSampleRate);
-        qDebug() << "  └─ ✅ SpectrumAnalyzer 采样率已同步";
-    }
+    // 频谱分析器不再需要同步采样率（从时间戳自动计算）
     
     // 发送分频比命令到下位机
     udpSender->sendDividerCommand();
@@ -1112,16 +1232,26 @@ void shiboqi_remake::onSpectrumReady(const SpectrumAnalysisResult &result)
     if (!isSpectrumMode) {
         return;
     }
+    
+    // ========== 关键修复：检查线程是否仍然存在 ==========
+    if (!spectrumAnalyzer || !spectrumThread) {
+        return;  // 线程已销毁，不再处理
+    }
 
     // 缓存最新的频谱分析结果，由定时器定期更新标签（减少跳动）
     lastSpectrumResult = result;
 
-    // 延时 30ms 后更新频谱图（保持高刷新率），但不更新数据标签
+    // 延时 150ms 后更新频谱图（保持高刷新率），但不更新数据标签
     // 使用 Qt::QueuedConnection 确保在主线程中执行，并且检查页面状态
-    QTimer::singleShot(30, this, [this, result]() {
-        // 再次检查UI指针和频谱模式，防止切换模式后崩溃
+    QTimer::singleShot(150, this, [this, result]() {
+        // ========== 严格检查：确保所有条件都满足 ==========
         if (!ui || !customPlot_spectrum || !isSpectrumMode) {
             return;
+        }
+        
+        // ========== 再次检查线程是否仍然存在 ==========
+        if (!spectrumAnalyzer || !spectrumThread) {
+            return;  // 线程已销毁，不再绘制
         }
 
         // 检查数据有效性

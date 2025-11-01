@@ -9,7 +9,6 @@
  */
 FrequencyDetector::FrequencyDetector()
 {
-    qDebug() << "FrequencyDetector 构造函数";
 }
 
 /**
@@ -17,7 +16,6 @@ FrequencyDetector::FrequencyDetector()
  */
 FrequencyDetector::~FrequencyDetector()
 {
-    qDebug() << "FrequencyDetector 析构函数";
 }
 
 /**
@@ -36,7 +34,6 @@ FrequencyDetector::~FrequencyDetector()
 double FrequencyDetector::detectByZeroCrossing(const QVector<double> &voltages, const QVector<double> &times)
 {
     if (voltages.size() < 3 || times.size() < 3 || voltages.size() != times.size()) {
-        qDebug() << "数据点太少或数据长度不匹配，无法检测频率";
         return 0.0;
     }
     
@@ -64,7 +61,6 @@ double FrequencyDetector::detectByZeroCrossing(const QVector<double> &voltages, 
     
     // 至少需要2个过零点才能计算周期
     if (zeroCrossingTimes.size() < 2) {
-        qDebug() << "过零点太少（" << zeroCrossingTimes.size() << "个），无法计算频率";
         return 0.0;
     }
     
@@ -81,10 +77,6 @@ double FrequencyDetector::detectByZeroCrossing(const QVector<double> &voltages, 
     
     // 计算频率（周期单位为微秒，转换为Hz）
     double frequency = 1000000.0 / medianPeriod; // 1秒 = 1000000微秒
-    
-    qDebug() << "过零检测: 检测到" << zeroCrossingTimes.size() << "个过零点，"
-             << "中位数周期 =" << medianPeriod << "us，"
-             << "频率 =" << frequency << "Hz";
     
     return frequency;
 }
@@ -243,7 +235,6 @@ double FrequencyDetector::detectFrequency(const QVector<double> &voltages, const
         
     } else {
         // 过零检测失败（可能是噪声信号、复杂波形或高频信号）
-        qDebug() << "过零检测失败，尝试FFT检测";
         
         double fftFreq = detectByFFT(voltages, times);
         
@@ -301,7 +292,6 @@ double FrequencyDetector::detectFrequency(const QVector<double> &voltages, const
 double FrequencyDetector::detectActualCycles(const QVector<double> &voltages, const QVector<double> &times)
 {
     if (voltages.size() < 3 || times.size() < 3 || voltages.size() != times.size()) {
-        qDebug() << "周期检测：数据点太少";
         return 0.0;
     }
     
@@ -326,12 +316,8 @@ double FrequencyDetector::detectActualCycles(const QVector<double> &voltages, co
         }
     }
     
-    qDebug() << "周期检测：检测到" << risingEdgeTimes.size() << "个上升沿";
-    
     // 至少需要2个上升沿才能计算周期
     if (risingEdgeTimes.size() < 2) {
-        qDebug() << "周期检测：上升沿不足，无法计算周期";
-        
         // 回退策略：假设信号单调或噪声，返回一个保守估计
         // 如果只有0-1个上升沿，说明数据窗口内不足1个周期
         return 0.5; // 保守估计为半个周期
@@ -348,15 +334,11 @@ double FrequencyDetector::detectActualCycles(const QVector<double> &voltages, co
     std::sort(periods.begin(), periods.end());
     double medianPeriod = periods[periods.size() / 2]; // 微秒
     
-    qDebug() << "周期检测：中位数周期 =" << medianPeriod << "us";
-    
     // 计算总时长
     double totalTime = times.last() - times.first(); // 微秒
     
     // 完整周期数 = 总时长 / 单个周期
     double actualCycles = totalTime / medianPeriod;
-    
-    qDebug() << "周期检测：总时长 =" << totalTime << "us，完整周期数 =" << actualCycles;
     
     return actualCycles;
 }
@@ -393,11 +375,6 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
         return info;
     }
     
-    qDebug() << "======== 采样质量评估 ========";
-    qDebug() << "当前分频比：" << currentDivider;
-    qDebug() << "当前采样率：" << info.currentSampleRate << "Hz";
-    qDebug() << "数据点数：" << voltages.size();
-    
     // 检测频率
     info.detectedFrequency = detectFrequency(voltages, times);
     
@@ -405,7 +382,6 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
         // 频率检测失败，可能需要调整采样参数
         info.isAdequate = false;
         info.reason = "无法检测到有效频率，建议检查信号源或调整采样参数";
-        qDebug() << "评估结果：频率检测失败";
         return info;
     }
     
@@ -413,18 +389,11 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
     double totalTimeSeconds = (times.last() - times.first()) / 1000000.0; // 秒
     double signalPeriod = 1.0 / info.detectedFrequency; // 秒
     
-    qDebug() << "检测频率：" << info.detectedFrequency << "Hz";
-    qDebug() << "信号周期：" << signalPeriod * 1000000.0 << "us";
-    qDebug() << "采样时长：" << totalTimeSeconds * 1000000.0 << "us";
-    
     // ========== 使用上升沿/下降沿检测精确计算周期数 ==========
     info.capturedCycles = detectActualCycles(voltages, times);
     
-    qDebug() << "捕获周期数（精确检测）：" << info.capturedCycles;
-    
     // 检查过采样倍数
     double oversamplingRatio = info.currentSampleRate / info.detectedFrequency;
-    qDebug() << "过采样倍数：" << oversamplingRatio << "x";
     
     // 评估标准：
     // 1. 至少捕获 MIN_CYCLES_REQUIRED 个完整周期
@@ -435,7 +404,6 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
     
     // ========== 特殊情况：周期数严重不足（<1个周期）==========
     if (info.capturedCycles < 1.0) {
-        qDebug() << "⚠️ 严重警告：捕获周期数不足1个（" << info.capturedCycles << "）";
         info.isAdequate = false;
         
         // 策略：大幅提高分频比，降低采样率，延长采样时间窗口
@@ -452,7 +420,7 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
         
         // 限制范围并向上取整（宁可采样率低一点，确保捕获足够周期）
         if (requiredDivider < 1.0) requiredDivider = 1.0;
-        if (requiredDivider > 10000.0) requiredDivider = 10000.0;
+        if (requiredDivider > 4000.0) requiredDivider = 4000.0;
         
         info.recommendedDivider = static_cast<quint32>(std::ceil(requiredDivider));
         info.recommendedSampleRate = BASE_CLOCK / info.recommendedDivider;
@@ -462,7 +430,7 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
         double newCycles = newSamplingTime / signalPeriod;
         
         // 如果推荐的分频比达到上限仍不足，建议增加采样点数
-        if (newCycles < MIN_CYCLES_REQUIRED && info.recommendedDivider >= 10000) {
+        if (newCycles < MIN_CYCLES_REQUIRED && info.recommendedDivider >= 4000) {
             // 计算需要的采样点数
             info.recommendedDataNum = static_cast<quint32>(MIN_CYCLES_REQUIRED * signalPeriod * info.recommendedSampleRate);
             if (info.recommendedDataNum > 1000000) info.recommendedDataNum = 1000000;
@@ -482,12 +450,6 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
                           .arg(newCycles, 0, 'f', 1);
         }
         
-        qDebug() << "评估结果：周期严重不足，需要大幅提高分频比";
-        qDebug() << "推荐方案：分频比" << info.recommendedDivider 
-                 << "，采样率" << info.recommendedSampleRate << "Hz"
-                 << "，预计捕获" << newCycles << "个周期";
-        qDebug() << "================================";
-        
         return info;
     }
     
@@ -502,7 +464,6 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
         info.reason = QString("采样质量良好：捕获%1个周期，过采样%2倍")
                       .arg(info.capturedCycles, 0, 'f', 1)
                       .arg(oversamplingRatio, 0, 'f', 1);
-        qDebug() << "评估结果：采样质量良好";
         
     } else if (!enoughCycles && enoughOversampling) {
         // 周期数不足，但采样率足够 -> 需要增加采样点数或降低采样率
@@ -526,8 +487,6 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
                       .arg(info.recommendedSampleRate, 0, 'f', 0)
                       .arg(info.recommendedDataNum);
         
-        qDebug() << "评估结果：周期数不足，需要调整";
-        
     } else if (enoughCycles && !enoughOversampling) {
         // 周期数足够，但过采样倍数不足 -> 需要提高采样率
         info.isAdequate = false;
@@ -548,8 +507,6 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
                       .arg(info.recommendedDivider)
                       .arg(info.recommendedSampleRate, 0, 'f', 0)
                       .arg(info.recommendedDataNum);
-        
-        qDebug() << "评估结果：过采样倍数不足，需要提高采样率";
         
     } else {
         // 两者都不足 -> 综合调整
@@ -572,14 +529,7 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
                       .arg(info.recommendedDivider)
                       .arg(info.recommendedSampleRate, 0, 'f', 0)
                       .arg(info.recommendedDataNum);
-        
-        qDebug() << "评估结果：采样参数全面不足，需要综合调整";
     }
-    
-    qDebug() << "推荐方案：分频比" << info.recommendedDivider 
-             << "，采样率" << info.recommendedSampleRate << "Hz"
-             << "，采样点数" << info.recommendedDataNum;
-    qDebug() << "================================";
     
     return info;
 }
@@ -602,11 +552,11 @@ quint32 FrequencyDetector::calculateOptimalDivider(double detectedFreq, double c
     // 计算理想分频比
     double idealDivider = BASE_CLOCK / idealSampleRate;
     
-    // 限制在 1~10000 范围内
+    // 限制在 1~4000 范围内
     if (idealDivider < 1.0) {
         idealDivider = 1.0;
-    } else if (idealDivider > 10000.0) {
-        idealDivider = 10000.0;
+    } else if (idealDivider > 4000.0) {
+        idealDivider = 4000.0;
     }
     
     // 取整（向下取整以确保采样率不低于理想值）

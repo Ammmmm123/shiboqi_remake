@@ -327,6 +327,76 @@ QLabel {
                     </property>
                    </widget>
                   </item>
+                  <item>
+                   <widget class="QLabel" name="spectrum_second_freq_label">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>次频率 ：</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_3">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    background-color: #e3f2fd;
+    border: 1px solid #3498db;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>0.00 Hz</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="spectrum_second_amp_label">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: #ecf0f1;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>次幅度 ：</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item>
+                   <widget class="QLabel" name="label_4">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 4px 12px;
+    background-color: #e3f2fd;
+    border: 1px solid #3498db;
+    border-radius: 4px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>0.000 V</string>
+                    </property>
+                   </widget>
+                  </item>
                  </layout>
                 </item>
                </layout>
