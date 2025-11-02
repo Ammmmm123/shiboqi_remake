@@ -1,6 +1,7 @@
 #include "udp_receive.h"
 #include <QDataStream>
 #include <QHostAddress>
+#include <QDebug>
 #include <algorithm>
 #include <array>
 
@@ -69,6 +70,7 @@ void UdpReceiver::stopListening()
  */
 void UdpReceiver::setSampleRate(double rate)
 {
+    qDebug() << "🔧 [UDP接收] 设置采样率：" << rate << "Hz";
     sampleRate = rate;
 }
 
@@ -191,18 +193,21 @@ void UdpReceiver::processPendingDatagrams()
 
             // 计算采样时间（微秒）
             // time = 1000000 / SAMPLE_RATE * sample_index
-            double time = 1000000.0 / sampleRate * (++sampleIndex);
-            times.append(time);
+            // 使用 sampleIndex++ 确保第一个点的时间为0
             
-            // 如果设置了期望数据个数，检查是否达到
-            if (expectedDataCount > 0) {
-                currentDataCount++;
-                if (currentDataCount >= expectedDataCount) {
-                    // 达到期望数据个数，重置时间戳
-                    sampleIndex = 0;
-                    currentDataCount = 0;
-                }
+            // ========== 调试：第一次计算时打印采样率 ==========
+            static bool firstTimePrinted = false;
+            if (!firstTimePrinted && sampleIndex == 0) {
+                qDebug() << "🔍 [UDP接收] 计算时间戳时的采样率：" << sampleRate << "Hz";
+                firstTimePrinted = true;
             }
+            
+            double time = 1000000.0 / sampleRate * sampleIndex;
+            times.append(time);
+            sampleIndex++;
+            
+            // 注意：不再根据 expectedDataCount 重置时间戳
+            // 这里的时间戳直接用于频率检测
         }
 
         // 如果有数据，先对电压做去毛刺处理（中值滤波，窗口3），然后发射信号通知接收者

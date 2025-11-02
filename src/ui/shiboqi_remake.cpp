@@ -450,7 +450,10 @@ void shiboqi_remake::on_setButton_clicked()
     udpSender->setChannel(channel);
     
     // ========== 新增：配置数据处理器的采样参数（智能低频支持）==========
-    dataProcessor->setSamplingConfig(dataNum, udpReceiver->getSampleRate());
+    // ========== 安全检查：只有在数据处理器存在时才配置 ==========
+    if (dataProcessor) {
+        dataProcessor->setSamplingConfig(dataNum, udpReceiver->getSampleRate());
+    }
     
     // ========== 同步频谱分析器（不再需要设置采样率，从时间戳自动计算）==========
     
@@ -672,10 +675,12 @@ void shiboqi_remake::on_loopSendButton_toggled(bool checked)
         // 配置 UDP 接收器的采样率
         udpReceiver->setSampleRate(actualSampleRate);
         
-        // 配置数据处理器的采样配置
-        QMetaObject::invokeMethod(dataProcessor, "setSamplingConfig", Qt::QueuedConnection,
-                                 Q_ARG(quint32, dataNum),
-                                 Q_ARG(double, actualSampleRate));
+        // ========== 安全检查：只有在数据处理器存在时才配置 ==========
+        if (dataProcessor) {
+            QMetaObject::invokeMethod(dataProcessor, "setSamplingConfig", Qt::QueuedConnection,
+                                     Q_ARG(quint32, dataNum),
+                                     Q_ARG(double, actualSampleRate));
+        }
         
         // 发送分频比命令到下位机
         udpSender->sendDividerCommand();
@@ -685,7 +690,12 @@ void shiboqi_remake::on_loopSendButton_toggled(bool checked)
         ui->loopSendButton_4->setText("停止循环发送");
     } else {
         // 停止循环发送
-        dataProcessor->reset();
+        
+        // ========== 关键修复：检查数据处理器是否存在 ==========
+        if (dataProcessor) {
+            dataProcessor->reset();
+        }
+        
         udpSender->sendStopLoopCommand();
         ui->loopSendButton_4->setText("循环发送");
     }

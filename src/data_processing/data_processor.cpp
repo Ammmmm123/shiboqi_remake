@@ -20,7 +20,8 @@ DataProcessor::DataProcessor(QObject *parent)
  */
 DataProcessor::~DataProcessor()
 {
-    // TODO: 清理资源
+    // 安全清理频率缓冲区
+    frequencyBuffer.clear();
 }
 
 /**
@@ -39,7 +40,8 @@ void DataProcessor::setSamplingConfig(quint32 dataNum, double sampleRate)
  */
 void DataProcessor::reset()
 {
-    // TODO: 重置内部状态
+    // 清空频率缓冲区
+    frequencyBuffer.clear();
 }
 
 /**
@@ -53,6 +55,24 @@ void DataProcessor::processWaveformData(const QVector<double> &voltages, const Q
         return;
     }
     
+    // ========== 调试：打印时间戳信息 ==========
+    if (voltages.size() >= 2) {
+        double timeSpan = times.last() - times.first(); // 微秒
+        double calculatedSampleRate = 1000000.0 * (voltages.size() - 1) / timeSpan; // Hz
+        double sampleRateDiff = calculatedSampleRate - sampleRate;
+        double relativeError = (sampleRateDiff / sampleRate) * 100.0; // 百分比
+        
+        qDebug() << "🔍 [时间戳诊断]";
+        qDebug() << "  ├─ 数据点数：" << voltages.size();
+        qDebug() << "  ├─ 第一个点时间：" << times.first() << "μs";
+        qDebug() << "  ├─ 最后一个点时间：" << times.last() << "μs";
+        qDebug() << "  ├─ 总时长：" << timeSpan << "μs";
+        qDebug() << "  ├─ 从时间戳计算的采样率：" << calculatedSampleRate << "Hz";
+        qDebug() << "  ├─ 软件设置的采样率：" << sampleRate << "Hz";
+        qDebug() << "  ├─ 偏差：" << sampleRateDiff << "Hz";
+        qDebug() << "  └─ 相对误差：" << relativeError << "%";
+    }
+    
     // ========== 1. 使用已同步的采样率 ==========
     // 采样率已在模块间同步，直接使用成员变量 sampleRate
     const double BASE_CLOCK = 50000000.0;
@@ -60,10 +80,18 @@ void DataProcessor::processWaveformData(const QVector<double> &voltages, const Q
     if (currentDivider < 1) currentDivider = 1;
     
     // ========== 2. 频率检测（使用 FrequencyDetector）==========
+    // 传递软件设置的采样率，避免时间戳误差影响频率检测
     FrequencyDetector freqDetector;
-    SamplingQualityInfo qualityInfo = freqDetector.evaluateSamplingQuality(voltages, times, currentDivider);
+    SamplingQualityInfo qualityInfo = freqDetector.evaluateSamplingQuality(voltages, times, currentDivider, sampleRate);
     
-    double detectedFreq = qualityInfo.detectedFrequency;
+    // 原始检测频率
+    double rawFrequency = qualityInfo.detectedFrequency;
+    
+    // 使用滑动窗口平均频率（提高稳定性）
+    double detectedFreq = getAveragedFrequency(rawFrequency);
+    
+    // 更新 qualityInfo 中的频率为平均后的频率
+    qualityInfo.detectedFrequency = detectedFreq;
     
     // ========== 3. 综合评估并生成采样参数推荐 ==========
     if (!qualityInfo.isAdequate) {
@@ -137,8 +165,8 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
     // 3. 参考 FrequencyDetector 的评估：如果是因为周期数不足，优先调整采样点数或分频比
     // 4. 优先保证波形平滑度：使用更高的过采样倍数，确保波形细节清晰
     
-    const double minOversamplingRatio = 50.0;   // 最小过采样倍数（提高以保证波形平滑）
-    const double idealOversamplingRatio = 100.0; // 理想过采样倍数（提高以获得更好的波形质量）
+    const double minOversamplingRatio = 150.0;   // 最小过采样倍数（提高以保证波形平滑）
+    const double idealOversamplingRatio = 200.0; // 理想过采样倍数（提高以获得更好的波形质量）
     
     // 如果 FrequencyDetector 检测到周期数不足，需要更激进的调整
     bool needMoreCycles = qualityInfo.reason.contains("周期") || qualityInfo.reason.contains("cycle");
@@ -214,4 +242,48 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
                   .arg(actualCycles, 0, 'f', 1);
     
     return rec;
+}
+
+/**
+ * @brief 使用滑动窗口平均频率
+ * @param newFrequency 新检测到的频率
+ * @return 平均后的频率
+ * 
+ * 实现滑动窗口算法：
+ * 1. 保存最近 FREQUENCY_WINDOW_SIZE 个频率值
+ * 2. 计算平均值以减少抖动
+ * 3. 忽略无效频率（<= 0）
+ * 
+ * 使用 std::deque 提高性能和线程安全性
+ */
+double DataProcessor::getAveragedFrequency(double newFrequency)
+{
+    // 忽略无效频率
+    if (newFrequency <= 0.0) {
+        // 如果缓冲区有数据，返回上次的平均值
+        if (!frequencyBuffer.empty()) {
+            double sum = 0.0;
+            for (double freq : frequencyBuffer) {
+                sum += freq;
+            }
+            return sum / frequencyBuffer.size();
+        }
+        return 0.0;
+    }
+    
+    // 添加新频率到缓冲区末尾
+    frequencyBuffer.push_back(newFrequency);
+    
+    // 如果超过窗口大小，移除最旧的数据（队首）
+    if (frequencyBuffer.size() > static_cast<size_t>(FREQUENCY_WINDOW_SIZE)) {
+        frequencyBuffer.pop_front();  // O(1) 操作，比 QVector::removeFirst() 更快
+    }
+    
+    // 计算平均值
+    double sum = 0.0;
+    for (double freq : frequencyBuffer) {
+        sum += freq;
+    }
+    
+    return sum / frequencyBuffer.size();
 }

@@ -4,6 +4,7 @@
 #include <QObject>
 #include <QVector>
 #include <QByteArray>
+#include <deque>
 #include "frequency_detector.h"  // 引入 SamplingQualityInfo
 
 /**
@@ -119,8 +120,19 @@ private:
         double currentSampleRate,
         const SamplingQualityInfo &qualityInfo);
     
+    /**
+     * @brief 使用滑动窗口平均频率
+     * @param newFrequency 新检测到的频率
+     * @return 平均后的频率
+     */
+    double getAveragedFrequency(double newFrequency);
+    
     quint32 dataNum;        ///< 采样数据个数
     double sampleRate;      ///< 实际采样率 (Hz)
+    
+    // 滑动窗口频率平均（使用 std::deque 更安全）
+    std::deque<double> frequencyBuffer;  ///< 频率缓冲区（滑动窗口）
+    static const int FREQUENCY_WINDOW_SIZE = 80;  ///< 窗口大小（保存最近80个频率值）
 };
 
 // ========== 关键修复：声明元类型，支持跨线程信号传递 ==========

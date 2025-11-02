@@ -6,7 +6,7 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1182</width>
+    <width>1270</width>
     <height>696</height>
    </rect>
   </property>
@@ -181,46 +181,6 @@ QLabel {
           </size>
          </property>
         </spacer>
-       </item>
-       <item>
-        <widget class="QLabel" name="copyrightLabel1">
-         <property name="styleSheet">
-          <string notr="true">QLabel {
-    color: #ecf0f1;
-    padding: 5px 10px;
-    font-size: 11px;
-}</string>
-         </property>
-         <property name="text">
-          <string>出品方：人善被人欺，马善马嘉祺队</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
-       </item>
-       <item>
-        <widget class="QLabel" name="copyrightLabel2">
-         <property name="styleSheet">
-          <string notr="true">QLabel {
-    color: #ecf0f1;
-    padding: 5px 10px;
-    font-size: 11px;
-}</string>
-         </property>
-         <property name="text">
-          <string>南京孝陵卫鞭炮厂研发中心</string>
-         </property>
-         <property name="alignment">
-          <set>Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter</set>
-         </property>
-         <property name="wordWrap">
-          <bool>true</bool>
-         </property>
-        </widget>
        </item>
       </layout>
      </widget>
@@ -600,7 +560,7 @@ QLabel {
             <property name="title">
              <string>UDP设置</string>
             </property>
-            <layout class="QVBoxLayout" name="verticalLayout_10" stretch="0,0,0,2,0,0">
+            <layout class="QVBoxLayout" name="verticalLayout_10" stretch="0,0,0,2,0">
              <property name="spacing">
               <number>10</number>
              </property>

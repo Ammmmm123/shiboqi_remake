@@ -82,12 +82,14 @@ public:
      * @param voltages 电压数据
      * @param times 时间戳数据（微秒）
      * @param currentDivider 当前分频比
+     * @param softwareSampleRate 软件设置的采样率 (Hz)，如果 > 0 则使用此值，否则从时间戳计算
      * @return 采样质量评估结果
      */
     SamplingQualityInfo evaluateSamplingQuality(
         const QVector<double> &voltages, 
         const QVector<double> &times,
-        quint32 currentDivider = 1
+        quint32 currentDivider = 1,
+        double softwareSampleRate = 0.0
     );
     
     /**

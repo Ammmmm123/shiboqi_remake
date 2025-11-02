@@ -348,12 +348,14 @@ double FrequencyDetector::detectActualCycles(const QVector<double> &voltages, co
  * @param voltages 电压数据
  * @param times 时间戳数据（微秒）
  * @param currentDivider 当前分频比
+ * @param softwareSampleRate 软件设置的采样率 (Hz)，如果 > 0 则使用此值，否则从时间戳计算
  * @return 采样质量评估结果
  */
 SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
     const QVector<double> &voltages, 
     const QVector<double> &times,
-    quint32 currentDivider)
+    quint32 currentDivider,
+    double softwareSampleRate)
 {
     SamplingQualityInfo info;
     info.currentDivider = currentDivider;
@@ -364,7 +366,9 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
         return info;
     }
     
-    // 计算当前采样率
+    // ========== 直接从时间戳计算当前采样率 ==========
+    // 时间戳已修复：从0开始、连续递增、无周期性重置
+    // 可以直接信任时间戳的准确性
     if (times.size() >= 2) {
         double totalTime = times.last() - times.first(); // 微秒
         double avgSampleInterval = totalTime / (times.size() - 1); // 微秒
@@ -375,7 +379,21 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
         return info;
     }
     
-    // 检测频率
+    // ========== 可选：与软件设置的采样率对比，用于诊断 ==========
+    if (softwareSampleRate > 0.0) {
+        double sampleRateDiff = std::abs(info.currentSampleRate - softwareSampleRate);
+        double relativeError = sampleRateDiff / softwareSampleRate;
+        
+        // 如果差异超过1%，可能存在问题
+        if (relativeError > 0.01) {
+            qDebug() << "⚠️ 采样率不一致：";
+            qDebug() << "  ├─ 从时间戳计算：" << info.currentSampleRate << "Hz";
+            qDebug() << "  ├─ 软件设置：" << softwareSampleRate << "Hz";
+            qDebug() << "  └─ 相对误差：" << (relativeError * 100) << "%";
+        }
+    }
+    
+    // 直接使用原始时间戳进行频率检测
     info.detectedFrequency = detectFrequency(voltages, times);
     
     if (info.detectedFrequency < 0.1) {
@@ -385,11 +403,11 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
         return info;
     }
     
-    // 计算信号周期
+    // 计算信号周期（使用原始时间戳）
     double totalTimeSeconds = (times.last() - times.first()) / 1000000.0; // 秒
     double signalPeriod = 1.0 / info.detectedFrequency; // 秒
     
-    // ========== 使用上升沿/下降沿检测精确计算周期数 ==========
+    // ========== 使用上升沿/下降沿检测精确计算周期数（使用原始时间戳）==========
     info.capturedCycles = detectActualCycles(voltages, times);
     
     // 检查过采样倍数

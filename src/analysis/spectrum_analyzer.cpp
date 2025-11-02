@@ -14,7 +14,7 @@
 SpectrumAnalyzer::SpectrumAnalyzer(QObject *parent)
     : QObject(parent)
     , analysisCount(0)
-    , updateInterval(2) // 每2次分析才更新一次结果
+    , updateInterval(30) // 每30次分析才更新一次结果
 {
 }
 
@@ -173,12 +173,80 @@ void SpectrumAnalyzer::performFFT()
             secondMaxAmplitude = amplitudes[i];
         }
     }
+    
+    // ========== 优化：使用抛物线插值提高主频率精度 ==========
+    double refinedMaxIndex = maxIndex;
+    if (maxIndex > 0 && maxIndex < halfN - 1) {
+        double y1 = amplitudes[maxIndex - 1];  // 左侧点
+        double y2 = amplitudes[maxIndex];      // 峰值点
+        double y3 = amplitudes[maxIndex + 1];  // 右侧点
+        
+        // 判断使用哪种插值方法
+        double ratio = (y1 + y3) / (2.0 * y2);
+        
+        if (ratio > 0.8) {
+            // 峰值不明显，使用加权质心法
+            double sum = y1 + y2 + y3;
+            if (sum > 1e-10) {
+                double weightedSum = (maxIndex - 1) * y1 + maxIndex * y2 + (maxIndex + 1) * y3;
+                refinedMaxIndex = weightedSum / sum;
+            }
+        } else {
+            // 峰值明显，使用抛物线插值
+            double denominator = y1 - 2.0 * y2 + y3;
+            if (std::abs(denominator) > 1e-10) {
+                double delta = 0.5 * (y1 - y3) / denominator;
+                if (delta >= -0.5 && delta <= 0.5) {
+                    refinedMaxIndex = maxIndex + delta;
+                } else {
+                    // 插值异常，回退到加权质心法
+                    double sum = y1 + y2 + y3;
+                    if (sum > 1e-10) {
+                        double weightedSum = (maxIndex - 1) * y1 + maxIndex * y2 + (maxIndex + 1) * y3;
+                        refinedMaxIndex = weightedSum / sum;
+                    }
+                }
+            }
+        }
+    }
+    
+    // ========== 优化：使用抛物线插值提高次频率精度 ==========
+    double refinedSecondMaxIndex = secondMaxIndex;
+    if (secondMaxIndex > 0 && secondMaxIndex < halfN - 1) {
+        double y1 = amplitudes[secondMaxIndex - 1];
+        double y2 = amplitudes[secondMaxIndex];
+        double y3 = amplitudes[secondMaxIndex + 1];
+        
+        double ratio = (y1 + y3) / (2.0 * y2);
+        
+        if (ratio > 0.8) {
+            double sum = y1 + y2 + y3;
+            if (sum > 1e-10) {
+                double weightedSum = (secondMaxIndex - 1) * y1 + secondMaxIndex * y2 + (secondMaxIndex + 1) * y3;
+                refinedSecondMaxIndex = weightedSum / sum;
+            }
+        } else {
+            double denominator = y1 - 2.0 * y2 + y3;
+            if (std::abs(denominator) > 1e-10) {
+                double delta = 0.5 * (y1 - y3) / denominator;
+                if (delta >= -0.5 && delta <= 0.5) {
+                    refinedSecondMaxIndex = secondMaxIndex + delta;
+                } else {
+                    double sum = y1 + y2 + y3;
+                    if (sum > 1e-10) {
+                        double weightedSum = (secondMaxIndex - 1) * y1 + secondMaxIndex * y2 + (secondMaxIndex + 1) * y3;
+                        refinedSecondMaxIndex = weightedSum / sum;
+                    }
+                }
+            }
+        }
+    }
 
-    // 构造结果
+    // 构造结果（使用精确的频率值）
     SpectrumAnalysisResult result;
-    result.dominantFrequency = frequencies[maxIndex];
+    result.dominantFrequency = refinedMaxIndex * freqResolution;
     result.dominantAmplitude = maxAmplitude;
-    result.secondFrequency = frequencies[secondMaxIndex];
+    result.secondFrequency = refinedSecondMaxIndex * freqResolution;
     result.secondAmplitude = secondMaxAmplitude;
     result.frequencies = frequencies;
     result.amplitudes = amplitudes;

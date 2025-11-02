@@ -41,8 +41,6 @@ public:
     QPushButton *navButton_digital;
     QPushButton *navButton_spectrum;
     QSpacerItem *verticalSpacer;
-    QLabel *copyrightLabel1;
-    QLabel *copyrightLabel2;
     QStackedWidget *stackedWidget;
     QWidget *page_5;
     QHBoxLayout *horizontalLayout_3;
@@ -138,7 +136,7 @@ public:
     {
         if (shiboqi_remake->objectName().isEmpty())
             shiboqi_remake->setObjectName(QString::fromUtf8("shiboqi_remake"));
-        shiboqi_remake->resize(1182, 696);
+        shiboqi_remake->resize(1270, 696);
         centralwidget = new QWidget(shiboqi_remake);
         centralwidget->setObjectName(QString::fromUtf8("centralwidget"));
         horizontalLayout_main = new QHBoxLayout(centralwidget);
@@ -230,30 +228,6 @@ public:
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
         verticalLayout_sidebar->addItem(verticalSpacer);
-
-        copyrightLabel1 = new QLabel(sidebarWidget);
-        copyrightLabel1->setObjectName(QString::fromUtf8("copyrightLabel1"));
-        copyrightLabel1->setStyleSheet(QString::fromUtf8("QLabel {\n"
-"    color: #ecf0f1;\n"
-"    padding: 5px 10px;\n"
-"    font-size: 11px;\n"
-"}"));
-        copyrightLabel1->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-        copyrightLabel1->setWordWrap(true);
-
-        verticalLayout_sidebar->addWidget(copyrightLabel1);
-
-        copyrightLabel2 = new QLabel(sidebarWidget);
-        copyrightLabel2->setObjectName(QString::fromUtf8("copyrightLabel2"));
-        copyrightLabel2->setStyleSheet(QString::fromUtf8("QLabel {\n"
-"    color: #ecf0f1;\n"
-"    padding: 5px 10px;\n"
-"    font-size: 11px;\n"
-"}"));
-        copyrightLabel2->setAlignment(Qt::AlignLeading|Qt::AlignLeft|Qt::AlignVCenter);
-        copyrightLabel2->setWordWrap(true);
-
-        verticalLayout_sidebar->addWidget(copyrightLabel2);
 
 
         horizontalLayout_main->addWidget(sidebarWidget);
@@ -1429,8 +1403,6 @@ public:
         navButton_dds->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\216\233\357\270\217  DDS\350\256\276\347\275\256", nullptr));
         navButton_digital->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\223\241  \346\225\260\345\255\227\344\277\241\345\217\267", nullptr));
         navButton_spectrum->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\223\210  \351\242\221\350\260\261\345\210\206\346\236\220", nullptr));
-        copyrightLabel1->setText(QCoreApplication::translate("shiboqi_remake", "\345\207\272\345\223\201\346\226\271\357\274\232\344\272\272\345\226\204\350\242\253\344\272\272\346\254\272\357\274\214\351\251\254\345\226\204\351\251\254\345\230\211\347\245\272\351\230\237", nullptr));
-        copyrightLabel2->setText(QCoreApplication::translate("shiboqi_remake", "\345\215\227\344\272\254\345\255\235\351\231\265\345\215\253\351\236\255\347\202\256\345\216\202\347\240\224\345\217\221\344\270\255\345\277\203", nullptr));
         spectrum_freq_label->setText(QCoreApplication::translate("shiboqi_remake", "\344\270\273\351\242\221\347\216\207 \357\274\232", nullptr));
         label->setText(QCoreApplication::translate("shiboqi_remake", "0.00 Hz", nullptr));
         spectrum_amp_label->setText(QCoreApplication::translate("shiboqi_remake", "\344\270\273\345\271\205\345\272\246 \357\274\232", nullptr));

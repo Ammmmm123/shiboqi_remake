@@ -156,7 +156,6 @@ QVector<double> FFTProcessor::computePowerSpectrum(const QVector<std::complex<do
 double FFTProcessor::findDominantFrequency(const QVector<double> &magnitude, double samplingRate, int startIndex)
 {
     if (magnitude.size() < 2) {
-
         return 0.0;
     }
     
@@ -164,7 +163,6 @@ double FFTProcessor::findDominantFrequency(const QVector<double> &magnitude, dou
     int searchLength = magnitude.size() / 2;
     
     if (startIndex >= searchLength) {
-
         return 0.0;
     }
     
@@ -182,10 +180,53 @@ double FFTProcessor::findDominantFrequency(const QVector<double> &magnitude, dou
     // 频率分辨率 = 采样率 / FFT长度
     double frequencyResolution = samplingRate / magnitude.size();
     
-    // 主频率 = 峰值索引 × 频率分辨率
-    double dominantFrequency = maxIndex * frequencyResolution;
+    // ========== 优化1：抛物线插值提高频率精度（亚bin精度）==========
+    // 原理：真实峰值通常在两个离散bin之间，通过拟合抛物线可以找到真实峰值位置
+    double refinedIndex = maxIndex;
     
-
+    if (maxIndex > 0 && maxIndex < searchLength - 1) {
+        // 获取峰值及其相邻点的幅度
+        double y1 = magnitude[maxIndex - 1];  // 左侧点
+        double y2 = magnitude[maxIndex];      // 峰值点
+        double y3 = magnitude[maxIndex + 1];  // 右侧点
+        
+        // ========== 优化2：加权质心法（备选方案）==========
+        // 如果相邻点幅度接近，使用加权质心法可能更稳定
+        double ratio = (y1 + y3) / (2.0 * y2);
+        
+        if (ratio > 0.8) {
+            // 峰值不明显，使用加权质心法
+            double sum = y1 + y2 + y3;
+            if (sum > 1e-10) {
+                double weightedSum = (maxIndex - 1) * y1 + maxIndex * y2 + (maxIndex + 1) * y3;
+                refinedIndex = weightedSum / sum;
+            }
+        } else {
+            // 峰值明显，使用抛物线插值（Quinn's第一估计器）
+            // 公式：delta = 0.5 * (y1 - y3) / (y1 - 2*y2 + y3)
+            double denominator = y1 - 2.0 * y2 + y3;
+            
+            if (std::abs(denominator) > 1e-10) {  // 避免除以0
+                double delta = 0.5 * (y1 - y3) / denominator;
+                
+                // ========== 优化3：限制插值范围，提高鲁棒性 ==========
+                // delta 应该在 [-0.5, 0.5] 范围内，超出说明峰值形状异常
+                if (delta >= -0.5 && delta <= 0.5) {
+                    refinedIndex = maxIndex + delta;
+                } else {
+                    // 插值异常，回退到加权质心法
+                    double sum = y1 + y2 + y3;
+                    if (sum > 1e-10) {
+                        double weightedSum = (maxIndex - 1) * y1 + maxIndex * y2 + (maxIndex + 1) * y3;
+                        refinedIndex = weightedSum / sum;
+                    }
+                }
+            }
+        }
+    }
+    
+    // 主频率 = 精确索引 × 频率分辨率
+    double dominantFrequency = refinedIndex * frequencyResolution;
     
     return dominantFrequency;
 }
