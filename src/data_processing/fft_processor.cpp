@@ -230,3 +230,95 @@ double FFTProcessor::findDominantFrequency(const QVector<double> &magnitude, dou
     
     return dominantFrequency;
 }
+
+
+/**
+ * @brief 对信号应用汉宁窗，以减少频谱泄漏
+ * @param data 要处理的信号数据（将被就地修改）
+ */
+void FFTProcessor::applyWindow(QVector<double> &data)
+{
+    int size = data.size();
+    if (size == 0) {
+        return;
+    }
+
+    for (int i = 0; i < size; ++i) {
+        // 汉宁窗公式: 0.5 * (1 - cos(2 * PI * i / (N - 1)))
+        double multiplier = 0.5 * (1.0 - std::cos(2.0 * M_PI * i / (size - 1)));
+        data[i] *= multiplier;
+    }
+}
+
+/**
+ * @brief 使用抛物线插值在FFT幅度谱中寻找精确的峰值频率
+ * @param magnitude 幅度谱 (只使用前半部分)
+ * @param samplingRate 采样率 (Hz)
+ * @param startIndex 搜索的起始索引 (通常为1，以跳过直流分量)
+ * @return 精确的峰值频率 (Hz)
+ */
+double FFTProcessor::findPeakWithInterpolation(const QVector<double> &magnitude, double samplingRate, int startIndex)
+{
+    if (magnitude.size() < 3) {
+        return 0.0;
+    }
+
+    // 只搜索前半部分（奈奎斯特频率以下）
+    int searchLength = magnitude.size() / 2;
+    if (startIndex >= searchLength) {
+        startIndex = 1; // 回退到默认值
+    }
+    if (searchLength <= startIndex) {
+        return 0.0;
+    }
+
+
+    // 1. 寻找最大幅度的索引
+    int maxIndex = -1;
+    double maxMagnitude = -1.0;
+    
+    for (int i = startIndex; i < searchLength; ++i) {
+        if (magnitude[i] > maxMagnitude) {
+            maxMagnitude = magnitude[i];
+            maxIndex = i;
+        }
+    }
+
+    if (maxIndex <= 0 || maxIndex >= searchLength - 1) {
+        // 峰值在边界，无法插值，直接返回粗略计算
+        if (maxIndex != -1) {
+            double frequencyResolution = samplingRate / magnitude.size();
+            return maxIndex * frequencyResolution;
+        }
+        return 0.0;
+    }
+
+    // 2. 抛物线插值
+    // 使用峰值点及其左右两点进行拟合: y = ax^2 + bx + c
+    // 真实峰值的偏移量 delta = -b / (2a)
+    // a = (y_left - 2*y_peak + y_right) / 2
+    // b = (y_right - y_left) / 2
+    // delta = (y_left - y_right) / (2 * (y_left - 2*y_peak + y_right))
+    double y1 = magnitude[maxIndex - 1]; // 左侧点
+    double y2 = magnitude[maxIndex];     // 峰值点
+    double y3 = magnitude[maxIndex + 1]; // 右侧点
+
+    double denominator = 2.0 * (y1 - 2.0 * y2 + y3);
+    
+    double delta = 0.0;
+    if (std::abs(denominator) > 1e-9) { // 避免除以零
+        delta = (y1 - y3) / denominator;
+    }
+
+    // 限制插值范围，防止异常值
+    if (delta > 0.5) delta = 0.5;
+    if (delta < -0.5) delta = -0.5;
+
+    double refinedIndex = maxIndex + delta;
+
+    // 3. 计算最终频率
+    double frequencyResolution = samplingRate / magnitude.size();
+    double dominantFrequency = refinedIndex * frequencyResolution;
+
+    return dominantFrequency;
+}

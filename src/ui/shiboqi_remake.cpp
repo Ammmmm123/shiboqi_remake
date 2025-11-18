@@ -168,6 +168,9 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
             customPlot->yAxis->setLabel("Voltage (V)");
             customPlot->replot();
         }
+
+        // 延时以确保线程安全
+        QThread::msleep(50);
     });
     
     // 频谱分析按钮
@@ -216,6 +219,9 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
             customPlot_spectrum->yAxis->setLabel("Amplitude (V)");
             customPlot_spectrum->replot();
         }
+
+        // 延时以确保线程安全
+        QThread::msleep(50);
     });
     
     // DDS设置按钮
@@ -982,7 +988,7 @@ bool shiboqi_remake::eventFilter(QObject *obj, QEvent *event)
 }
 
 /**
- * @brief 分析结果就绪槽（空实现，供用户自行填充）
+ * @brief 分析结果就绪槽
  * @param result 波形分析结果
  */
 void shiboqi_remake::onAnalysisReady(const WaveformAnalysisResult &result)
@@ -990,6 +996,8 @@ void shiboqi_remake::onAnalysisReady(const WaveformAnalysisResult &result)
     // 更新UI上显示的分析结果（频率、幅度、峰峰值、最大值、最小值）
     // 频率：Hz，保留2位小数；幅度/峰峰值/最大值/最小值：V，保留3位小数
     if (!ui) return;
+
+
 
     // frequency
     QString freqText = QString("%1 Hz").arg(QString::number(result.frequency, 'f', 2));

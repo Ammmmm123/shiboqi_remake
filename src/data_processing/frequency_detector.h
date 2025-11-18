@@ -114,6 +114,9 @@ private:
     static constexpr int IDEAL_CYCLES = 10;           // 理想周期数
     static constexpr double MIN_OVERSAMPLING = 10.0;  // 最小过采样倍数
     static constexpr double IDEAL_OVERSAMPLING = 20.0; // 理想过采样倍数
+
+    // DSO-style frequency detection
+    double detectByThresholdCrossing(const QVector<double> &voltages, const QVector<double> &times);
 };
 
 #endif // FREQUENCY_DETECTOR_H

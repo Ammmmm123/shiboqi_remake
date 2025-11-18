@@ -56,22 +56,22 @@ void DataProcessor::processWaveformData(const QVector<double> &voltages, const Q
     }
     
     // ========== 调试：打印时间戳信息 ==========
-    if (voltages.size() >= 2) {
-        double timeSpan = times.last() - times.first(); // 微秒
-        double calculatedSampleRate = 1000000.0 * (voltages.size() - 1) / timeSpan; // Hz
-        double sampleRateDiff = calculatedSampleRate - sampleRate;
-        double relativeError = (sampleRateDiff / sampleRate) * 100.0; // 百分比
+    // if (voltages.size() >= 2) {
+    //     double timeSpan = times.last() - times.first(); // 微秒
+    //     double calculatedSampleRate = 1000000.0 * (voltages.size() - 1) / timeSpan; // Hz
+    //     double sampleRateDiff = calculatedSampleRate - sampleRate;
+    //     double relativeError = (sampleRateDiff / sampleRate) * 100.0; // 百分比
         
-        qDebug() << "🔍 [时间戳诊断]";
-        qDebug() << "  ├─ 数据点数：" << voltages.size();
-        qDebug() << "  ├─ 第一个点时间：" << times.first() << "μs";
-        qDebug() << "  ├─ 最后一个点时间：" << times.last() << "μs";
-        qDebug() << "  ├─ 总时长：" << timeSpan << "μs";
-        qDebug() << "  ├─ 从时间戳计算的采样率：" << calculatedSampleRate << "Hz";
-        qDebug() << "  ├─ 软件设置的采样率：" << sampleRate << "Hz";
-        qDebug() << "  ├─ 偏差：" << sampleRateDiff << "Hz";
-        qDebug() << "  └─ 相对误差：" << relativeError << "%";
-    }
+    //     qDebug() << "🔍 [时间戳诊断]";
+    //     qDebug() << "  ├─ 数据点数：" << voltages.size();
+    //     qDebug() << "  ├─ 第一个点时间：" << times.first() << "μs";
+    //     qDebug() << "  ├─ 最后一个点时间：" << times.last() << "μs";
+    //     qDebug() << "  ├─ 总时长：" << timeSpan << "μs";
+    //     qDebug() << "  ├─ 从时间戳计算的采样率：" << calculatedSampleRate << "Hz";
+    //     qDebug() << "  ├─ 软件设置的采样率：" << sampleRate << "Hz";
+    //     qDebug() << "  ├─ 偏差：" << sampleRateDiff << "Hz";
+    //     qDebug() << "  └─ 相对误差：" << relativeError << "%";
+    // }
     
     // ========== 1. 使用已同步的采样率 ==========
     // 采样率已在模块间同步，直接使用成员变量 sampleRate
@@ -80,23 +80,22 @@ void DataProcessor::processWaveformData(const QVector<double> &voltages, const Q
     if (currentDivider < 1) currentDivider = 1;
     
     // ========== 2. 频率检测（使用 FrequencyDetector）==========
-    // 传递软件设置的采样率，避免时间戳误差影响频率检测
     FrequencyDetector freqDetector;
+    
+    // 第一步：评估采样质量。此函数内部使用 detectByFFT()，其结果仅用于评估。
     SamplingQualityInfo qualityInfo = freqDetector.evaluateSamplingQuality(voltages, times, currentDivider, sampleRate);
     
-    // 原始检测频率
-    double rawFrequency = qualityInfo.detectedFrequency;
+    // 第二步：获取用于UI显示的高精度频率。此函数内部使用 detectByThresholdCrossing()。
+    double rawFrequency = freqDetector.detectFrequency(voltages, times);
     
     // 使用滑动窗口平均频率（提高稳定性）
     double detectedFreq = getAveragedFrequency(rawFrequency);
-    
-    // 更新 qualityInfo 中的频率为平均后的频率
-    qualityInfo.detectedFrequency = detectedFreq;
     
     // ========== 3. 综合评估并生成采样参数推荐 ==========
     if (!qualityInfo.isAdequate) {
         // FrequencyDetector 判断采样质量不足，使用 generateSamplingRecommendation 生成推荐
         // 将 qualityInfo 作为参考输入，综合考虑频率、周期数、过采样倍数等因素
+        // 注意：这里传递的 signalFreq 是用于评估的频率(来自FFT)，而不是用于显示的频率
         SamplingRecommendation recommendation = generateSamplingRecommendation(
             detectedFreq, 
             sampleRate, 
@@ -108,7 +107,7 @@ void DataProcessor::processWaveformData(const QVector<double> &voltages, const Q
     
     // ========== 4. 基本波形分析（最大值、最小值、峰峰值）==========
     WaveformAnalysisResult result;
-    result.frequency = detectedFreq;
+    result.frequency = detectedFreq; // 这个频率明确来自高精度的 detectFrequency()
     
     if (!voltages.isEmpty()) {
         result.maxValue = *std::max_element(voltages.begin(), voltages.end());
@@ -126,8 +125,8 @@ void DataProcessor::processWaveformData(const QVector<double> &voltages, const Q
     
     emit analysisReady(result);
     
-    // ========== 5. 降采样处理（用于绘图）==========
-    // 暂时直接发送原始数据，后续可添加降采样算法
+    // ========== 5. 直接发送原始数据（用于绘图）==========
+    // 暂时直接发送原始数据，
     emit downsampledDataReady(voltages, times);
 }
 
@@ -181,9 +180,9 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
     // 计算理想分频比（频率越低，分频比越大）
     double idealDivider = BASE_CLOCK / idealSampleRate;
     
-    // 如果 FrequencyDetector 提供了推荐分频比，将其作为参考下限
-    // （确保新的分频比不会比 FrequencyDetector 的建议更小，除非有充分理由）
-    if (needMoreCycles && qualityInfo.recommendedDivider > 0) {
+    // 如果 FrequencyDetector 提供了推荐分频比，并且当前不是高频信号，则将其作为参考
+    // 关键修复：对于高频信号（>1MHz），忽略旧的推荐，因为它可能导致分频比过大
+    if (needMoreCycles && qualityInfo.recommendedDivider > 0 && signalFreq < 1000000.0) {
         double freqDetectorDivider = static_cast<double>(qualityInfo.recommendedDivider);
         if (freqDetectorDivider > idealDivider) {
             idealDivider = freqDetectorDivider;
@@ -197,8 +196,9 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
         idealDivider = 4000.0;
     }
     
-    // 向上取整（对于低频信号，宁可分频比大一点，降低采样率）
-    rec.recommendedDivider = static_cast<quint32>(std::ceil(idealDivider));
+    // 关键修复：使用向下取整。对于高频信号，需要更小的分频比。
+    // 例如，计算值为1.1，floor为1，ceil为2。我们选择1以获得更高采样率。
+    rec.recommendedDivider = static_cast<quint32>(std::floor(idealDivider));
     if (rec.recommendedDivider < 1) rec.recommendedDivider = 1;
     if (rec.recommendedDivider > 4000) rec.recommendedDivider = 4000;
     
@@ -210,11 +210,18 @@ SamplingRecommendation DataProcessor::generateSamplingRecommendation(
     
     // 如果过采样倍数低于最小要求，需要降低分频比（提高采样率）
     // 这通常发生在高频信号或需要更平滑波形的情况
-    while (actualOversampling < minOversamplingRatio && rec.recommendedDivider > 1) {
-        rec.recommendedDivider--;
-        rec.recommendedSampleRate = BASE_CLOCK / rec.recommendedDivider;
-        actualOversampling = rec.recommendedSampleRate / signalFreq;
+    // 关键修复：如果理想分频比已经很小，直接设为1，避免循环错误
+    if (idealDivider <= 2.0 && actualOversampling < minOversamplingRatio) {
+        rec.recommendedDivider = 1;
+    } else {
+        while (actualOversampling < minOversamplingRatio && rec.recommendedDivider > 1) {
+            rec.recommendedDivider--;
+            rec.recommendedSampleRate = BASE_CLOCK / rec.recommendedDivider;
+            actualOversampling = rec.recommendedSampleRate / signalFreq;
+        }
     }
+    rec.recommendedSampleRate = BASE_CLOCK / rec.recommendedDivider; // 重新计算最终采样率
+    actualOversampling = rec.recommendedSampleRate / signalFreq;     // 重新计算最终过采样率
     
     // 如果采样率仍不足，给出警告
     if (rec.recommendedSampleRate < minSampleRate) {

@@ -122,7 +122,7 @@ double FrequencyDetector::detectByFFT(const QVector<double> &voltages, const QVe
     
 
     
-    // 去除直流分量（可选，提高检测精度）
+    // 去除直流分量
     double mean = 0.0;
     for (double v : voltages) {
         mean += v;
@@ -133,6 +133,9 @@ double FrequencyDetector::detectByFFT(const QVector<double> &voltages, const QVe
     for (int i = 0; i < voltages.size(); ++i) {
         acVoltages[i] = voltages[i] - mean;
     }
+
+    // 应用汉宁窗以减少频谱泄漏
+    FFTProcessor::applyWindow(acVoltages);
     
     // 执行FFT变换
     FFTProcessor fftProc;
@@ -146,10 +149,130 @@ double FrequencyDetector::detectByFFT(const QVector<double> &voltages, const QVe
     // 计算幅度谱
     QVector<double> magnitude = fftProc.computeMagnitude(fftData);
     
-    // 寻找主频率（跳过索引0的DC分量）
-    double dominantFreq = fftProc.findDominantFrequency(magnitude, samplingRate, 1);
+    // 使用抛物线插值寻找主频率
+    double dominantFreq = FFTProcessor::findPeakWithInterpolation(magnitude, samplingRate, 1);
     
     return dominantFreq;
+}
+
+/**
+ * @brief 通过阈值穿越法检测频率（DSO原理）
+ * @param voltages 电压数据
+ * @param times 时间戳数据（微秒）
+ * @return 检测到的频率 (Hz)
+ * 
+ * 算法原理：
+ * 1. 通过直方图确定信号的高电平(VHigh)和低电平(VLow)。
+ * 2. 计算50%幅值中点 Vmid = VLow + 0.5 * (VHigh - VLow)。
+ * 3. 查找所有穿过Vmid的上升沿，并用线性插值计算精确的过零时间。
+ * 4. 计算相邻过零时间的间隔（周期）。
+ * 5. 使用周期的中位数来抵抗噪声，并计算最终频率。
+ */
+double FrequencyDetector::detectByThresholdCrossing(const QVector<double> &voltages, const QVector<double> &times)
+{
+    if (voltages.size() < 10 || times.size() < 10) { // 需要足够的数据点
+        return 0.0;
+    }
+
+    // 1. 确定高低电平
+    double v_min = voltages[0], v_max = voltages[0];
+    for (double v : voltages) {
+        if (v < v_min) v_min = v;
+        if (v > v_max) v_max = v;
+    }
+
+    if (v_max - v_min < 1e-3) { // 幅度过小
+        return 0.0;
+    }
+
+    // 使用简化的直方图方法确定稳定高低电平
+    const int num_bins = 100;
+    QVector<int> bins(num_bins, 0);
+    double bin_size = (v_max - v_min) / num_bins;
+
+    for (double v : voltages) {
+        int bin_index = static_cast<int>((v - v_min) / bin_size);
+        if (bin_index >= 0 && bin_index < num_bins) {
+            bins[bin_index]++;
+        }
+    }
+
+    int low_bin_peak_count = 0, high_bin_peak_count = 0;
+    int low_bin_index = -1, high_bin_index = -1;
+
+    for (int i = 0; i < num_bins; ++i) {
+        if (bins[i] > low_bin_peak_count) {
+            low_bin_peak_count = bins[i];
+            low_bin_index = i;
+        }
+    }
+    
+    // 寻找高电平峰值，避免与低电平峰值重合
+    for (int i = 0; i < num_bins; ++i) {
+        // 必须与低电平峰值有一定距离
+        if (std::abs(i - low_bin_index) * bin_size > (v_max - v_min) * 0.3) {
+             if (bins[i] > high_bin_peak_count) {
+                high_bin_peak_count = bins[i];
+                high_bin_index = i;
+            }
+        }
+    }
+
+    double v_low, v_high;
+    if (low_bin_index != -1 && high_bin_index != -1 && low_bin_index != high_bin_index) {
+        v_low = v_min + (low_bin_index + 0.5) * bin_size;
+        v_high = v_min + (high_bin_index + 0.5) * bin_size;
+        if (v_low > v_high) std::swap(v_low, v_high);
+    } else {
+        // 直方图方法失败，回退到取95%和5%分位点
+        QVector<double> sorted_voltages = voltages;
+        std::sort(sorted_voltages.begin(), sorted_voltages.end());
+        v_low = sorted_voltages[sorted_voltages.size() * 0.05];
+        v_high = sorted_voltages[sorted_voltages.size() * 0.95];
+    }
+
+    // 2. 计算50%阈值
+    double v_mid = v_low + 0.5 * (v_high - v_low);
+
+    // 3. 查找上升沿穿越点
+    QVector<double> crossing_times;
+    for (int i = 1; i < voltages.size(); ++i) {
+        if (voltages[i-1] <= v_mid && voltages[i] > v_mid) {
+            double prev_v = voltages[i-1];
+            double curr_v = voltages[i];
+            double prev_t = times[i-1];
+            double curr_t = times[i];
+            
+            // 线性插值
+            double ratio = (v_mid - prev_v) / (curr_v - prev_v);
+            double crossing_time = prev_t + ratio * (curr_t - prev_t);
+            crossing_times.append(crossing_time);
+        }
+    }
+
+    if (crossing_times.size() < 2) {
+        return 0.0; // 周期数不足
+    }
+
+    // 4. 计算周期并用中位数滤波
+    QVector<double> periods;
+    for (int i = 1; i < crossing_times.size(); ++i) {
+        periods.append(crossing_times[i] - crossing_times[i-1]);
+    }
+
+    if (periods.isEmpty()) {
+        return 0.0;
+    }
+
+    std::sort(periods.begin(), periods.end());
+    double median_period = periods[periods.size() / 2];
+
+    if (median_period < 1e-3) { // 周期过小，可能出错
+        return 0.0;
+    }
+
+    // 5. 计算频率
+    return 1000000.0 / median_period;
 }
 
 /**
@@ -159,119 +282,36 @@ double FrequencyDetector::detectByFFT(const QVector<double> &voltages, const QVe
  * @return 检测到的频率 (Hz)
  * 
  * 智能检测策略：
- * 1. 先用过零检测进行初步判断（快速、低开销）
- * 2. 根据初步结果和信号特征选择最佳算法：
- *    - 低频信号（<10kHz）：使用过零检测（精确、抗噪声）
- *    - 高频信号（≥10kHz）：使用FFT检测（频域分析更准确）
- * 3. 如果过零检测失败，自动降级使用FFT
- * 4. 对最终结果进行合理性验证
+ * 1. 最终频率测量统一使用高精度阈值穿越法
+ * 2. 对结果进行合理性验证
  */
 double FrequencyDetector::detectFrequency(const QVector<double> &voltages, const QVector<double> &times)
 {
     if (voltages.isEmpty() || times.isEmpty() || voltages.size() != times.size()) {
-
         return 0.0;
     }
     
-    // 计算实际采样率（用于合理性检查）
-    double samplingRate = 0.0;
-    if (times.size() >= 2) {
-        double totalTime = times.last() - times.first(); // 微秒
-        double avgSampleInterval = totalTime / (times.size() - 1); // 微秒
-        samplingRate = 1000000.0 / avgSampleInterval; // Hz
-    }
-    
+    // 最终频率测量统一使用高精度阈值穿越法
+    double finalFreq = detectByThresholdCrossing(voltages, times);
 
-    
-    // ========== 第一步：过零检测（初步判断）==========
-    double zeroCrossingFreq = detectByZeroCrossing(voltages, times);
-    
-    // 定义频率阈值（10kHz）
-    const double FREQ_THRESHOLD = 10000.0; // 10kHz
-    
-    double finalFreq = 0.0;
-    QString detectionMethod = "未知";
-    
-    // ========== 第二步：根据初步结果选择最佳算法 ==========
-    
-    if (zeroCrossingFreq > 0.1) {
-        // 过零检测成功
-        
-        if (zeroCrossingFreq < FREQ_THRESHOLD) {
-            // 低频信号：过零检测已经足够准确
-            finalFreq = zeroCrossingFreq;
-            detectionMethod = "过零检测（低频）";
+    // ========== 合理性验证 ==========
+    if (finalFreq > 0.1) {
+        double samplingRate = 0.0;
+        if (times.size() >= 2) {
+            double totalTime = times.last() - times.first(); // 微秒
+            double avgSampleInterval = totalTime / (times.size() - 1); // 微秒
+            samplingRate = 1000000.0 / avgSampleInterval; // Hz
+        }
 
-            
-        } else {
-
-            double fftFreq = detectByFFT(voltages, times);
-            
-            if (fftFreq > 0.1) {
-                // FFT检测成功
-                
-                // 比较两种方法的结果，如果差异<5%，说明结果一致
-                double diff = std::abs(fftFreq - zeroCrossingFreq);
-                double relativeError = diff / zeroCrossingFreq;
-                
-                if (relativeError < 0.05) {
-                    // 结果一致，使用FFT结果（频域分析更精确）
-                    finalFreq = fftFreq;
-                    detectionMethod = "FFT检测（高频，与过零一致）";
-
-                } else {
-                    // 结果不一致，说明可能有谐波或噪声，FFT更可靠
-                    finalFreq = fftFreq;
-                    detectionMethod = "FFT检测（高频，主频检测）";
-
-                }
-            } else {
-                // FFT检测失败，回退到过零检测结果
-                finalFreq = zeroCrossingFreq;
-                detectionMethod = "过零检测（FFT失败，回退）";
-
+        if (samplingRate > 0.0) {
+            double nyquistFreq = samplingRate / 2.0;
+            // 频率应在 0.1Hz ~ 奈奎斯特频率 之间
+            if (finalFreq > nyquistFreq) {
+                 // 超过奈奎斯特频率，结果无效
+                 return 0.0;
             }
         }
-        
-    } else {
-        // 过零检测失败（可能是噪声信号、复杂波形或高频信号）
-        
-        double fftFreq = detectByFFT(voltages, times);
-        
-        if (fftFreq > 0.1) {
-            finalFreq = fftFreq;
-            detectionMethod = "FFT检测（过零失败，降级）";
-
-        } else {
-            // 两种方法都失败
-            finalFreq = 0.0;
-            detectionMethod = "检测失败";
-
-        }
     }
-    
-    // ========== 第三步：合理性验证 ==========
-    if (finalFreq > 0.1 && samplingRate > 0.0) {
-        double nyquistFreq = samplingRate / 2.0;
-        
-        // 频率应在 0.1Hz ~ 奈奎斯特频率 之间
-        if (finalFreq > nyquistFreq) {
-
-            // 可以选择返回0或保留结果
-            // finalFreq = 0.0;
-        }
-        
-        // 检查是否满足最小采样点数要求（至少2个周期）
-        double period = 1.0 / finalFreq; // 秒
-        double totalTimeSeconds = (times.last() - times.first()) / 1000000.0; // 秒
-        double cycles = totalTimeSeconds / period;
-        
-        if (cycles < 2.0) {
-
-        }
-    }
-    
-
     
     return finalFreq;
 }
@@ -385,16 +425,17 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
         double relativeError = sampleRateDiff / softwareSampleRate;
         
         // 如果差异超过1%，可能存在问题
-        if (relativeError > 0.01) {
-            qDebug() << "⚠️ 采样率不一致：";
-            qDebug() << "  ├─ 从时间戳计算：" << info.currentSampleRate << "Hz";
-            qDebug() << "  ├─ 软件设置：" << softwareSampleRate << "Hz";
-            qDebug() << "  └─ 相对误差：" << (relativeError * 100) << "%";
-        }
+        // if (relativeError > 0.01) {
+        //     qDebug() << "⚠️ 采样率不一致：";
+        //     qDebug() << "  ├─ 从时间戳计算：" << info.currentSampleRate << "Hz";
+        //     qDebug() << "  ├─ 软件设置：" << softwareSampleRate << "Hz";
+        //     qDebug() << "  └─ 相对误差：" << (relativeError * 100) << "%";
+        // }
     }
     
     // 直接使用原始时间戳进行频率检测
-    info.detectedFrequency = detectFrequency(voltages, times);
+    // 用于评估采样质量的频率，使用FFT法，因为它对信号形态不敏感
+    info.detectedFrequency = detectByFFT(voltages, times);
     
     if (info.detectedFrequency < 0.1) {
         // 频率检测失败，可能需要调整采样参数
@@ -415,10 +456,19 @@ SamplingQualityInfo FrequencyDetector::evaluateSamplingQuality(
     
     // 评估标准：
     // 1. 至少捕获 MIN_CYCLES_REQUIRED 个完整周期
-    // 2. 过采样倍数至少为 MIN_OVERSAMPLING
+    // 2. 过采样倍数至少为 MIN_OVERSAMPLING_FOR_QUALITY
+    
+    const double MIN_OVERSAMPLING_FOR_QUALITY = 100.0; // 关键修复：大幅提高过采样倍数要求
     
     bool enoughCycles = info.capturedCycles >= MIN_CYCLES_REQUIRED;
-    bool enoughOversampling = oversamplingRatio >= MIN_OVERSAMPLING;
+    bool enoughOversampling = oversamplingRatio >= MIN_OVERSAMPLING_FOR_QUALITY;
+    
+    // 关键修复：增加对高频信号的强制检查
+    // 如果频率很高（>300kHz），但过采样率不足150x，则强制认为不足
+    if (info.detectedFrequency > 300000.0 && oversamplingRatio < 150.0) {
+        enoughOversampling = false;
+        info.reason = QString("高频信号采样率不足 (仅%1x)").arg(oversamplingRatio, 0, 'f', 1);
+    }
     
     // ========== 特殊情况：周期数严重不足（<1个周期）==========
     if (info.capturedCycles < 1.0) {

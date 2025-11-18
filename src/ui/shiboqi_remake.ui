@@ -749,7 +749,7 @@ QSpinBox:focus {
                     <number>2147483647</number>
                    </property>
                    <property name="value">
-                    <number>1</number>
+                    <number>40000</number>
                    </property>
                   </widget>
                  </item>

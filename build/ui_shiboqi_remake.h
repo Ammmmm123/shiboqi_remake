@@ -640,7 +640,7 @@ public:
         dataNumSpinBox_4->setButtonSymbols(QAbstractSpinBox::NoButtons);
         dataNumSpinBox_4->setMinimum(1);
         dataNumSpinBox_4->setMaximum(2147483647);
-        dataNumSpinBox_4->setValue(1);
+        dataNumSpinBox_4->setValue(40000);
 
         horizontalLayout_31->addWidget(dataNumSpinBox_4);
 

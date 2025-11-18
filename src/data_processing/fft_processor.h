@@ -45,6 +45,21 @@ public:
      * @return 主频率 (Hz)
      */
     double findDominantFrequency(const QVector<double> &magnitude, double samplingRate, int startIndex = 1);
+
+    /**
+     * @brief 对信号应用汉宁窗，以减少频谱泄漏
+     * @param data 要处理的信号数据（将被就地修改）
+     */
+    static void applyWindow(QVector<double> &data);
+
+    /**
+     * @brief 使用抛物线插值在FFT幅度谱中寻找精确的峰值频率
+     * @param magnitude 幅度谱 (只使用前半部分)
+     * @param samplingRate 采样率 (Hz)
+     * @param startIndex 搜索的起始索引 (通常为1，以跳过直流分量)
+     * @return 精确的峰值频率 (Hz)
+     */
+    static double findPeakWithInterpolation(const QVector<double> &magnitude, double samplingRate, int startIndex = 1);
     
 private:
     /**
