@@ -285,7 +285,7 @@ void UdpSender::setProtocol(ProtocolType protocol)
 /**
  * @brief 发送协议选择命令
  * 
- * 发送命令地址7，设置下位机协议类型。
+ * 发送命令地址8，设置下位机协议类型。
  * 参数低字节对应关系：
  * - 0b000 (0): UART
  * - 0b001 (1): PWM
@@ -295,5 +295,5 @@ void UdpSender::setProtocol(ProtocolType protocol)
  */
 void UdpSender::sendProtocolSelectCommand()
 {
-    sendUdpPacket(7, protocol);
+    sendUdpPacket(8, protocol);
 }
