@@ -151,6 +151,28 @@ public:
      * @brief 发送幅度减少命令
      */
     void sendAmplitudeDownCommand();
+    
+    /**
+     * @brief 协议类型枚举
+     */
+    enum ProtocolType {
+        PROTOCOL_UART = 0,  // 0b000
+        PROTOCOL_PWM  = 1,  // 0b001
+        PROTOCOL_SUMP = 2,  // 0b010
+        PROTOCOL_I2C  = 3,  // 0b011
+        PROTOCOL_SPI  = 4   // 0b100
+    };
+    
+    /**
+     * @brief 设置下位机协议类型
+     * @param protocol 协议类型
+     */
+    void setProtocol(ProtocolType protocol);
+    
+    /**
+     * @brief 发送协议选择命令
+     */
+    void sendProtocolSelectCommand();
 
     /**
      * @brief 发送原始UDP数据包
@@ -183,6 +205,7 @@ private:
     quint32 defaultDivider;       ///< 默认分频系数
     quint8 channel;               ///< 默认通道选择
     quint8 waveformType;          ///< 默认波形类型 (0-3)
+    quint8 protocol;              ///< 协议类型
 
     // 识别码常量
     static const quint8 HEADER_1 = 0x55;  ///< 包头第一个字节

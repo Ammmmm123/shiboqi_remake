@@ -9,9 +9,14 @@
 #include "udp_send.h"
 #include "data_processor.h"
 #include "data_processor_thread.h"
+#include "trigger_processor.h"
+#include "trigger_processor_thread.h"
 #include "UART_receive.h"
 #include "spectrum_analyzer.h"
 #include "waveform_sender_thread.h"
+#include "PWMControllerQt.h"
+#include "MusicPlayer.h"
+#include <QSerialPortInfo>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -208,6 +213,67 @@ private slots:
      */
     void onSpectrumReady(const SpectrumAnalysisResult &result);
 
+    /**
+     * @brief 触发处理后的数据就绪槽函数
+     * @param voltages 处理后的电压数据
+     * @param times 处理后的时间戳数据
+     */
+    void onTriggeredDataReady(const QVector<double> &voltages, const QVector<double> &times);
+
+    /**
+     * @brief 触发使能复选框切换槽函数
+     * @param checked true表示启用触发，false表示禁用触发
+     */
+    void on_triggerEnableCheckBox_toggled(bool checked);
+
+    /**
+     * @brief 触发模式下拉框切换槽函数
+     * @param index 0: Auto模式, 1: Normal模式
+     */
+    void on_triggerModeComboBox_currentIndexChanged(int index);
+
+    /**
+     * @brief 触发边沿下拉框切换槽函数
+     * @param index 0: 上升沿, 1: 下降沿
+     */
+    void on_triggerEdgeComboBox_currentIndexChanged(int index);
+
+    /**
+     * @brief PWM串口刷新定时器槽函数
+     */
+    void refreshPWMSerialPorts();
+
+    /**
+     * @brief PWM串口打开/关闭按钮切换槽函数
+     * @param checked true表示打开串口，false表示关闭串口
+     */
+    void on_pwmOpenSerialButton_toggled(bool checked);
+
+    /**
+     * @brief PWM加载音乐文件按钮槽函数
+     */
+    void on_pwmLoadMusicButton_clicked();
+
+    /**
+     * @brief PWM播放音乐按钮槽函数
+     */
+    void on_pwmPlayMusicButton_toggled(bool checked);
+
+    /**
+     * @brief PWM停止音乐按钮槽函数
+     */
+    void on_pwmStopMusicButton_clicked();
+
+    /**
+     * @brief 音乐播放器请求设置频率槽函数
+     */
+    void onMusicRequestFrequency(int frequency);
+
+    /**
+     * @brief 音乐播放进度更新槽函数
+     */
+    void onMusicProgressUpdated(int current, int total);
+
 private:
     /**
      * @brief 将手绘点集合插值为1024点波形数据
@@ -223,6 +289,47 @@ private:
      * @brief 发送手绘波形数据包（使用独立线程发送）
      */
     void sendHandDrawnWaveform();
+    
+    /**
+     * @brief 初始化触发电平线
+     */
+    void setupTriggerLine();
+    
+    /**
+     * @brief 更新触发电平线的位置
+     * @param level 触发电平值（V）
+     */
+    void updateTriggerLine(double level);
+    
+    /**
+     * @brief 处理示波器的鼠标按下事件
+     */
+    void handlePlotMousePress(QMouseEvent *event);
+    
+    /**
+     * @brief 处理示波器的鼠标移动事件
+     */
+    void handlePlotMouseMove(QMouseEvent *event);
+    
+    /**
+     * @brief 处理示波器的鼠标释放事件
+     */
+    void handlePlotMouseRelease(QMouseEvent *event);
+    
+    /**
+     * @brief 更新PWM参数到下位机
+     */
+    void updatePWMParameters();
+    
+    /**
+     * @brief 设置PWM频率(由音乐播放器调用)
+     */
+    void setPWMFrequencyForMusic(int frequency);
+    
+    /**
+     * @brief 启用/禁用PWM控制界面(播放音乐时禁用)
+     */
+    void setPWMControlsEnabled(bool enabled);
 
 private:
     Ui::shiboqi_remake *ui;      ///< UI界面指针
@@ -231,6 +338,8 @@ private:
     bool errorDialogShown;       ///< 错误对话框显示标志，防止重复弹出
     DataProcessorThread *dataProcessorThread; ///< 数据处理线程（独立线程运行）
     DataProcessor *dataProcessor; ///< 波形数据处理器（运行在独立线程中）
+    TriggerProcessorThread *triggerProcessorThread; ///< 触发处理线程（独立线程运行）
+    TriggerProcessor *triggerProcessor; ///< 触发处理器（运行在独立线程中）
 
     // 示波器相关
     QCustomPlot *customPlot;     ///< 自定义绘图控件
@@ -265,5 +374,18 @@ private:
     // 视图模式标志
     bool isSpectrumMode;               ///< true=频谱模式，false=示波器模式
     bool hasUserZoomed;                ///< 用户是否手动缩放过示波器（禁用自动缩放）
+    
+    // 触发电平可视化控制
+    QCPItemStraightLine *triggerLine;  ///< 触发电平线
+    QCPItemText *triggerLevelText;     ///< 触发电平文本标签
+    double currentTriggerLevel;        ///< 当前触发电平值（V）
+    bool isDraggingTrigger;            ///< 是否正在拖动触发线
+
+    // PWM控制器相关
+    PWMControllerQt *pwmController;    ///< PWM控制器实例指针
+    QTimer *pwmPortRefreshTimer;       ///< PWM串口列表刷新定时器
+    QString pwmOpenPortName;           ///< 当前PWM已打开的串口名称
+    MusicPlayer *musicPlayer;          ///< 音乐播放器实例指针
+    QString currentMusicFile;          ///< 当前加载的音乐文件路径
 };
 #endif // SHIBOQI_REMAKE_H

@@ -8,9 +8,13 @@ release/data_processor.o
 release/data_processor_thread.o
 release/fft_processor.o
 release/frequency_detector.o
+release/trigger_processor.o
+release/trigger_processor_thread.o
 release/spectrum_analyzer.o
 release/siprefixticker.o
 release/waveform_sender_thread.o
+release/PWMControllerQt.o
+release/MusicPlayer.o
 release/qrc_resources.o
 release/moc_qcustomplot.o
 release/moc_shiboqi_remake.o
@@ -19,5 +23,9 @@ release/moc_udp_receive.o
 release/moc_udp_send.o
 release/moc_data_processor.o
 release/moc_data_processor_thread.o
+release/moc_trigger_processor.o
+release/moc_trigger_processor_thread.o
 release/moc_spectrum_analyzer.o
 release/moc_waveform_sender_thread.o
+release/moc_PWMControllerQt.o
+release/moc_MusicPlayer.o

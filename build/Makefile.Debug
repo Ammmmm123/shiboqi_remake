@@ -16,7 +16,7 @@ CXX           = g++
 DEFINES       = -DUNICODE -D_UNICODE -DWIN32 -DMINGW_HAS_SECURE_API=1 -DQCUSTOMPLOT_USE_OPENGL -DQT_QML_DEBUG -DQT_PRINTSUPPORT_LIB -DQT_OPENGL_LIB -DQT_WIDGETS_LIB -DQT_GUI_LIB -DQT_NETWORK_LIB -DQT_SERIALPORT_LIB -DQT_CORE_LIB -DQT_NEEDS_QMAIN
 CFLAGS        = -fno-keep-inline-dllexport -g -Wall -Wextra -Wextra $(DEFINES)
 CXXFLAGS      = -fno-keep-inline-dllexport -g -std=gnu++1z -Wall -Wextra -Wextra -fexceptions -mthreads $(DEFINES)
-INCPATH       = -I..\..\shiboqi_remake -I. -I..\src\thirdparty\qcustomplot-source -I..\src\ui -I..\src\network -I..\src\data_processing -I..\src\analysis -I..\src\widgets -ID:\Qt\5.15.2\mingw81_64\include -ID:\Qt\5.15.2\mingw81_64\include\QtPrintSupport -ID:\Qt\5.15.2\mingw81_64\include\QtOpenGL -ID:\Qt\5.15.2\mingw81_64\include\QtWidgets -ID:\Qt\5.15.2\mingw81_64\include\QtGui -ID:\Qt\5.15.2\mingw81_64\include\QtANGLE -ID:\Qt\5.15.2\mingw81_64\include\QtNetwork -ID:\Qt\5.15.2\mingw81_64\include\QtSerialPort -ID:\Qt\5.15.2\mingw81_64\include\QtCore -Idebug -I. -I/include -ID:\Qt\5.15.2\mingw81_64\mkspecs\win32-g++ 
+INCPATH       = -I..\..\shiboqi_remake -I. -I..\src\thirdparty\qcustomplot-source -I..\src\ui -I..\src\network -I..\src\data_processing -I..\src\analysis -I..\src\widgets -I..\src\pwm_controller -ID:\Qt\5.15.2\mingw81_64\include -ID:\Qt\5.15.2\mingw81_64\include\QtPrintSupport -ID:\Qt\5.15.2\mingw81_64\include\QtOpenGL -ID:\Qt\5.15.2\mingw81_64\include\QtWidgets -ID:\Qt\5.15.2\mingw81_64\include\QtGui -ID:\Qt\5.15.2\mingw81_64\include\QtANGLE -ID:\Qt\5.15.2\mingw81_64\include\QtNetwork -ID:\Qt\5.15.2\mingw81_64\include\QtSerialPort -ID:\Qt\5.15.2\mingw81_64\include\QtCore -Idebug -I. -I/include -ID:\Qt\5.15.2\mingw81_64\mkspecs\win32-g++ 
 LINKER      =        g++
 LFLAGS        =        -Wl,-subsystem,windows -mthreads
 LIBS        =        -lopengl32 D:\Qt\5.15.2\mingw81_64\lib\libQt5PrintSupport.a D:\Qt\5.15.2\mingw81_64\lib\libQt5OpenGL.a D:\Qt\5.15.2\mingw81_64\lib\libQt5Widgets.a D:\Qt\5.15.2\mingw81_64\lib\libQt5Gui.a D:\Qt\5.15.2\mingw81_64\lib\libQt5Network.a D:\Qt\5.15.2\mingw81_64\lib\libQt5SerialPort.a D:\Qt\5.15.2\mingw81_64\lib\libQt5Core.a debug\FPGA_Debugger_resource_res.o  -lmingw32 D:\Qt\5.15.2\mingw81_64\lib\libqtmain.a -LC:\openssl\lib -LC:\Utils\my_sql\mysql-5.7.25-winx64\lib -LC:\Utils\postgresql\pgsql\lib -lshell32 
@@ -60,9 +60,13 @@ SOURCES       = ..\main.cpp \
 		..\src\data_processing\data_processor_thread.cpp \
 		..\src\data_processing\fft_processor.cpp \
 		..\src\data_processing\frequency_detector.cpp \
+		..\src\data_processing\trigger_processor.cpp \
+		..\src\data_processing\trigger_processor_thread.cpp \
 		..\src\analysis\spectrum_analyzer.cpp \
 		..\src\widgets\siprefixticker.cpp \
-		..\src\widgets\waveform_sender_thread.cpp debug\qrc_resources.cpp \
+		..\src\widgets\waveform_sender_thread.cpp \
+		..\src\pwm_controller\PWMControllerQt.cpp \
+		..\src\pwm_controller\MusicPlayer.cpp debug\qrc_resources.cpp \
 		debug\moc_qcustomplot.cpp \
 		debug\moc_shiboqi_remake.cpp \
 		debug\moc_UART_receive.cpp \
@@ -70,8 +74,12 @@ SOURCES       = ..\main.cpp \
 		debug\moc_udp_send.cpp \
 		debug\moc_data_processor.cpp \
 		debug\moc_data_processor_thread.cpp \
+		debug\moc_trigger_processor.cpp \
+		debug\moc_trigger_processor_thread.cpp \
 		debug\moc_spectrum_analyzer.cpp \
-		debug\moc_waveform_sender_thread.cpp
+		debug\moc_waveform_sender_thread.cpp \
+		debug\moc_PWMControllerQt.cpp \
+		debug\moc_MusicPlayer.cpp
 OBJECTS       = debug/main.o \
 		debug/qcustomplot.o \
 		debug/shiboqi_remake.o \
@@ -82,9 +90,13 @@ OBJECTS       = debug/main.o \
 		debug/data_processor_thread.o \
 		debug/fft_processor.o \
 		debug/frequency_detector.o \
+		debug/trigger_processor.o \
+		debug/trigger_processor_thread.o \
 		debug/spectrum_analyzer.o \
 		debug/siprefixticker.o \
 		debug/waveform_sender_thread.o \
+		debug/PWMControllerQt.o \
+		debug/MusicPlayer.o \
 		debug/qrc_resources.o \
 		debug/moc_qcustomplot.o \
 		debug/moc_shiboqi_remake.o \
@@ -93,8 +105,12 @@ OBJECTS       = debug/main.o \
 		debug/moc_udp_send.o \
 		debug/moc_data_processor.o \
 		debug/moc_data_processor_thread.o \
+		debug/moc_trigger_processor.o \
+		debug/moc_trigger_processor_thread.o \
 		debug/moc_spectrum_analyzer.o \
-		debug/moc_waveform_sender_thread.o
+		debug/moc_waveform_sender_thread.o \
+		debug/moc_PWMControllerQt.o \
+		debug/moc_MusicPlayer.o
 
 DIST          =  ..\src\thirdparty\qcustomplot-source\qcustomplot.h \
 		..\src\ui\shiboqi_remake.h \
@@ -105,9 +121,13 @@ DIST          =  ..\src\thirdparty\qcustomplot-source\qcustomplot.h \
 		..\src\data_processing\data_processor_thread.h \
 		..\src\data_processing\fft_processor.h \
 		..\src\data_processing\frequency_detector.h \
+		..\src\data_processing\trigger_processor.h \
+		..\src\data_processing\trigger_processor_thread.h \
 		..\src\analysis\spectrum_analyzer.h \
 		..\src\widgets\siprefixticker.h \
-		..\src\widgets\waveform_sender_thread.h ..\main.cpp \
+		..\src\widgets\waveform_sender_thread.h \
+		..\src\pwm_controller\PWMControllerQt.h \
+		..\src\pwm_controller\MusicPlayer.h ..\main.cpp \
 		..\src\thirdparty\qcustomplot-source\qcustomplot.cpp \
 		..\src\ui\shiboqi_remake.cpp \
 		..\src\network\UART_receive.cpp \
@@ -117,9 +137,13 @@ DIST          =  ..\src\thirdparty\qcustomplot-source\qcustomplot.h \
 		..\src\data_processing\data_processor_thread.cpp \
 		..\src\data_processing\fft_processor.cpp \
 		..\src\data_processing\frequency_detector.cpp \
+		..\src\data_processing\trigger_processor.cpp \
+		..\src\data_processing\trigger_processor_thread.cpp \
 		..\src\analysis\spectrum_analyzer.cpp \
 		..\src\widgets\siprefixticker.cpp \
-		..\src\widgets\waveform_sender_thread.cpp
+		..\src\widgets\waveform_sender_thread.cpp \
+		..\src\pwm_controller\PWMControllerQt.cpp \
+		..\src\pwm_controller\MusicPlayer.cpp
 QMAKE_TARGET  = FPGA_Debugger
 DESTDIR        = debug\ #avoid trailing-slash linebreak
 TARGET         = FPGA_Debugger.exe
@@ -142,10 +166,10 @@ qmake: FORCE
 qmake_all: FORCE
 
 dist:
-	$(ZIP) FPGA_Debugger.zip $(SOURCES) $(DIST) ..\shiboqi_remake.pro D:\Qt\5.15.2\mingw81_64\mkspecs\features\spec_pre.prf D:\Qt\5.15.2\mingw81_64\mkspecs\qdevice.pri D:\Qt\5.15.2\mingw81_64\mkspecs\features\device_config.prf D:\Qt\5.15.2\mingw81_64\mkspecs\common\sanitize.conf D:\Qt\5.15.2\mingw81_64\mkspecs\common\gcc-base.conf D:\Qt\5.15.2\mingw81_64\mkspecs\common\g++-base.conf D:\Qt\5.15.2\mingw81_64\mkspecs\common\angle.conf D:\Qt\5.15.2\mingw81_64\mkspecs\features\win32\windows_vulkan_sdk.prf D:\Qt\5.15.2\mingw81_64\mkspecs\common\windows-vulkan.conf D:\Qt\5.15.2\mingw81_64\mkspecs\common\g++-win32.conf D:\Qt\5.15.2\mingw81_64\mkspecs\common\windows-desktop.conf D:\Qt\5.15.2\mingw81_64\mkspecs\qconfig.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3danimation.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3danimation_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dcore.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dcore_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dextras.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dextras_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dinput.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dinput_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dlogic.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dlogic_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquick.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquick_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickanimation.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickanimation_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickextras.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickextras_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickinput.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickinput_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickrender.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickrender_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickscene2d.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickscene2d_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3drender.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3drender_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_accessibility_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axbase.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axbase_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axcontainer.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axcontainer_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axserver.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axserver_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_bluetooth.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_bluetooth_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_bodymovin_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_bootstrap_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_charts.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_charts_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_concurrent.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_concurrent_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_core.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_core_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_datavisualization.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_datavisualization_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_dbus.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_dbus_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_designer.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_designer_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_designercomponents_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_devicediscovery_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_edid_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_egl_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_eventdispatcher_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_fb_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_fontdatabase_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_gamepad.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_gamepad_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_gui.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_gui_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_help.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_help_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_insighttracker.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_insighttracker_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_insighttrackerqml.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_insighttrackerqml_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_location.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_location_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_multimedia.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_multimedia_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_multimediawidgets.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_multimediawidgets_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_network.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_network_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_networkauth.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_networkauth_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_nfc.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_nfc_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_opengl.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_opengl_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_openglextensions.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_openglextensions_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_packetprotocol_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_platformcompositor_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_positioning.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_positioning_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_positioningquick.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_positioningquick_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_printsupport.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_printsupport_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_purchasing.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_purchasing_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qml.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qml_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmldebug_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmldevtools_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmlmodels.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmlmodels_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmltest.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmltest_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmlworkerscript.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmlworkerscript_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qtmultimediaquicktools_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3d.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3d_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3dassetimport.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3dassetimport_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3drender.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3drender_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3druntimerender.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3druntimerender_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3dutils.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3dutils_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickcontrols2.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickcontrols2_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickparticles_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickshapes_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quicktemplates2.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quicktemplates2_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickwidgets.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickwidgets_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_remoteobjects.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_remoteobjects_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_repparser.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_repparser_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_script.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_script_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_scripttools.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_scripttools_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_scxml.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_scxml_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_sensors.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_sensors_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_serialbus.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_serialbus_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_serialport.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_serialport_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_sql.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_sql_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_svg.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_svg_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_testlib.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_testlib_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_texttospeech.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_texttospeech_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_theme_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_uiplugin.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_uitools.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_uitools_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_virtualkeyboard.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_virtualkeyboard_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_vulkan_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_webchannel.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_webchannel_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_websockets.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_websockets_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_widgets.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_widgets_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_windowsuiautomation_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_winextras.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_winextras_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_xml.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_xml_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_xmlpatterns.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_xmlpatterns_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_zlib_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\features\qt_functions.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\qt_config.prf D:\Qt\5.15.2\mingw81_64\mkspecs\win32-g++\qmake.conf D:\Qt\5.15.2\mingw81_64\mkspecs\features\spec_post.prf .qmake.stash D:\Qt\5.15.2\mingw81_64\mkspecs\features\exclusive_builds.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\toolchain.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\default_pre.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\win32\default_pre.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\resolve_config.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\exclusive_builds_post.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\default_post.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\build_pass.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\qml_debug.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\precompile_header.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\warn_on.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\qt.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\resources_functions.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\resources.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\moc.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\win32\opengl.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\uic.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\qmake_use.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\file_copies.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\win32\windows.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\testcase_targets.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\exceptions.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\yacc.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\lex.prf ..\shiboqi_remake.pro ..\resources\resources.qrc D:\Qt\5.15.2\mingw81_64\lib\Qt5PrintSupport.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5OpenGL.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5Widgets.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5Gui.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5Network.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5SerialPort.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5Core.prl D:\Qt\5.15.2\mingw81_64\lib\qtmain.prl   ..\resources\resources.qrc D:\Qt\5.15.2\mingw81_64\mkspecs\features\data\dummy.cpp ..\src\thirdparty\qcustomplot-source\qcustomplot.h ..\src\ui\shiboqi_remake.h ..\src\network\UART_receive.h ..\src\network\udp_receive.h ..\src\network\udp_send.h ..\src\data_processing\data_processor.h ..\src\data_processing\data_processor_thread.h ..\src\data_processing\fft_processor.h ..\src\data_processing\frequency_detector.h ..\src\analysis\spectrum_analyzer.h ..\src\widgets\siprefixticker.h ..\src\widgets\waveform_sender_thread.h  ..\main.cpp ..\src\thirdparty\qcustomplot-source\qcustomplot.cpp ..\src\ui\shiboqi_remake.cpp ..\src\network\UART_receive.cpp ..\src\network\udp_receive.cpp ..\src\network\udp_send.cpp ..\src\data_processing\data_processor.cpp ..\src\data_processing\data_processor_thread.cpp ..\src\data_processing\fft_processor.cpp ..\src\data_processing\frequency_detector.cpp ..\src\analysis\spectrum_analyzer.cpp ..\src\widgets\siprefixticker.cpp ..\src\widgets\waveform_sender_thread.cpp ..\src\ui\shiboqi_remake.ui    
+	$(ZIP) FPGA_Debugger.zip $(SOURCES) $(DIST) ..\..\shiboqi_remake.pro D:\Qt\5.15.2\mingw81_64\mkspecs\features\spec_pre.prf D:\Qt\5.15.2\mingw81_64\mkspecs\qdevice.pri D:\Qt\5.15.2\mingw81_64\mkspecs\features\device_config.prf D:\Qt\5.15.2\mingw81_64\mkspecs\common\sanitize.conf D:\Qt\5.15.2\mingw81_64\mkspecs\common\gcc-base.conf D:\Qt\5.15.2\mingw81_64\mkspecs\common\g++-base.conf D:\Qt\5.15.2\mingw81_64\mkspecs\common\angle.conf D:\Qt\5.15.2\mingw81_64\mkspecs\features\win32\windows_vulkan_sdk.prf D:\Qt\5.15.2\mingw81_64\mkspecs\common\windows-vulkan.conf D:\Qt\5.15.2\mingw81_64\mkspecs\common\g++-win32.conf D:\Qt\5.15.2\mingw81_64\mkspecs\common\windows-desktop.conf D:\Qt\5.15.2\mingw81_64\mkspecs\qconfig.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3danimation.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3danimation_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dcore.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dcore_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dextras.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dextras_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dinput.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dinput_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dlogic.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dlogic_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquick.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquick_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickanimation.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickanimation_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickextras.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickextras_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickinput.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickinput_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickrender.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickrender_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickscene2d.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3dquickscene2d_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3drender.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_3drender_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_accessibility_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axbase.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axbase_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axcontainer.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axcontainer_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axserver.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_axserver_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_bluetooth.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_bluetooth_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_bodymovin_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_bootstrap_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_charts.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_charts_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_concurrent.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_concurrent_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_core.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_core_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_datavisualization.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_datavisualization_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_dbus.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_dbus_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_designer.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_designer_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_designercomponents_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_devicediscovery_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_edid_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_egl_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_eventdispatcher_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_fb_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_fontdatabase_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_gamepad.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_gamepad_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_gui.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_gui_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_help.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_help_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_insighttracker.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_insighttracker_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_insighttrackerqml.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_insighttrackerqml_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_location.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_location_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_multimedia.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_multimedia_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_multimediawidgets.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_multimediawidgets_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_network.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_network_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_networkauth.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_networkauth_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_nfc.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_nfc_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_opengl.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_opengl_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_openglextensions.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_openglextensions_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_packetprotocol_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_platformcompositor_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_positioning.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_positioning_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_positioningquick.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_positioningquick_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_printsupport.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_printsupport_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_purchasing.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_purchasing_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qml.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qml_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmldebug_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmldevtools_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmlmodels.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmlmodels_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmltest.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmltest_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmlworkerscript.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qmlworkerscript_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_qtmultimediaquicktools_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3d.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3d_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3dassetimport.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3dassetimport_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3drender.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3drender_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3druntimerender.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3druntimerender_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3dutils.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick3dutils_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quick_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickcontrols2.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickcontrols2_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickparticles_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickshapes_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quicktemplates2.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quicktemplates2_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickwidgets.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_quickwidgets_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_remoteobjects.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_remoteobjects_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_repparser.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_repparser_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_script.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_script_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_scripttools.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_scripttools_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_scxml.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_scxml_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_sensors.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_sensors_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_serialbus.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_serialbus_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_serialport.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_serialport_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_sql.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_sql_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_svg.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_svg_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_testlib.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_testlib_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_texttospeech.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_texttospeech_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_theme_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_uiplugin.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_uitools.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_uitools_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_virtualkeyboard.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_virtualkeyboard_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_vulkan_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_webchannel.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_webchannel_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_websockets.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_websockets_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_widgets.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_widgets_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_windowsuiautomation_support_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_winextras.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_winextras_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_xml.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_xml_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_xmlpatterns.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_xmlpatterns_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\modules\qt_lib_zlib_private.pri D:\Qt\5.15.2\mingw81_64\mkspecs\features\qt_functions.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\qt_config.prf D:\Qt\5.15.2\mingw81_64\mkspecs\win32-g++\qmake.conf D:\Qt\5.15.2\mingw81_64\mkspecs\features\spec_post.prf .qmake.stash D:\Qt\5.15.2\mingw81_64\mkspecs\features\exclusive_builds.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\toolchain.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\default_pre.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\win32\default_pre.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\resolve_config.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\exclusive_builds_post.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\default_post.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\build_pass.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\qml_debug.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\precompile_header.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\warn_on.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\qt.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\resources_functions.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\resources.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\moc.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\win32\opengl.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\uic.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\qmake_use.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\file_copies.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\win32\windows.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\testcase_targets.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\exceptions.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\yacc.prf D:\Qt\5.15.2\mingw81_64\mkspecs\features\lex.prf ..\shiboqi_remake.pro ..\resources\resources.qrc D:\Qt\5.15.2\mingw81_64\lib\Qt5PrintSupport.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5OpenGL.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5Widgets.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5Gui.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5Network.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5SerialPort.prl D:\Qt\5.15.2\mingw81_64\lib\Qt5Core.prl D:\Qt\5.15.2\mingw81_64\lib\qtmain.prl   ..\resources\resources.qrc D:\Qt\5.15.2\mingw81_64\mkspecs\features\data\dummy.cpp ..\src\thirdparty\qcustomplot-source\qcustomplot.h ..\src\ui\shiboqi_remake.h ..\src\network\UART_receive.h ..\src\network\udp_receive.h ..\src\network\udp_send.h ..\src\data_processing\data_processor.h ..\src\data_processing\data_processor_thread.h ..\src\data_processing\fft_processor.h ..\src\data_processing\frequency_detector.h ..\src\data_processing\trigger_processor.h ..\src\data_processing\trigger_processor_thread.h ..\src\analysis\spectrum_analyzer.h ..\src\widgets\siprefixticker.h ..\src\widgets\waveform_sender_thread.h ..\src\pwm_controller\PWMControllerQt.h ..\src\pwm_controller\MusicPlayer.h  ..\main.cpp ..\src\thirdparty\qcustomplot-source\qcustomplot.cpp ..\src\ui\shiboqi_remake.cpp ..\src\network\UART_receive.cpp ..\src\network\udp_receive.cpp ..\src\network\udp_send.cpp ..\src\data_processing\data_processor.cpp ..\src\data_processing\data_processor_thread.cpp ..\src\data_processing\fft_processor.cpp ..\src\data_processing\frequency_detector.cpp ..\src\data_processing\trigger_processor.cpp ..\src\data_processing\trigger_processor_thread.cpp ..\src\analysis\spectrum_analyzer.cpp ..\src\widgets\siprefixticker.cpp ..\src\widgets\waveform_sender_thread.cpp ..\src\pwm_controller\PWMControllerQt.cpp ..\src\pwm_controller\MusicPlayer.cpp ..\src\ui\shiboqi_remake.ui    
 
 clean: compiler_clean 
-	-$(DEL_FILE) debug\main.o debug\qcustomplot.o debug\shiboqi_remake.o debug\UART_receive.o debug\udp_receive.o debug\udp_send.o debug\data_processor.o debug\data_processor_thread.o debug\fft_processor.o debug\frequency_detector.o debug\spectrum_analyzer.o debug\siprefixticker.o debug\waveform_sender_thread.o debug\qrc_resources.o debug\moc_qcustomplot.o debug\moc_shiboqi_remake.o debug\moc_UART_receive.o debug\moc_udp_receive.o debug\moc_udp_send.o debug\moc_data_processor.o debug\moc_data_processor_thread.o debug\moc_spectrum_analyzer.o debug\moc_waveform_sender_thread.o
+	-$(DEL_FILE) debug\main.o debug\qcustomplot.o debug\shiboqi_remake.o debug\UART_receive.o debug\udp_receive.o debug\udp_send.o debug\data_processor.o debug\data_processor_thread.o debug\fft_processor.o debug\frequency_detector.o debug\trigger_processor.o debug\trigger_processor_thread.o debug\spectrum_analyzer.o debug\siprefixticker.o debug\waveform_sender_thread.o debug\PWMControllerQt.o debug\MusicPlayer.o debug\qrc_resources.o debug\moc_qcustomplot.o debug\moc_shiboqi_remake.o debug\moc_UART_receive.o debug\moc_udp_receive.o debug\moc_udp_send.o debug\moc_data_processor.o debug\moc_data_processor_thread.o debug\moc_trigger_processor.o debug\moc_trigger_processor_thread.o debug\moc_spectrum_analyzer.o debug\moc_waveform_sender_thread.o debug\moc_PWMControllerQt.o debug\moc_MusicPlayer.o
 	-$(DEL_FILE) debug\FPGA_Debugger_resource_res.o
 
 distclean: clean 
@@ -168,8 +192,10 @@ compiler_rcc_clean:
 	-$(DEL_FILE) debug\qrc_resources.cpp
 debug/qrc_resources.cpp: ../resources/resources.qrc \
 		D:/Qt/5.15.2/mingw81_64/bin/rcc.exe \
+		../resources/down_arrow.png \
 		../resources/icon.jpg \
-		../resources/tubiao.ico
+		../resources/tubiao.ico \
+		../resources/check.png
 	D:\Qt\5.15.2\mingw81_64\bin\rcc.exe -name resources ..\resources\resources.qrc -o debug\qrc_resources.cpp
 
 compiler_moc_predefs_make_all: debug/moc_predefs.h
@@ -178,9 +204,9 @@ compiler_moc_predefs_clean:
 debug/moc_predefs.h: D:/Qt/5.15.2/mingw81_64/mkspecs/features/data/dummy.cpp
 	g++ -fno-keep-inline-dllexport -g -std=gnu++1z -Wall -Wextra -Wextra -dM -E -o debug\moc_predefs.h D:\Qt\5.15.2\mingw81_64\mkspecs\features\data\dummy.cpp
 
-compiler_moc_header_make_all: debug/moc_qcustomplot.cpp debug/moc_shiboqi_remake.cpp debug/moc_UART_receive.cpp debug/moc_udp_receive.cpp debug/moc_udp_send.cpp debug/moc_data_processor.cpp debug/moc_data_processor_thread.cpp debug/moc_spectrum_analyzer.cpp debug/moc_waveform_sender_thread.cpp
+compiler_moc_header_make_all: debug/moc_qcustomplot.cpp debug/moc_shiboqi_remake.cpp debug/moc_UART_receive.cpp debug/moc_udp_receive.cpp debug/moc_udp_send.cpp debug/moc_data_processor.cpp debug/moc_data_processor_thread.cpp debug/moc_trigger_processor.cpp debug/moc_trigger_processor_thread.cpp debug/moc_spectrum_analyzer.cpp debug/moc_waveform_sender_thread.cpp debug/moc_PWMControllerQt.cpp debug/moc_MusicPlayer.cpp
 compiler_moc_header_clean:
-	-$(DEL_FILE) debug\moc_qcustomplot.cpp debug\moc_shiboqi_remake.cpp debug\moc_UART_receive.cpp debug\moc_udp_receive.cpp debug\moc_udp_send.cpp debug\moc_data_processor.cpp debug\moc_data_processor_thread.cpp debug\moc_spectrum_analyzer.cpp debug\moc_waveform_sender_thread.cpp
+	-$(DEL_FILE) debug\moc_qcustomplot.cpp debug\moc_shiboqi_remake.cpp debug\moc_UART_receive.cpp debug\moc_udp_receive.cpp debug\moc_udp_send.cpp debug\moc_data_processor.cpp debug\moc_data_processor_thread.cpp debug\moc_trigger_processor.cpp debug\moc_trigger_processor_thread.cpp debug\moc_spectrum_analyzer.cpp debug\moc_waveform_sender_thread.cpp debug\moc_PWMControllerQt.cpp debug\moc_MusicPlayer.cpp
 debug/moc_qcustomplot.cpp: ../src/thirdparty/qcustomplot-source/qcustomplot.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobal.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig-bootstrapped.h \
@@ -699,7 +725,7 @@ debug/moc_qcustomplot.cpp: ../src/thirdparty/qcustomplot-source/qcustomplot.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QTimeZone \
 		debug/moc_predefs.h \
 		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
-	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\thirdparty\qcustomplot-source\qcustomplot.h -o debug\moc_qcustomplot.cpp
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\thirdparty\qcustomplot-source\qcustomplot.h -o debug\moc_qcustomplot.cpp
 
 debug/moc_shiboqi_remake.cpp: ../src/ui/shiboqi_remake.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QMainWindow \
@@ -1230,8 +1256,11 @@ debug/moc_shiboqi_remake.cpp: ../src/ui/shiboqi_remake.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/QHostAddress \
 		../src/data_processing/data_processor.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
+		../src/data_processing/frequency_detector.h \
 		../src/data_processing/data_processor_thread.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QThread \
+		../src/data_processing/trigger_processor.h \
+		../src/data_processing/trigger_processor_thread.h \
 		../src/network/UART_receive.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPort \
 		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialport.h \
@@ -1239,9 +1268,14 @@ debug/moc_shiboqi_remake.cpp: ../src/ui/shiboqi_remake.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QRegularExpression \
 		../src/analysis/spectrum_analyzer.h \
 		../src/widgets/waveform_sender_thread.h \
+		../src/pwm_controller/PWMControllerQt.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPortInfo \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialportinfo.h \
+		../src/pwm_controller/MusicPlayer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QMap \
 		debug/moc_predefs.h \
 		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
-	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\ui\shiboqi_remake.h -o debug\moc_shiboqi_remake.cpp
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\ui\shiboqi_remake.h -o debug\moc_shiboqi_remake.cpp
 
 debug/moc_UART_receive.cpp: ../src/network/UART_receive.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
@@ -1320,7 +1354,7 @@ debug/moc_UART_receive.cpp: ../src/network/UART_receive.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer_impl.h \
 		debug/moc_predefs.h \
 		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
-	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\network\UART_receive.h -o debug\moc_UART_receive.cpp
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\network\UART_receive.h -o debug\moc_UART_receive.cpp
 
 debug/moc_udp_receive.cpp: ../src/network/udp_receive.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
@@ -1397,7 +1431,7 @@ debug/moc_udp_receive.cpp: ../src/network/udp_receive.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
 		debug/moc_predefs.h \
 		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
-	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\network\udp_receive.h -o debug\moc_udp_receive.cpp
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\network\udp_receive.h -o debug\moc_udp_receive.cpp
 
 debug/moc_udp_send.cpp: ../src/network/udp_send.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
@@ -1474,7 +1508,7 @@ debug/moc_udp_send.cpp: ../src/network/udp_send.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/QHostAddress \
 		debug/moc_predefs.h \
 		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
-	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\network\udp_send.h -o debug\moc_udp_send.cpp
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\network\udp_send.h -o debug\moc_udp_send.cpp
 
 debug/moc_data_processor.cpp: ../src/data_processing/data_processor.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
@@ -1532,9 +1566,11 @@ debug/moc_data_processor.cpp: ../src/data_processing/data_processor.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
+		../src/data_processing/frequency_detector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QString \
 		debug/moc_predefs.h \
 		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
-	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\data_processing\data_processor.h -o debug\moc_data_processor.cpp
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\data_processing\data_processor.h -o debug\moc_data_processor.cpp
 
 debug/moc_data_processor_thread.cpp: ../src/data_processing/data_processor_thread.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QThread \
@@ -1597,9 +1633,134 @@ debug/moc_data_processor_thread.cpp: ../src/data_processing/data_processor_threa
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
+		../src/data_processing/frequency_detector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QString \
 		debug/moc_predefs.h \
 		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
-	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\data_processing\data_processor_thread.h -o debug\moc_data_processor_thread.cpp
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\data_processing\data_processor_thread.h -o debug\moc_data_processor_thread.cpp
+
+debug/moc_trigger_processor.cpp: ../src/data_processing/trigger_processor.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnamespace.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig-bootstrapped.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtcore-config.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsystemdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qprocessordetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcompilerdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtypeinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsysinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlogging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qflags.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasicatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_bootstrap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qgenericatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_cxx11.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_msvc.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobalstatic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmutex.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnumeric.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qversiontagging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstring.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qchar.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qrefcount.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qarraydata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringliteral.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringview.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringbuilder.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiterator.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhashfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpair.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainertools_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpoint.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearraylist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregexp.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringmatcher.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcoreevent.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qscopedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmetatype.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvarlengtharray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainerfwd.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
+		debug/moc_predefs.h \
+		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\data_processing\trigger_processor.h -o debug\moc_trigger_processor.cpp
+
+debug/moc_trigger_processor_thread.cpp: ../src/data_processing/trigger_processor_thread.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QThread \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qthread.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnamespace.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig-bootstrapped.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtcore-config.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsystemdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qprocessordetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcompilerdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtypeinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsysinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlogging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qflags.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasicatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_bootstrap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qgenericatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_cxx11.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_msvc.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobalstatic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmutex.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnumeric.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qversiontagging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstring.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qchar.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qrefcount.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qarraydata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringliteral.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringview.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringbuilder.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiterator.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhashfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpair.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainertools_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpoint.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearraylist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregexp.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringmatcher.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcoreevent.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qscopedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmetatype.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvarlengtharray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainerfwd.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdeadlinetimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qelapsedtimer.h \
+		../src/data_processing/trigger_processor.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
+		debug/moc_predefs.h \
+		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\data_processing\trigger_processor_thread.h -o debug\moc_trigger_processor_thread.cpp
 
 debug/moc_spectrum_analyzer.cpp: ../src/analysis/spectrum_analyzer.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
@@ -1658,7 +1819,7 @@ debug/moc_spectrum_analyzer.cpp: ../src/analysis/spectrum_analyzer.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
 		debug/moc_predefs.h \
 		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
-	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\analysis\spectrum_analyzer.h -o debug\moc_spectrum_analyzer.cpp
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\analysis\spectrum_analyzer.h -o debug\moc_spectrum_analyzer.cpp
 
 debug/moc_waveform_sender_thread.cpp: ../src/widgets/waveform_sender_thread.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QThread \
@@ -1739,7 +1900,163 @@ debug/moc_waveform_sender_thread.cpp: ../src/widgets/waveform_sender_thread.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/qudpsocket.h \
 		debug/moc_predefs.h \
 		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
-	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\widgets\waveform_sender_thread.h -o debug\moc_waveform_sender_thread.cpp
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\widgets\waveform_sender_thread.h -o debug\moc_waveform_sender_thread.cpp
+
+debug/moc_PWMControllerQt.cpp: ../src/pwm_controller/PWMControllerQt.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnamespace.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig-bootstrapped.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtcore-config.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsystemdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qprocessordetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcompilerdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtypeinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsysinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlogging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qflags.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasicatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_bootstrap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qgenericatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_cxx11.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_msvc.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobalstatic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmutex.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnumeric.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qversiontagging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstring.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qchar.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qrefcount.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qarraydata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringliteral.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringview.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringbuilder.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiterator.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhashfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpair.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainertools_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpoint.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearraylist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregexp.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringmatcher.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcoreevent.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qscopedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmetatype.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvarlengtharray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainerfwd.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QString \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPort \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialport.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiodevice.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialportglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPortInfo \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialportinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QTimer \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasictimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhash.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtextstream.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlocale.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvariant.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qshareddata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qset.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontiguouscache.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer_impl.h \
+		debug/moc_predefs.h \
+		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\pwm_controller\PWMControllerQt.h -o debug\moc_PWMControllerQt.cpp
+
+debug/moc_MusicPlayer.cpp: ../src/pwm_controller/MusicPlayer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnamespace.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig-bootstrapped.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtcore-config.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsystemdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qprocessordetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcompilerdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtypeinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsysinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlogging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qflags.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasicatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_bootstrap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qgenericatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_cxx11.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_msvc.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobalstatic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmutex.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnumeric.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qversiontagging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstring.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qchar.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qrefcount.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qarraydata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringliteral.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringview.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringbuilder.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiterator.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhashfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpair.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainertools_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpoint.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearraylist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregexp.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringmatcher.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcoreevent.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qscopedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmetatype.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvarlengtharray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainerfwd.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QTimer \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasictimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QString \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QMap \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhash.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtextstream.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiodevice.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlocale.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvariant.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qshareddata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qset.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontiguouscache.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer_impl.h \
+		debug/moc_predefs.h \
+		D:/Qt/5.15.2/mingw81_64/bin/moc.exe
+	D:\Qt\5.15.2\mingw81_64\bin\moc.exe $(DEFINES) --include D:/Code/Qt/shiboqi_10_13/shiboqi_remake/build/debug/moc_predefs.h -ID:/Qt/5.15.2/mingw81_64/mkspecs/win32-g++ -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/thirdparty/qcustomplot-source -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/ui -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/network -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/data_processing -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/analysis -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/widgets -ID:/Code/Qt/shiboqi_10_13/shiboqi_remake/src/pwm_controller -ID:/Qt/5.15.2/mingw81_64/include -ID:/Qt/5.15.2/mingw81_64/include/QtPrintSupport -ID:/Qt/5.15.2/mingw81_64/include/QtOpenGL -ID:/Qt/5.15.2/mingw81_64/include/QtWidgets -ID:/Qt/5.15.2/mingw81_64/include/QtGui -ID:/Qt/5.15.2/mingw81_64/include/QtANGLE -ID:/Qt/5.15.2/mingw81_64/include/QtNetwork -ID:/Qt/5.15.2/mingw81_64/include/QtSerialPort -ID:/Qt/5.15.2/mingw81_64/include/QtCore -I. -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++ -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/x86_64-w64-mingw32 -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include/c++/backward -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include -ID:/Qt/Tools/mingw810_64/lib/gcc/x86_64-w64-mingw32/8.1.0/include-fixed -ID:/Qt/Tools/mingw810_64/x86_64-w64-mingw32/include ..\src\pwm_controller\MusicPlayer.h -o debug\moc_MusicPlayer.cpp
 
 compiler_moc_objc_header_make_all:
 compiler_moc_objc_header_clean:
@@ -2809,8 +3126,11 @@ debug/main.o: ../main.cpp ../src/ui/shiboqi_remake.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/QHostAddress \
 		../src/data_processing/data_processor.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
+		../src/data_processing/frequency_detector.h \
 		../src/data_processing/data_processor_thread.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QThread \
+		../src/data_processing/trigger_processor.h \
+		../src/data_processing/trigger_processor_thread.h \
 		../src/network/UART_receive.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPort \
 		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialport.h \
@@ -2818,6 +3138,11 @@ debug/main.o: ../main.cpp ../src/ui/shiboqi_remake.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QRegularExpression \
 		../src/analysis/spectrum_analyzer.h \
 		../src/widgets/waveform_sender_thread.h \
+		../src/pwm_controller/PWMControllerQt.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPortInfo \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialportinfo.h \
+		../src/pwm_controller/MusicPlayer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QMap \
 		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QApplication \
 		D:/Qt/5.15.2/mingw81_64/include/QtGui/QIcon \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QTextCodec
@@ -3870,8 +4195,11 @@ debug/shiboqi_remake.o: ../src/ui/shiboqi_remake.cpp ../src/ui/shiboqi_remake.h 
 		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/QHostAddress \
 		../src/data_processing/data_processor.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
+		../src/data_processing/frequency_detector.h \
 		../src/data_processing/data_processor_thread.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QThread \
+		../src/data_processing/trigger_processor.h \
+		../src/data_processing/trigger_processor_thread.h \
 		../src/network/UART_receive.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPort \
 		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialport.h \
@@ -3879,15 +4207,31 @@ debug/shiboqi_remake.o: ../src/ui/shiboqi_remake.cpp ../src/ui/shiboqi_remake.h 
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QRegularExpression \
 		../src/analysis/spectrum_analyzer.h \
 		../src/widgets/waveform_sender_thread.h \
+		../src/pwm_controller/PWMControllerQt.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPortInfo \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialportinfo.h \
+		../src/pwm_controller/MusicPlayer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QMap \
 		ui_shiboqi_remake.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QApplication \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QCheckBox \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QComboBox \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QDial \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QGroupBox \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QHBoxLayout \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QLabel \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QLineEdit \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QPushButton \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QSpacerItem \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QSpinBox \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QStackedWidget \
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QVBoxLayout \
 		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QMessageBox \
 		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QAction \
-		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QLabel \
-		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QVBoxLayout \
 		../src/widgets/siprefixticker.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QOpenGLWidget \
-		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPortInfo \
-		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialportinfo.h
+		D:/Qt/5.15.2/mingw81_64/include/QtWidgets/QFileDialog \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QFileInfo
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\shiboqi_remake.o ..\src\ui\shiboqi_remake.cpp
 
 debug/UART_receive.o: ../src/network/UART_receive.cpp ../src/network/UART_receive.h \
@@ -4043,7 +4387,8 @@ debug/udp_receive.o: ../src/network/udp_receive.cpp ../src/network/udp_receive.h
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDataStream \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdatastream.h \
-		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/QHostAddress
+		D:/Qt/5.15.2/mingw81_64/include/QtNetwork/QHostAddress \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\udp_receive.o ..\src\network\udp_receive.cpp
 
 debug/udp_send.o: ../src/network/udp_send.cpp ../src/network/udp_send.h \
@@ -4179,9 +4524,9 @@ debug/data_processor.o: ../src/data_processing/data_processor.cpp ../src/data_pr
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
-		../src/data_processing/fft_processor.h \
 		../src/data_processing/frequency_detector.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QString \
+		../src/data_processing/fft_processor.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhash.h \
@@ -4258,6 +4603,8 @@ debug/data_processor_thread.o: ../src/data_processing/data_processor_thread.cpp 
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QByteArray \
+		../src/data_processing/frequency_detector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QString \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhash.h \
@@ -4414,6 +4761,151 @@ debug/frequency_detector.o: ../src/data_processing/frequency_detector.cpp ../src
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer_impl.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\frequency_detector.o ..\src\data_processing\frequency_detector.cpp
+
+debug/trigger_processor.o: ../src/data_processing/trigger_processor.cpp ../src/data_processing/trigger_processor.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnamespace.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig-bootstrapped.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtcore-config.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsystemdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qprocessordetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcompilerdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtypeinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsysinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlogging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qflags.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasicatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_bootstrap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qgenericatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_cxx11.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_msvc.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobalstatic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmutex.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnumeric.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qversiontagging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstring.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qchar.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qrefcount.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qarraydata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringliteral.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringview.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringbuilder.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiterator.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhashfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpair.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainertools_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpoint.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearraylist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregexp.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringmatcher.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcoreevent.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qscopedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmetatype.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvarlengtharray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainerfwd.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhash.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtextstream.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiodevice.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlocale.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvariant.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qshareddata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qset.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontiguouscache.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer_impl.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\trigger_processor.o ..\src\data_processing\trigger_processor.cpp
+
+debug/trigger_processor_thread.o: ../src/data_processing/trigger_processor_thread.cpp ../src/data_processing/trigger_processor_thread.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QThread \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qthread.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnamespace.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig-bootstrapped.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtcore-config.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsystemdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qprocessordetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcompilerdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtypeinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsysinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlogging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qflags.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasicatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_bootstrap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qgenericatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_cxx11.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_msvc.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobalstatic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmutex.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnumeric.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qversiontagging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstring.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qchar.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qrefcount.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qarraydata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringliteral.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringview.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringbuilder.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiterator.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhashfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpair.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainertools_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpoint.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearraylist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregexp.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringmatcher.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcoreevent.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qscopedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmetatype.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvarlengtharray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainerfwd.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdeadlinetimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qelapsedtimer.h \
+		../src/data_processing/trigger_processor.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhash.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtextstream.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiodevice.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlocale.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvariant.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qshareddata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qset.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontiguouscache.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer_impl.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\trigger_processor_thread.o ..\src\data_processing\trigger_processor_thread.cpp
 
 debug/spectrum_analyzer.o: ../src/analysis/spectrum_analyzer.cpp ../src/analysis/spectrum_analyzer.h \
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
@@ -5084,6 +5576,169 @@ debug/waveform_sender_thread.o: ../src/widgets/waveform_sender_thread.cpp ../src
 		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\waveform_sender_thread.o ..\src\widgets\waveform_sender_thread.cpp
 
+debug/PWMControllerQt.o: ../src/pwm_controller/PWMControllerQt.cpp ../src/pwm_controller/PWMControllerQt.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnamespace.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig-bootstrapped.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtcore-config.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsystemdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qprocessordetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcompilerdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtypeinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsysinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlogging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qflags.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasicatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_bootstrap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qgenericatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_cxx11.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_msvc.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobalstatic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmutex.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnumeric.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qversiontagging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstring.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qchar.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qrefcount.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qarraydata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringliteral.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringview.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringbuilder.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiterator.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhashfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpair.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainertools_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpoint.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearraylist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregexp.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringmatcher.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcoreevent.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qscopedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmetatype.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvarlengtharray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainerfwd.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QString \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPort \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialport.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiodevice.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialportglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/QSerialPortInfo \
+		D:/Qt/5.15.2/mingw81_64/include/QtSerialPort/qserialportinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QTimer \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasictimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhash.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtextstream.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlocale.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvariant.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qshareddata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qset.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontiguouscache.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QThread \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qthread.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdeadlinetimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qelapsedtimer.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\PWMControllerQt.o ..\src\pwm_controller\PWMControllerQt.cpp
+
+debug/MusicPlayer.o: ../src/pwm_controller/MusicPlayer.cpp ../src/pwm_controller/MusicPlayer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QObject \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnamespace.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobal.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig-bootstrapped.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qconfig.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtcore-config.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsystemdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qprocessordetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcompilerdetection.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtypeinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsysinfo.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlogging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qflags.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasicatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_bootstrap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qgenericatomic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_cxx11.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qatomic_msvc.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qglobalstatic.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmutex.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qnumeric.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qversiontagging.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobjectdefs_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstring.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qchar.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qrefcount.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qarraydata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringliteral.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringview.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringbuilder.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qalgorithms.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiterator.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhashfunctions.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpair.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvector.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainertools_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qpoint.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbytearraylist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringlist.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregexp.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qstringmatcher.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcoreevent.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qscopedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmetatype.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvarlengtharray.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontainerfwd.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qobject_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QTimer \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qbasictimer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QVector \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QString \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QMap \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qmap.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qdebug.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qhash.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qtextstream.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qiodevice.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qlocale.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qvariant.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qshareddata.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qset.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qcontiguouscache.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qsharedpointer_impl.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QFile \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qfile.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qfiledevice.h \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QTextStream \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QDebug \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/QRegularExpression \
+		D:/Qt/5.15.2/mingw81_64/include/QtCore/qregularexpression.h
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\MusicPlayer.o ..\src\pwm_controller\MusicPlayer.cpp
+
 debug/qrc_resources.o: debug/qrc_resources.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\qrc_resources.o debug\qrc_resources.cpp
 
@@ -5108,11 +5763,23 @@ debug/moc_data_processor.o: debug/moc_data_processor.cpp
 debug/moc_data_processor_thread.o: debug/moc_data_processor_thread.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\moc_data_processor_thread.o debug\moc_data_processor_thread.cpp
 
+debug/moc_trigger_processor.o: debug/moc_trigger_processor.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\moc_trigger_processor.o debug\moc_trigger_processor.cpp
+
+debug/moc_trigger_processor_thread.o: debug/moc_trigger_processor_thread.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\moc_trigger_processor_thread.o debug\moc_trigger_processor_thread.cpp
+
 debug/moc_spectrum_analyzer.o: debug/moc_spectrum_analyzer.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\moc_spectrum_analyzer.o debug\moc_spectrum_analyzer.cpp
 
 debug/moc_waveform_sender_thread.o: debug/moc_waveform_sender_thread.cpp 
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\moc_waveform_sender_thread.o debug\moc_waveform_sender_thread.cpp
+
+debug/moc_PWMControllerQt.o: debug/moc_PWMControllerQt.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\moc_PWMControllerQt.o debug\moc_PWMControllerQt.cpp
+
+debug/moc_MusicPlayer.o: debug/moc_MusicPlayer.cpp 
+	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o debug\moc_MusicPlayer.o debug\moc_MusicPlayer.cpp
 
 ####### Install
 

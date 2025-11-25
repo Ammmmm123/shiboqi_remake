@@ -170,6 +170,26 @@ QLabel {
         </widget>
        </item>
        <item>
+        <widget class="QPushButton" name="navButton_pwm">
+         <property name="text">
+          <string>  ⚙️  PWM波控制</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="navButton_protocol">
+         <property name="text">
+          <string>  🔌  协议选择</string>
+         </property>
+         <property name="checkable">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <spacer name="verticalSpacer">
          <property name="orientation">
           <enum>Qt::Vertical</enum>
@@ -208,6 +228,9 @@ QLabel {
          <layout class="QHBoxLayout" name="horizontalLayout_26" stretch="0,0">
           <item>
            <widget class="QStackedWidget" name="stackedWidget_2">
+            <property name="currentIndex">
+             <number>1</number>
+            </property>
             <widget class="QWidget" name="page_9">
              <layout class="QHBoxLayout" name="horizontalLayout_8">
               <item>
@@ -366,13 +389,13 @@ QLabel {
             <widget class="QWidget" name="displayStackedWidget">
              <layout class="QHBoxLayout" name="horizontalLayout_6">
               <item>
-               <layout class="QVBoxLayout" name="verticalLayout_2" stretch="3,0">
+               <layout class="QVBoxLayout" name="verticalLayout_2" stretch="3,0,0">
                 <item>
                  <widget class="QCustomPlot" name="customPlot_4" native="true"/>
                 </item>
                 <item>
                  <layout class="QHBoxLayout" name="horizontalLayout_7">
-                  <item>
+                  <item alignment="Qt::AlignRight">
                    <widget class="QLabel" name="Frequency_4">
                     <property name="styleSheet">
                      <string notr="true">QLabel {
@@ -387,9 +410,12 @@ QLabel {
                     <property name="text">
                      <string>频率 ：</string>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
                    </widget>
                   </item>
-                  <item>
+                  <item alignment="Qt::AlignLeft">
                    <widget class="QLabel" name="Frequency_4_in">
                     <property name="styleSheet">
                      <string notr="true">QLabel {
@@ -407,7 +433,7 @@ QLabel {
                     </property>
                    </widget>
                   </item>
-                  <item>
+                  <item alignment="Qt::AlignRight">
                    <widget class="QLabel" name="Amplitude_4">
                     <property name="styleSheet">
                      <string notr="true">QLabel {
@@ -422,9 +448,12 @@ QLabel {
                     <property name="text">
                      <string>幅度 ：</string>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
                    </widget>
                   </item>
-                  <item>
+                  <item alignment="Qt::AlignLeft">
                    <widget class="QLabel" name="Amplitude_4_in">
                     <property name="styleSheet">
                      <string notr="true">QLabel {
@@ -442,7 +471,7 @@ QLabel {
                     </property>
                    </widget>
                   </item>
-                  <item>
+                  <item alignment="Qt::AlignRight">
                    <widget class="QLabel" name="Vpp">
                     <property name="styleSheet">
                      <string notr="true">QLabel {
@@ -457,9 +486,12 @@ QLabel {
                     <property name="text">
                      <string>Vpp ：</string>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
                    </widget>
                   </item>
-                  <item>
+                  <item alignment="Qt::AlignLeft">
                    <widget class="QLabel" name="Vpp_in">
                     <property name="styleSheet">
                      <string notr="true">QLabel {
@@ -477,7 +509,7 @@ QLabel {
                     </property>
                    </widget>
                   </item>
-                  <item>
+                  <item alignment="Qt::AlignRight">
                    <widget class="QLabel" name="Vmax">
                     <property name="styleSheet">
                      <string notr="true">QLabel {
@@ -492,9 +524,12 @@ QLabel {
                     <property name="text">
                      <string>Vmax ：</string>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
                    </widget>
                   </item>
-                  <item>
+                  <item alignment="Qt::AlignLeft">
                    <widget class="QLabel" name="Vmax_in">
                     <property name="styleSheet">
                      <string notr="true">QLabel {
@@ -512,8 +547,11 @@ QLabel {
                     </property>
                    </widget>
                   </item>
-                  <item>
+                  <item alignment="Qt::AlignRight">
                    <widget class="QLabel" name="Vmin">
+                    <property name="layoutDirection">
+                     <enum>Qt::LeftToRight</enum>
+                    </property>
                     <property name="styleSheet">
                      <string notr="true">QLabel {
     color: #2c3e50;
@@ -527,9 +565,12 @@ QLabel {
                     <property name="text">
                      <string>Vmin ：</string>
                     </property>
+                    <property name="alignment">
+                     <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                    </property>
                    </widget>
                   </item>
-                  <item>
+                  <item alignment="Qt::AlignLeft">
                    <widget class="QLabel" name="Vmin_in">
                     <property name="styleSheet">
                      <string notr="true">QLabel {
@@ -544,6 +585,210 @@ QLabel {
                     </property>
                     <property name="text">
                      <string>0 V</string>
+                    </property>
+                   </widget>
+                  </item>
+                 </layout>
+                </item>
+                <item>
+                 <layout class="QHBoxLayout" name="horizontalLayout_trigger">
+                  <property name="spacing">
+                   <number>10</number>
+                  </property>
+                  <item>
+                   <widget class="QCheckBox" name="triggerEnableCheckBox">
+                    <property name="styleSheet">
+                     <string notr="true">QCheckBox {
+    spacing: 5px;
+    color: #2c3e50;
+}
+
+QCheckBox::indicator {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    background-color: #ecf0f1;
+    border: 1px solid #bdc3c7;
+}
+
+QCheckBox::indicator:hover {
+    border-color: #3498db;
+}
+
+QCheckBox::indicator:checked {
+    background-color: #3498db;
+    border-color: #3498db;
+    image: url(:/resources/check.png); /* You might need to add a checkmark icon to your resources */
+}
+</string>
+                    </property>
+                    <property name="text">
+                     <string>启用触发</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item alignment="Qt::AlignRight">
+                   <widget class="QLabel" name="label_trigger_mode">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    padding-left: 5px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>模式:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item alignment="Qt::AlignLeft">
+                   <widget class="QComboBox" name="triggerModeComboBox">
+                    <property name="styleSheet">
+                     <string notr="true">QComboBox {
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    padding: 3px 8px;
+    min-width: 6em;
+    background: white;
+}
+
+QComboBox:hover {
+    border-color: #3498db;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left-width: 1px;
+    border-left-color: #bdc3c7;
+    border-left-style: solid;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+    image: url(:/icons/down_arrow.png); /* You might need to add a down arrow icon */
+}
+
+QComboBox QAbstractItemView {
+    border: 1px solid #3498db;
+    background: white;
+    selection-background-color: #eaf5ff;
+	selection-color: #2c3e50;
+}
+</string>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>Auto</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>Normal</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item alignment="Qt::AlignRight">
+                   <widget class="QLabel" name="label_trigger_edge">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    padding-left: 5px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>边沿:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item alignment="Qt::AlignLeft">
+                   <widget class="QComboBox" name="triggerEdgeComboBox">
+                    <property name="styleSheet">
+                     <string notr="true">QComboBox {
+    border: 1px solid #bdc3c7;
+    border-radius: 4px;
+    padding: 3px 8px;
+    min-width: 6em;
+    background: white;
+}
+
+QComboBox:hover {
+    border-color: #3498db;
+}
+
+QComboBox::drop-down {
+    subcontrol-origin: padding;
+    subcontrol-position: top right;
+    width: 20px;
+    border-left-width: 1px;
+    border-left-color: #bdc3c7;
+    border-left-style: solid;
+    border-top-right-radius: 3px;
+    border-bottom-right-radius: 3px;
+}
+
+QComboBox::down-arrow {
+    image: url(:/resources/down_arrow.png); /* You might need to add a down arrow icon */
+}
+
+QComboBox QAbstractItemView {
+    border: 1px solid #3498db;
+    background: white;
+    selection-background-color: #eaf5ff;
+	selection-color: #2c3e50;
+}
+</string>
+                    </property>
+                    <item>
+                     <property name="text">
+                      <string>上升沿</string>
+                     </property>
+                    </item>
+                    <item>
+                     <property name="text">
+                      <string>下降沿</string>
+                     </property>
+                    </item>
+                   </widget>
+                  </item>
+                  <item alignment="Qt::AlignRight">
+                   <widget class="QLabel" name="label_trigger_level">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #2c3e50;
+    font-size: 13px;
+    padding-left: 5px;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>电平:</string>
+                    </property>
+                   </widget>
+                  </item>
+                  <item alignment="Qt::AlignLeft">
+                   <widget class="QLabel" name="triggerLevelLabel">
+                    <property name="styleSheet">
+                     <string notr="true">QLabel {
+    color: #3498db;
+    font-size: 13px;
+    font-weight: 600;
+    padding: 4px 8px;
+    background-color: #eaf5ff;
+    border: 1px solid #3498db;
+    border-radius: 4px;
+    min-width: 5em;
+    text-align: center;
+}</string>
+                    </property>
+                    <property name="text">
+                     <string>0.00 V</string>
+                    </property>
+                    <property name="alignment">
+                     <set>Qt::AlignCenter</set>
                     </property>
                    </widget>
                   </item>
@@ -1774,6 +2019,489 @@ QComboBox QAbstractItemView {
            </layout>
           </item>
          </layout>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_pwm">
+       <property name="styleSheet">
+        <string>
+QWidget#page_pwm {
+    background-color: #f8f9fa;
+}
+
+QGroupBox {
+    background-color: white;
+    border: 1px solid #e9ecef;
+    border-radius: 12px;
+    margin-top: 28px;
+    font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;;
+    font-size: 14px;
+}
+
+QGroupBox::title {
+    subcontrol-origin: margin;
+    subcontrol-position: top left;
+    padding: 0 8px;
+    left: 12px;
+    color: #2c3e50;
+    font-weight: bold;
+    font-size: 16px;
+    background-color: transparent;
+}
+
+QDial {
+    background-color: transparent;
+}
+
+QSpinBox {
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 6px 10px;
+    background-color: #ffffff;
+    selection-background-color: #3498db;
+    font-size: 14px;
+    color: #495057;
+    min-height: 20px;
+}
+
+QSpinBox:hover {
+    border-color: #3498db;
+    background-color: #f1f3f5;
+}
+
+QSpinBox:focus {
+    border-color: #3498db;
+    background-color: #ffffff;
+}
+
+QLabel {
+    color: #6c757d;
+    font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;;
+    font-size: 14px;
+}
+
+QLabel#pwmFreqValue, QLabel#pwmDutyValue {
+    color: #3498db;
+    font-weight: bold;
+    font-size: 18px;
+}
+
+QPushButton {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+QPushButton:hover {
+    background-color: #2980b9;
+}
+
+QPushButton:pressed {
+    background-color: #1f618d;
+}
+
+QPushButton:checked {
+    background-color: #e74c3c;
+}
+
+QPushButton:checked:hover {
+    background-color: #c0392b;
+}
+
+QComboBox {
+    border: 1px solid #ced4da;
+    border-radius: 6px;
+    padding: 6px 10px;
+    background-color: #ffffff;
+    selection-background-color: #3498db;
+    font-size: 14px;
+    color: #495057;
+    min-height: 20px;
+}
+
+QComboBox:hover {
+    border-color: #3498db;
+}
+
+QComboBox::drop-down {
+    border: none;
+    background: transparent;
+    width: 24px;
+}
+
+QComboBox::down-arrow {
+    image: none;
+    border-left: 2px solid #ced4da;
+    border-bottom: 2px solid #ced4da;
+    width: 8px;
+    height: 8px;
+    transform: rotate(-45deg);
+    margin-right: 8px;
+    margin-top: -2px;
+}
+        </string>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_pwm">
+        <item>
+         <layout class="QVBoxLayout" name="verticalLayout_pwm_left">
+          <item>
+           <widget class="QGroupBox" name="groupBox_pwm_wave">
+            <property name="title">
+             <string>PWM 控制</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_pwm_wave">
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_knobs" stretch="1,1">
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_pwmFreq">
+                 <item>
+                  <widget class="QLabel" name="label_pwm_freq">
+                   <property name="text">
+                    <string>频率 (Hz)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDial" name="pwmFreqDial"/>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="pwmFreqSpinBox">
+                   <property name="minimum">
+                    <number>1</number>
+                   </property>
+                   <property name="maximum">
+                    <number>2000000</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+               <item>
+                <layout class="QVBoxLayout" name="verticalLayout_pwmDuty">
+                 <item>
+                  <widget class="QLabel" name="label_pwm_duty">
+                   <property name="text">
+                    <string>占空比 (%)</string>
+                   </property>
+                  </widget>
+                 </item>
+                 <item>
+                  <widget class="QDial" name="pwmDutyDial"/>
+                 </item>
+                 <item>
+                  <widget class="QSpinBox" name="pwmDutySpinBox">
+                   <property name="minimum">
+                    <number>0</number>
+                   </property>
+                   <property name="maximum">
+                    <number>100</number>
+                   </property>
+                  </widget>
+                 </item>
+                </layout>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_pwm_channel">
+               <item alignment="Qt::AlignRight">
+                <widget class="QLabel" name="label_pwm_channel">
+                 <property name="text">
+                  <string>通道:</string>
+                 </property>
+                </widget>
+               </item>
+               <item alignment="Qt::AlignLeft">
+                <widget class="QComboBox" name="pwmChannelComboBox">
+                 <item>
+                  <property name="text">
+                   <string>通道 0</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>通道 1</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>通道 2</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>通道 3</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>通道 4</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>通道 5</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>通道 6</string>
+                  </property>
+                 </item>
+                 <item>
+                  <property name="text">
+                   <string>通道 7</string>
+                  </property>
+                 </item>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_pwm_values">
+               <item>
+                <widget class="QLabel" name="label_pwm_freq_value">
+                 <property name="text">
+                  <string>频率:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="pwmFreqValue">
+                 <property name="text">
+                  <string>0 Hz</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="label_pwm_duty_value">
+                 <property name="text">
+                  <string>占空比:</string>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QLabel" name="pwmDutyValue">
+                 <property name="text">
+                  <string>0 %</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+            </layout>
+           </widget>
+          </item>
+          <item>
+           <widget class="QGroupBox" name="groupBox_pwm_music">
+            <property name="title">
+             <string>音乐播放器</string>
+            </property>
+            <layout class="QVBoxLayout" name="verticalLayout_pwm_music">
+             <item>
+              <widget class="QPushButton" name="pwmLoadMusicButton">
+               <property name="text">
+                <string>🎵 加载音乐文件</string>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <widget class="QLabel" name="pwmMusicFileLabel">
+               <property name="text">
+                <string>未加载文件</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+             <item>
+              <layout class="QHBoxLayout" name="horizontalLayout_pwm_music_ctrl">
+               <item>
+                <widget class="QPushButton" name="pwmPlayMusicButton">
+                 <property name="text">
+                  <string>▶️ 播放</string>
+                 </property>
+                 <property name="checkable">
+                  <bool>true</bool>
+                 </property>
+                </widget>
+               </item>
+               <item>
+                <widget class="QPushButton" name="pwmStopMusicButton">
+                 <property name="text">
+                  <string>⏹️ 停止</string>
+                 </property>
+                </widget>
+               </item>
+              </layout>
+             </item>
+             <item>
+              <widget class="QLabel" name="pwmMusicProgressLabel">
+               <property name="text">
+                <string>进度: 0/0</string>
+               </property>
+               <property name="alignment">
+                <set>Qt::AlignCenter</set>
+               </property>
+              </widget>
+             </item>
+            </layout>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <widget class="QGroupBox" name="groupBox_pwm_serial">
+          <property name="title">
+           <string>串口设置</string>
+          </property>
+          <layout class="QVBoxLayout" name="verticalLayout_pwm_serial">
+           <item>
+            <widget class="QPushButton" name="pwmOpenSerialButton">
+             <property name="text">
+              <string>🔌 打开串口</string>
+             </property>
+             <property name="checkable">
+              <bool>true</bool>
+             </property>
+            </widget>
+           </item>
+           <item>
+            <widget class="QComboBox" name="pwmSerialPortCombo"/>
+           </item>
+           <item>
+            <widget class="QComboBox" name="pwmSerialBaudCombo">
+             <item>
+              <property name="text">
+               <string>9600</string>
+              </property>
+             </item>
+             <item>
+              <property name="text">
+               <string>115200</string>
+              </property>
+             </item>
+            </widget>
+           </item>
+          </layout>
+         </widget>
+        </item>
+       </layout>
+      </widget>
+      <widget class="QWidget" name="page_protocol">
+       <property name="styleSheet">
+        <string>QWidget#page_protocol {
+    background-color: #f8f9fa;
+}
+
+QPushButton {
+    background-color: #3498db;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    padding: 20px;
+    font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;;
+    font-weight: 600;
+    font-size: 16px;
+    min-height: 80px;
+}
+
+QPushButton:hover {
+    background-color: #2980b9;
+}
+
+QPushButton:pressed {
+    background-color: #1f618d;
+}
+
+QPushButton:checked {
+    background-color: #27ae60;
+    border: 3px solid #229954;
+}
+
+QLabel {
+    color: #2c3e50;
+    font-family: &quot;Microsoft YaHei&quot;, &quot;Segoe UI&quot;;
+    font-size: 18px;
+    font-weight: bold;
+}</string>
+       </property>
+       <layout class="QVBoxLayout" name="verticalLayout_protocol">
+        <item>
+         <widget class="QLabel" name="label_protocol_title">
+          <property name="text">
+           <string>🔌 协议选择</string>
+          </property>
+          <property name="alignment">
+           <set>Qt::AlignCenter</set>
+          </property>
+         </widget>
+        </item>
+        <item>
+         <layout class="QGridLayout" name="gridLayout_protocol">
+          <property name="spacing">
+           <number>20</number>
+          </property>
+          <item row="0" column="0">
+           <widget class="QPushButton" name="protocolUartButton">
+            <property name="text">
+             <string>📝 UART协议</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="0" column="1">
+           <widget class="QPushButton" name="protocolSumpButton">
+            <property name="text">
+             <string>🔍 SUMP协议</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="0">
+           <widget class="QPushButton" name="protocolI2cButton">
+            <property name="text">
+             <string>🔗 I2C协议</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+          <item row="1" column="1">
+           <widget class="QPushButton" name="protocolSpiButton">
+            <property name="text">
+             <string>⚡ SPI协议</string>
+            </property>
+            <property name="checkable">
+             <bool>true</bool>
+            </property>
+           </widget>
+          </item>
+         </layout>
+        </item>
+        <item>
+         <spacer name="verticalSpacer_protocol">
+          <property name="orientation">
+           <enum>Qt::Vertical</enum>
+          </property>
+          <property name="sizeHint" stdset="0">
+           <size>
+            <width>20</width>
+            <height>40</height>
+           </size>
+          </property>
+         </spacer>
         </item>
        </layout>
       </widget>

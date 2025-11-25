@@ -23,8 +23,8 @@ QT_BEGIN_MOC_NAMESPACE
 QT_WARNING_PUSH
 QT_WARNING_DISABLE_DEPRECATED
 struct qt_meta_stringdata_shiboqi_remake_t {
-    QByteArrayData data[49];
-    char stringdata0[843];
+    QByteArrayData data[61];
+    char stringdata0[1179];
 };
 #define QT_MOC_LITERAL(idx, ofs, len) \
     Q_STATIC_BYTE_ARRAY_DATA_HEADER_INITIALIZER_WITH_OFFSET(len, \
@@ -81,7 +81,19 @@ QT_MOC_LITERAL(44, 759, 10), // "totalCount"
 QT_MOC_LITERAL(45, 770, 20), // "onWaveformSendFailed"
 QT_MOC_LITERAL(46, 791, 12), // "errorMessage"
 QT_MOC_LITERAL(47, 804, 15), // "onSpectrumReady"
-QT_MOC_LITERAL(48, 820, 22) // "SpectrumAnalysisResult"
+QT_MOC_LITERAL(48, 820, 22), // "SpectrumAnalysisResult"
+QT_MOC_LITERAL(49, 843, 20), // "onTriggeredDataReady"
+QT_MOC_LITERAL(50, 864, 32), // "on_triggerEnableCheckBox_toggled"
+QT_MOC_LITERAL(51, 897, 42), // "on_triggerModeComboBox_curren..."
+QT_MOC_LITERAL(52, 940, 5), // "index"
+QT_MOC_LITERAL(53, 946, 42), // "on_triggerEdgeComboBox_curren..."
+QT_MOC_LITERAL(54, 989, 21), // "refreshPWMSerialPorts"
+QT_MOC_LITERAL(55, 1011, 30), // "on_pwmOpenSerialButton_toggled"
+QT_MOC_LITERAL(56, 1042, 29), // "on_pwmLoadMusicButton_clicked"
+QT_MOC_LITERAL(57, 1072, 29), // "on_pwmPlayMusicButton_toggled"
+QT_MOC_LITERAL(58, 1102, 29), // "on_pwmStopMusicButton_clicked"
+QT_MOC_LITERAL(59, 1132, 23), // "onMusicRequestFrequency"
+QT_MOC_LITERAL(60, 1156, 22) // "onMusicProgressUpdated"
 
     },
     "shiboqi_remake\0on_setButton_clicked\0"
@@ -108,7 +120,16 @@ QT_MOC_LITERAL(48, 820, 22) // "SpectrumAnalysisResult"
     "current\0total\0onWaveformSendCompleted\0"
     "successCount\0totalCount\0onWaveformSendFailed\0"
     "errorMessage\0onSpectrumReady\0"
-    "SpectrumAnalysisResult"
+    "SpectrumAnalysisResult\0onTriggeredDataReady\0"
+    "on_triggerEnableCheckBox_toggled\0"
+    "on_triggerModeComboBox_currentIndexChanged\0"
+    "index\0on_triggerEdgeComboBox_currentIndexChanged\0"
+    "refreshPWMSerialPorts\0"
+    "on_pwmOpenSerialButton_toggled\0"
+    "on_pwmLoadMusicButton_clicked\0"
+    "on_pwmPlayMusicButton_toggled\0"
+    "on_pwmStopMusicButton_clicked\0"
+    "onMusicRequestFrequency\0onMusicProgressUpdated"
 };
 #undef QT_MOC_LITERAL
 
@@ -118,7 +139,7 @@ static const uint qt_meta_data_shiboqi_remake[] = {
        8,       // revision
        0,       // classname
        0,    0, // classinfo
-      25,   14, // methods
+      36,   14, // methods
        0,    0, // properties
        0,    0, // enums/sets
        0,    0, // constructors
@@ -126,31 +147,42 @@ static const uint qt_meta_data_shiboqi_remake[] = {
        0,       // signalCount
 
  // slots: name, argc, parameters, tag, flags
-       1,    0,  139,    2, 0x08 /* Private */,
-       3,    1,  140,    2, 0x08 /* Private */,
-       5,    1,  143,    2, 0x08 /* Private */,
-       6,    0,  146,    2, 0x08 /* Private */,
-       7,    0,  147,    2, 0x08 /* Private */,
-       8,    2,  148,    2, 0x08 /* Private */,
-      12,    1,  153,    2, 0x08 /* Private */,
-      14,    1,  156,    2, 0x08 /* Private */,
-      17,    2,  159,    2, 0x08 /* Private */,
-      21,    1,  164,    2, 0x08 /* Private */,
-      24,    0,  167,    2, 0x08 /* Private */,
-      25,    0,  168,    2, 0x08 /* Private */,
-      26,    0,  169,    2, 0x08 /* Private */,
-      27,    0,  170,    2, 0x08 /* Private */,
-      28,    0,  171,    2, 0x08 /* Private */,
-      29,    1,  172,    2, 0x08 /* Private */,
-      30,    0,  175,    2, 0x08 /* Private */,
-      31,    0,  176,    2, 0x08 /* Private */,
-      32,    1,  177,    2, 0x08 /* Private */,
-      33,    0,  180,    2, 0x08 /* Private */,
-      34,    4,  181,    2, 0x08 /* Private */,
-      39,    2,  190,    2, 0x08 /* Private */,
-      42,    2,  195,    2, 0x08 /* Private */,
-      45,    1,  200,    2, 0x08 /* Private */,
-      47,    1,  203,    2, 0x08 /* Private */,
+       1,    0,  194,    2, 0x08 /* Private */,
+       3,    1,  195,    2, 0x08 /* Private */,
+       5,    1,  198,    2, 0x08 /* Private */,
+       6,    0,  201,    2, 0x08 /* Private */,
+       7,    0,  202,    2, 0x08 /* Private */,
+       8,    2,  203,    2, 0x08 /* Private */,
+      12,    1,  208,    2, 0x08 /* Private */,
+      14,    1,  211,    2, 0x08 /* Private */,
+      17,    2,  214,    2, 0x08 /* Private */,
+      21,    1,  219,    2, 0x08 /* Private */,
+      24,    0,  222,    2, 0x08 /* Private */,
+      25,    0,  223,    2, 0x08 /* Private */,
+      26,    0,  224,    2, 0x08 /* Private */,
+      27,    0,  225,    2, 0x08 /* Private */,
+      28,    0,  226,    2, 0x08 /* Private */,
+      29,    1,  227,    2, 0x08 /* Private */,
+      30,    0,  230,    2, 0x08 /* Private */,
+      31,    0,  231,    2, 0x08 /* Private */,
+      32,    1,  232,    2, 0x08 /* Private */,
+      33,    0,  235,    2, 0x08 /* Private */,
+      34,    4,  236,    2, 0x08 /* Private */,
+      39,    2,  245,    2, 0x08 /* Private */,
+      42,    2,  250,    2, 0x08 /* Private */,
+      45,    1,  255,    2, 0x08 /* Private */,
+      47,    1,  258,    2, 0x08 /* Private */,
+      49,    2,  261,    2, 0x08 /* Private */,
+      50,    1,  266,    2, 0x08 /* Private */,
+      51,    1,  269,    2, 0x08 /* Private */,
+      53,    1,  272,    2, 0x08 /* Private */,
+      54,    0,  275,    2, 0x08 /* Private */,
+      55,    1,  276,    2, 0x08 /* Private */,
+      56,    0,  279,    2, 0x08 /* Private */,
+      57,    1,  280,    2, 0x08 /* Private */,
+      58,    0,  283,    2, 0x08 /* Private */,
+      59,    1,  284,    2, 0x08 /* Private */,
+      60,    2,  287,    2, 0x08 /* Private */,
 
  // slots: parameters
     QMetaType::Void,
@@ -178,6 +210,17 @@ static const uint qt_meta_data_shiboqi_remake[] = {
     QMetaType::Void, QMetaType::Int, QMetaType::Int,   43,   44,
     QMetaType::Void, QMetaType::QString,   46,
     QMetaType::Void, 0x80000000 | 48,   16,
+    QMetaType::Void, 0x80000000 | 18, 0x80000000 | 18,   19,   20,
+    QMetaType::Void, QMetaType::Bool,    4,
+    QMetaType::Void, QMetaType::Int,   52,
+    QMetaType::Void, QMetaType::Int,   52,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Bool,    4,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Bool,    4,
+    QMetaType::Void,
+    QMetaType::Void, QMetaType::Int,   38,
+    QMetaType::Void, QMetaType::Int, QMetaType::Int,   40,   41,
 
        0        // eod
 };
@@ -214,6 +257,17 @@ void shiboqi_remake::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
         case 22: _t->onWaveformSendCompleted((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         case 23: _t->onWaveformSendFailed((*reinterpret_cast< const QString(*)>(_a[1]))); break;
         case 24: _t->onSpectrumReady((*reinterpret_cast< const SpectrumAnalysisResult(*)>(_a[1]))); break;
+        case 25: _t->onTriggeredDataReady((*reinterpret_cast< const QVector<double>(*)>(_a[1])),(*reinterpret_cast< const QVector<double>(*)>(_a[2]))); break;
+        case 26: _t->on_triggerEnableCheckBox_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 27: _t->on_triggerModeComboBox_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 28: _t->on_triggerEdgeComboBox_currentIndexChanged((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 29: _t->refreshPWMSerialPorts(); break;
+        case 30: _t->on_pwmOpenSerialButton_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 31: _t->on_pwmLoadMusicButton_clicked(); break;
+        case 32: _t->on_pwmPlayMusicButton_toggled((*reinterpret_cast< bool(*)>(_a[1]))); break;
+        case 33: _t->on_pwmStopMusicButton_clicked(); break;
+        case 34: _t->onMusicRequestFrequency((*reinterpret_cast< int(*)>(_a[1]))); break;
+        case 35: _t->onMusicProgressUpdated((*reinterpret_cast< int(*)>(_a[1])),(*reinterpret_cast< int(*)>(_a[2]))); break;
         default: ;
         }
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
@@ -232,6 +286,14 @@ void shiboqi_remake::qt_static_metacall(QObject *_o, QMetaObject::Call _c, int _
             default: *reinterpret_cast<int*>(_a[0]) = -1; break;
             case 0:
                 *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< SamplingRecommendation >(); break;
+            }
+            break;
+        case 25:
+            switch (*reinterpret_cast<int*>(_a[1])) {
+            default: *reinterpret_cast<int*>(_a[0]) = -1; break;
+            case 1:
+            case 0:
+                *reinterpret_cast<int*>(_a[0]) = qRegisterMetaType< QVector<double> >(); break;
             }
             break;
         }
@@ -267,13 +329,13 @@ int shiboqi_remake::qt_metacall(QMetaObject::Call _c, int _id, void **_a)
     if (_id < 0)
         return _id;
     if (_c == QMetaObject::InvokeMetaMethod) {
-        if (_id < 25)
+        if (_id < 36)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 25;
+        _id -= 36;
     } else if (_c == QMetaObject::RegisterMethodArgumentMetaType) {
-        if (_id < 25)
+        if (_id < 36)
             qt_static_metacall(this, _c, _id, _a);
-        _id -= 25;
+        _id -= 36;
     }
     return _id;
 }

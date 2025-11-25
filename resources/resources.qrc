@@ -2,5 +2,7 @@
     <qresource prefix="/">
         <file>icon.jpg</file>
         <file>tubiao.ico</file>
+        <file>check.png</file>
+        <file>down_arrow.png</file>
     </qresource>
 </RCC>

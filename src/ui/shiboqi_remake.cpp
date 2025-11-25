@@ -11,6 +11,8 @@
 #include "siprefixticker.h"
 #include <QOpenGLWidget>
 #include <QSerialPortInfo>
+#include <QFileDialog>
+#include <QFileInfo>
 
 
 /**
@@ -31,6 +33,8 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     , updateTimer(new QTimer(this))
     , dataProcessorThread(nullptr) // 线程延迟创建（监听时创建）
     , dataProcessor(nullptr) // 线程延迟创建（监听时创建）
+    , triggerProcessorThread(nullptr) // 触发处理线程延迟创建（监听时创建）
+    , triggerProcessor(nullptr) // 触发处理器延迟创建（监听时创建）
     , currentWaveformType(0) // 初始化为锯齿波
     , isHandDrawMode(false)  // 初始化手绘模式为关闭
     , isDrawing(false)       // 初始化绘制状态为未绘制
@@ -40,6 +44,13 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     , hasUserZoomed(false)            // 初始未手动缩放，允许自动缩放
     , spectrumThread(nullptr)         // 频谱线程延迟创建（监听时创建）
     , spectrumAnalyzer(nullptr)       // 频谱分析器延迟创建（监听时创建）
+    , triggerLine(nullptr)            // 触发线延迟创建
+    , triggerLevelText(nullptr)       // 触发电平文本延迟创建
+    , currentTriggerLevel(0.0)        // 初始触发电平为0V
+    , isDraggingTrigger(false)        // 初始未拖动
+    , pwmController(nullptr)          // PWM控制器延迟创建
+    , pwmPortRefreshTimer(nullptr)    // PWM串口刷新定时器
+    , musicPlayer(nullptr)            // 音乐播放器
 {
     ui->setupUi(this);
 
@@ -65,6 +76,12 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
 
     // 安装事件过滤器到 customPlot，用于捕获滚轮事件和修饰键组合
     customPlot->installEventFilter(this);
+    
+    // 启用鼠标跟踪，用于触发线拖动
+    customPlot->setMouseTracking(true);
+    
+    // 初始化触发电平线
+    setupTriggerLine();
 
     // 将自定义 ticker 应用到 X 与 Y 轴
     auto xTicker = QSharedPointer<SIPrefixTicker>(new SIPrefixTicker("us"));
@@ -108,6 +125,40 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
     connect(ui->dataNumSpinBox_4, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int value) {
         udpReceiver->setExpectedDataCount(static_cast<quint32>(value));
     });
+
+    // PWM波控制按钮
+    connect(ui->navButton_pwm, &QPushButton::clicked, this, [this]() {
+        ui->stackedWidget->setCurrentIndex(3); // PWM页
+
+        // 更新按钮选中状态
+        ui->navButton_oscilloscope->setChecked(false);
+        ui->navButton_spectrum->setChecked(false);
+        ui->navButton_dds->setChecked(false);
+        ui->navButton_digital->setChecked(false);
+        ui->navButton_pwm->setChecked(true);
+        ui->navButton_protocol->setChecked(false);
+
+        // 停止所有绘图更新定时器
+        if (updateTimer) updateTimer->stop();
+        if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->stop();
+
+        // 断开所有数据处理连接，节省资源
+        if (dataProcessor && udpReceiver && triggerProcessor) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
+            disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, triggerProcessor, &TriggerProcessor::processWaveformData);
+            disconnect(triggerProcessor, &TriggerProcessor::triggeredDataReady, this, &shiboqi_remake::onTriggeredDataReady);
+        }
+
+        if (spectrumAnalyzer && udpReceiver) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
+            disconnect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+        }
+        
+        // 切换到PWM协议
+        udpSender->setProtocol(UdpSender::PROTOCOL_PWM);
+        udpSender->sendProtocolSelectCommand();
+    });
     
     // 初始化时设置一次期望数据个数
     if (ui->dataNumSpinBox_4) {
@@ -133,6 +184,8 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         ui->navButton_spectrum->setChecked(false);
         ui->navButton_dds->setChecked(false);
         ui->navButton_digital->setChecked(false);
+        ui->navButton_pwm->setChecked(false);
+        ui->navButton_protocol->setChecked(false);
         
         // 停止频谱标签更新定时器
         if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->stop();
@@ -144,16 +197,18 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         }
         
         // ========== 重新连接数据处理器（如果已创建）==========
-        if (dataProcessor && udpReceiver) {
+        if (dataProcessor && udpReceiver && triggerProcessor) {
             // 先断开，防止重复连接
             disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
             disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
-            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, triggerProcessor, &TriggerProcessor::processWaveformData);
+            disconnect(triggerProcessor, &TriggerProcessor::triggeredDataReady, this, &shiboqi_remake::onTriggeredDataReady);
             
-            // 重新连接
+            // 重新连接：UDP -> DataProcessor -> TriggerProcessor -> UI
             connect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
             connect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
-            connect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+            connect(dataProcessor, &DataProcessor::downsampledDataReady, triggerProcessor, &TriggerProcessor::processWaveformData);
+            connect(triggerProcessor, &TriggerProcessor::triggeredDataReady, this, &shiboqi_remake::onTriggeredDataReady);
         }
         
         // 启动示波器更新定时器
@@ -169,6 +224,10 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
             customPlot->replot();
         }
 
+        // 切换到UART协议
+        udpSender->setProtocol(UdpSender::PROTOCOL_UART);
+        udpSender->sendProtocolSelectCommand();
+        
         // 延时以确保线程安全
         QThread::msleep(50);
     });
@@ -188,15 +247,18 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         ui->navButton_spectrum->setChecked(true);
         ui->navButton_dds->setChecked(false);
         ui->navButton_digital->setChecked(false);
+        ui->navButton_pwm->setChecked(false);
+        ui->navButton_protocol->setChecked(false);
         
         // 停止示波器更新定时器
         if (updateTimer) updateTimer->stop();
         
-        // ========== 断开数据处理器连接，减少CPU占用 ==========
-        if (dataProcessor && udpReceiver) {
+        // ========== 断开数据处理器和触发处理器连接，减少CPU占用 ==========
+        if (dataProcessor && udpReceiver && triggerProcessor) {
             disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
             disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
-            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, triggerProcessor, &TriggerProcessor::processWaveformData);
+            disconnect(triggerProcessor, &TriggerProcessor::triggeredDataReady, this, &shiboqi_remake::onTriggeredDataReady);
         }
         
         // ========== 重新连接频谱分析器（如果已创建）==========
@@ -219,6 +281,10 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
             customPlot_spectrum->yAxis->setLabel("Amplitude (V)");
             customPlot_spectrum->replot();
         }
+        
+        // 切换到UART协议
+        udpSender->setProtocol(UdpSender::PROTOCOL_UART);
+        udpSender->sendProtocolSelectCommand();
 
         // 延时以确保线程安全
         QThread::msleep(50);
@@ -233,6 +299,8 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         ui->navButton_spectrum->setChecked(false);
         ui->navButton_dds->setChecked(true);
         ui->navButton_digital->setChecked(false);
+        ui->navButton_pwm->setChecked(false);
+        ui->navButton_protocol->setChecked(false);
         
         // 停止示波器更新定时器
         if (updateTimer) updateTimer->stop();
@@ -241,10 +309,11 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->stop();
         
         // ========== 断开所有数据处理连接，节省资源 ==========
-        if (dataProcessor && udpReceiver) {
+        if (dataProcessor && udpReceiver && triggerProcessor) {
             disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
             disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
-            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, triggerProcessor, &TriggerProcessor::processWaveformData);
+            disconnect(triggerProcessor, &TriggerProcessor::triggeredDataReady, this, &shiboqi_remake::onTriggeredDataReady);
         }
         
         if (spectrumAnalyzer && udpReceiver) {
@@ -256,6 +325,10 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         if (ui->boxingxianshi) {
             ui->boxingxianshi->replot();
         }
+        
+        // 切换到UART协议
+        udpSender->setProtocol(UdpSender::PROTOCOL_UART);
+        udpSender->sendProtocolSelectCommand();
     });
     
     // 数字信号测量按钮
@@ -267,16 +340,53 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
         ui->navButton_spectrum->setChecked(false);
         ui->navButton_dds->setChecked(false);
         ui->navButton_digital->setChecked(true);
+        ui->navButton_pwm->setChecked(false);
+        ui->navButton_protocol->setChecked(false);
         
         // 停止所有绘图更新定时器
         if (updateTimer) updateTimer->stop();
         if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->stop();
         
         // ========== 断开所有数据处理连接，节省资源 ==========
-        if (dataProcessor && udpReceiver) {
+        if (dataProcessor && udpReceiver && triggerProcessor) {
             disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
             disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
-            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, triggerProcessor, &TriggerProcessor::processWaveformData);
+            disconnect(triggerProcessor, &TriggerProcessor::triggeredDataReady, this, &shiboqi_remake::onTriggeredDataReady);
+        }
+        
+        if (spectrumAnalyzer && udpReceiver) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, spectrumAnalyzer, &SpectrumAnalyzer::onDataReceived);
+            disconnect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
+        }
+        
+        // 切换到UART协议
+        udpSender->setProtocol(UdpSender::PROTOCOL_UART);
+        udpSender->sendProtocolSelectCommand();
+    });
+    
+    // 协议选择按钮
+    connect(ui->navButton_protocol, &QPushButton::clicked, this, [this]() {
+        ui->stackedWidget->setCurrentIndex(4); // 协议选择页 -> page_protocol
+        
+        // 更新按钮选中状态
+        ui->navButton_oscilloscope->setChecked(false);
+        ui->navButton_spectrum->setChecked(false);
+        ui->navButton_dds->setChecked(false);
+        ui->navButton_digital->setChecked(false);
+        ui->navButton_pwm->setChecked(false);
+        ui->navButton_protocol->setChecked(true);
+        
+        // 停止所有绘图更新定时器
+        if (updateTimer) updateTimer->stop();
+        if (spectrumLabelUpdateTimer) spectrumLabelUpdateTimer->stop();
+        
+        // 断开所有数据处理连接，节省资源
+        if (dataProcessor && udpReceiver && triggerProcessor) {
+            disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
+            disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, triggerProcessor, &TriggerProcessor::processWaveformData);
+            disconnect(triggerProcessor, &TriggerProcessor::triggeredDataReady, this, &shiboqi_remake::onTriggeredDataReady);
         }
         
         if (spectrumAnalyzer && udpReceiver) {
@@ -284,6 +394,49 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
             disconnect(spectrumAnalyzer, &SpectrumAnalyzer::spectrumReady, this, &shiboqi_remake::onSpectrumReady);
         }
     });
+    
+    // 协议选择按钮的槽函数 (使用独占式选择)
+    if (ui->protocolUartButton && ui->protocolSumpButton && ui->protocolI2cButton && ui->protocolSpiButton) {
+        connect(ui->protocolUartButton, &QPushButton::clicked, this, [this]() {
+            ui->protocolUartButton->setChecked(true);
+            ui->protocolSumpButton->setChecked(false);
+            ui->protocolI2cButton->setChecked(false);
+            ui->protocolSpiButton->setChecked(false);
+            udpSender->setProtocol(UdpSender::PROTOCOL_UART);
+            udpSender->sendProtocolSelectCommand();
+        });
+        
+        connect(ui->protocolSumpButton, &QPushButton::clicked, this, [this]() {
+            ui->protocolUartButton->setChecked(false);
+            ui->protocolSumpButton->setChecked(true);
+            ui->protocolI2cButton->setChecked(false);
+            ui->protocolSpiButton->setChecked(false);
+            udpSender->setProtocol(UdpSender::PROTOCOL_SUMP);
+            udpSender->sendProtocolSelectCommand();
+        });
+        
+        connect(ui->protocolI2cButton, &QPushButton::clicked, this, [this]() {
+            ui->protocolUartButton->setChecked(false);
+            ui->protocolSumpButton->setChecked(false);
+            ui->protocolI2cButton->setChecked(true);
+            ui->protocolSpiButton->setChecked(false);
+            udpSender->setProtocol(UdpSender::PROTOCOL_I2C);
+            udpSender->sendProtocolSelectCommand();
+        });
+        
+        connect(ui->protocolSpiButton, &QPushButton::clicked, this, [this]() {
+            ui->protocolUartButton->setChecked(false);
+            ui->protocolSumpButton->setChecked(false);
+            ui->protocolI2cButton->setChecked(false);
+            ui->protocolSpiButton->setChecked(true);
+            udpSender->setProtocol(UdpSender::PROTOCOL_SPI);
+            udpSender->sendProtocolSelectCommand();
+        });
+        
+        // 默认选中UART
+        ui->protocolUartButton->setChecked(true);
+                // 切换到UART协议
+    }
 
     // 初始化串口comboBox
     auto ports = QSerialPortInfo::availablePorts();
@@ -300,6 +453,93 @@ shiboqi_remake::shiboqi_remake(QWidget *parent)
 
     // 连接UART解析后信号到界面刷新槽（每200ms）
     connect(uartReceiver, &UARTReceiver::parsedDataReady, this, &shiboqi_remake::onParsedSerialData);
+
+    // ===== PWM 控件前端逻辑 =====
+    if (ui->pwmFreqDial && ui->pwmFreqSpinBox && ui->pwmDutyDial && ui->pwmDutySpinBox) {
+        // 频率：Dial 0..1000 -> 0..2,000,000 Hz
+        ui->pwmFreqDial->setRange(0, 1000);
+        ui->pwmFreqSpinBox->setRange(1, 2000000);
+        ui->pwmFreqSpinBox->setSingleStep(100);
+        ui->pwmFreqSpinBox->setValue(1000); // 默认1kHz
+
+        // 占空比
+        ui->pwmDutyDial->setRange(0, 100);
+        ui->pwmDutySpinBox->setRange(0, 100);
+        ui->pwmDutySpinBox->setValue(50); // 默认50%
+
+        // Dial -> SpinBox
+        connect(ui->pwmFreqDial, &QDial::valueChanged, this, [this](int v){
+            int freq = v * 2000; // map
+            ui->pwmFreqSpinBox->setValue(freq);
+            ui->pwmFreqValue->setText(QString("%1 Hz").arg(freq));
+        });
+        connect(ui->pwmDutyDial, &QDial::valueChanged, this, [this](int v){
+            ui->pwmDutySpinBox->setValue(v);
+            ui->pwmDutyValue->setText(QString("%1 %").arg(v));
+            
+            // 如果串口已打开，实时发送PWM参数
+            if (pwmController && pwmController->isOpen()) {
+                updatePWMParameters();
+            }
+        });
+
+        // SpinBox -> Dial
+        connect(ui->pwmFreqSpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int v){
+            int dialV = qBound(0, v/2000, 1000);
+            ui->pwmFreqDial->setValue(dialV);
+            ui->pwmFreqValue->setText(QString("%1 Hz").arg(v));
+            
+            // 如果串口已打开，实时发送PWM参数
+            if (pwmController && pwmController->isOpen()) {
+                updatePWMParameters();
+            }
+        });
+        connect(ui->pwmDutySpinBox, QOverload<int>::of(&QSpinBox::valueChanged), this, [this](int v){
+            ui->pwmDutyDial->setValue(v);
+            ui->pwmDutyValue->setText(QString("%1 %").arg(v));
+            
+            // 如果串口已打开，实时发送PWM参数
+            if (pwmController && pwmController->isOpen()) {
+                updatePWMParameters();
+            }
+        });
+    }
+    
+    // 通道切换时实时更新PWM参数
+    if (ui->pwmChannelComboBox) {
+        connect(ui->pwmChannelComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), this, [this](int) {
+            if (pwmController && pwmController->isOpen()) {
+                updatePWMParameters();
+            }
+        });
+    }
+    
+    // ===== PWM串口控制 =====
+    // 初始化PWM串口下拉框
+    if (ui->pwmSerialPortCombo) {
+        auto ports = QSerialPortInfo::availablePorts();
+        for (const QSerialPortInfo &info : ports) {
+            ui->pwmSerialPortCombo->addItem(info.portName());
+        }
+    }
+    
+    // 启动PWM串口刷新定时器（每秒刷新）
+    pwmPortRefreshTimer = new QTimer(this);
+    pwmPortRefreshTimer->setInterval(1000);
+    connect(pwmPortRefreshTimer, &QTimer::timeout, this, &shiboqi_remake::refreshPWMSerialPorts);
+    pwmPortRefreshTimer->start();
+    
+    // 连接PWM串口打开按钮
+    if (ui->pwmOpenSerialButton) {
+        connect(ui->pwmOpenSerialButton, &QPushButton::toggled, this, &shiboqi_remake::on_pwmOpenSerialButton_toggled);
+    }
+    
+    // ===== 音乐播放器 =====
+    musicPlayer = new MusicPlayer(this);
+    
+    // 连接音乐播放器信号
+    connect(musicPlayer, &MusicPlayer::requestSetFrequency, this, &shiboqi_remake::onMusicRequestFrequency);
+    connect(musicPlayer, &MusicPlayer::progressUpdated, this, &shiboqi_remake::onMusicProgressUpdated);
 
     // ===== 初始化频谱分析页面（在 stackedWidget_2 的 page_9 中） =====
     customPlot_spectrum = ui->customPlot_spectrum;
@@ -405,6 +645,20 @@ shiboqi_remake::~shiboqi_remake()
         spectrumThread = nullptr;
     }
     
+    // 清理PWM控制器
+    if (pwmController) {
+        pwmController->close();
+        delete pwmController;
+        pwmController = nullptr;
+    }
+    
+    // 清理音乐播放器
+    if (musicPlayer) {
+        musicPlayer->stop();
+        delete musicPlayer;
+        musicPlayer = nullptr;
+    }
+    
     delete ui;
 }
 
@@ -486,13 +740,61 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
             dataProcessorThread->start();
             dataProcessor = dataProcessorThread->getProcessor();
             
-            // 连接数据处理器信号（跨线程信号连接，自动使用队列连接）
+            // 连接数据处理器信号
             connect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
             connect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
-            connect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
             connect(dataProcessor, &DataProcessor::samplingRecommendationReady, 
                     this, &shiboqi_remake::onSamplingRecommendationReady, 
                     Qt::QueuedConnection);
+        }
+        
+        // ========== 创建并启动触发处理线程 ==========
+        if (!triggerProcessorThread) {
+            triggerProcessorThread = new TriggerProcessorThread(this);
+            triggerProcessor = triggerProcessorThread->getProcessor();
+            triggerProcessorThread->start();
+            
+            // 连接信号链：DataProcessor -> TriggerProcessor -> UI
+            // DataProcessor 的波形数据发送到 TriggerProcessor（跨线程，使用队列连接）
+            connect(dataProcessor, &DataProcessor::downsampledDataReady, 
+                    triggerProcessor, &TriggerProcessor::processWaveformData,
+                    Qt::QueuedConnection);
+            
+            // TriggerProcessor 处理后的数据发送到 UI（跨线程，使用队列连接）
+            connect(triggerProcessor, &TriggerProcessor::triggeredDataReady, 
+                    this, &shiboqi_remake::onTriggeredDataReady,
+                    Qt::QueuedConnection);
+            
+            // 连接UI控件到触发处理器（跨线程，使用队列连接）
+            connect(ui->triggerEnableCheckBox, &QCheckBox::toggled, 
+                    triggerProcessor, &TriggerProcessor::setTriggerEnabled,
+                    Qt::QueuedConnection);
+            connect(ui->triggerModeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), 
+                    triggerProcessor, &TriggerProcessor::setTriggerMode,
+                    Qt::QueuedConnection);
+            connect(ui->triggerEdgeComboBox, QOverload<int>::of(&QComboBox::currentIndexChanged), 
+                    [this](int index) {
+                        // 0: 上升沿, 1: 下降沿
+                        if (triggerProcessor) {
+                            QMetaObject::invokeMethod(triggerProcessor, "setTriggerEdge",
+                                                    Qt::QueuedConnection,
+                                                    Q_ARG(bool, index == 0));
+                        }
+                    });
+            
+            // 初始化触发器设置（使用QMetaObject::invokeMethod确保跨线程安全）
+            QMetaObject::invokeMethod(triggerProcessor, "setTriggerEnabled",
+                                    Qt::QueuedConnection,
+                                    Q_ARG(bool, ui->triggerEnableCheckBox->isChecked()));
+            QMetaObject::invokeMethod(triggerProcessor, "setTriggerMode",
+                                    Qt::QueuedConnection,
+                                    Q_ARG(int, ui->triggerModeComboBox->currentIndex()));
+            QMetaObject::invokeMethod(triggerProcessor, "setTriggerEdge",
+                                    Qt::QueuedConnection,
+                                    Q_ARG(bool, ui->triggerEdgeComboBox->currentIndex() == 0));
+            QMetaObject::invokeMethod(triggerProcessor, "setTriggerLevel",
+                                    Qt::QueuedConnection,
+                                    Q_ARG(double, 0.0));
         }
         
         // ========== 创建并启动频谱分析线程 ==========
@@ -549,10 +851,16 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         // 注意：通道和分频系数输入框已删除，不再需要禁用
     } else {
         // ========== 立即断开信号连接，防止新数据进入队列 ==========
+        if (triggerProcessor && dataProcessor) {
+            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, 
+                      triggerProcessor, &TriggerProcessor::processWaveformData);
+            disconnect(triggerProcessor, &TriggerProcessor::triggeredDataReady, 
+                      this, &shiboqi_remake::onTriggeredDataReady);
+        }
+        
         if (dataProcessor) {
             disconnect(udpReceiver, &UdpReceiver::dataReceived, dataProcessor, &DataProcessor::processWaveformData);
             disconnect(dataProcessor, &DataProcessor::analysisReady, this, &shiboqi_remake::onAnalysisReady);
-            disconnect(dataProcessor, &DataProcessor::downsampledDataReady, this, &shiboqi_remake::onDownsampledDataReady);
             disconnect(dataProcessor, &DataProcessor::samplingRecommendationReady, 
                        this, &shiboqi_remake::onSamplingRecommendationReady);
         }
@@ -571,6 +879,14 @@ void shiboqi_remake::on_listenButton_toggled(bool checked)
         plotTimes.clear();
         
 
+        
+        // ========== 快速停止触发处理线程 ==========
+        if (triggerProcessorThread) {
+            triggerProcessorThread->stop();
+            delete triggerProcessorThread;
+            triggerProcessorThread = nullptr;
+            triggerProcessor = nullptr;
+        }
         
         // ========== 快速停止数据处理线程（不等待队列处理完） ==========
         if (dataProcessorThread) {
@@ -721,14 +1037,27 @@ void shiboqi_remake::on_restartButton_clicked()
 }
 
 /**
- * @brief 接收降采样后的数据用于绘图
+ * @brief 接收降采样后的数据用于绘图（保留兼容性，但不再使用）
  * @param voltages 降采样后的电压数据
  * @param times 降采样后的时间戳（微秒）
- * 
- * 由 DataProcessor 在完成分析和降采样后发射，直接用于高效绘图
  */
 void shiboqi_remake::onDownsampledDataReady(const QVector<double> &voltages, const QVector<double> &times)
 {
+    // 此函数保留用于兼容性，但实际数据流已经改为经过触发处理器
+    // 数据流向：DataProcessor -> TriggerProcessor -> onTriggeredDataReady
+}
+
+/**
+ * @brief 接收触发处理后的数据用于绘图
+ * @param voltages 处理后的电压数据
+ * @param times 处理后的时间戳（微秒）
+ * 
+ * 由 TriggerProcessor 处理后发射，用于最终绘图显示
+ */
+void shiboqi_remake::onTriggeredDataReady(const QVector<double> &voltages, const QVector<double> &times)
+{
+    qDebug() << "[UI] onTriggeredDataReady 收到数据，点数=" << voltages.size();
+    
     // LIFO队列模式：直接替换为最新数据（后进先出，丢弃旧数据）
     plotVoltages = voltages;
     plotTimes = times;
@@ -854,6 +1183,23 @@ void scaleXAxis(QCustomPlot *plot, double factor, const QPoint &/*pos*/, const Q
 
 bool shiboqi_remake::eventFilter(QObject *obj, QEvent *event)
 {
+    // ===== 处理示波器的触发线拖动事件 =====
+    if (obj == customPlot && !isSpectrumMode) {
+        if (event->type() == QEvent::MouseButtonPress) {
+            QMouseEvent *me = static_cast<QMouseEvent*>(event);
+            handlePlotMousePress(me);
+            if (me->isAccepted()) return true;
+        } else if (event->type() == QEvent::MouseMove) {
+            QMouseEvent *me = static_cast<QMouseEvent*>(event);
+            handlePlotMouseMove(me);
+            if (me->isAccepted()) return true;
+        } else if (event->type() == QEvent::MouseButtonRelease) {
+            QMouseEvent *me = static_cast<QMouseEvent*>(event);
+            handlePlotMouseRelease(me);
+            if (me->isAccepted()) return true;
+        }
+    }
+    
     // ===== 处理 DDS 手绘波形的鼠标事件 =====
     if (obj == ui->boxingxianshi && isHandDrawMode) {
         QCustomPlot *drawPlot = ui->boxingxianshi;
@@ -1636,4 +1982,502 @@ void shiboqi_remake::onWaveformSendFailed(const QString &errorMessage)
             }
         });
     }
+}
+/**
+ * @brief 触发使能复选框切换槽函数
+ */
+void shiboqi_remake::on_triggerEnableCheckBox_toggled(bool checked)
+{
+    if (triggerProcessor) {
+        triggerProcessor->setTriggerEnabled(checked);
+    }
+    
+    // 显示或隐藏触发线
+    if (triggerLine) {
+        triggerLine->setVisible(checked);
+    }
+    if (triggerLevelText) {
+        triggerLevelText->setVisible(checked);
+    }
+    
+    // 更新触发电平标签显示
+    if (ui->triggerLevelLabel) {
+        if (checked) {
+            ui->triggerLevelLabel->setText(QString("触发电平: %1 V").arg(currentTriggerLevel, 0, 'f', 2));
+        } else {
+            ui->triggerLevelLabel->setText("触发已禁用");
+        }
+    }
+    
+    if (customPlot) {
+        customPlot->replot();
+    }
+}
+
+/**
+ * @brief 触发模式下拉框切换槽函数
+ */
+void shiboqi_remake::on_triggerModeComboBox_currentIndexChanged(int index)
+{
+    if (triggerProcessor) {
+        triggerProcessor->setTriggerMode(index);
+    }
+}
+
+/**
+ * @brief 触发边沿下拉框切换槽函数
+ */
+void shiboqi_remake::on_triggerEdgeComboBox_currentIndexChanged(int index)
+{
+    if (triggerProcessor) {
+        // 0: 上升沿, 1: 下降沿
+        triggerProcessor->setTriggerEdge(index == 0);
+    }
+}
+
+/**
+ * @brief 初始化触发电平线
+ */
+void shiboqi_remake::setupTriggerLine()
+{
+    if (!customPlot) return;
+    
+    // 创建触发电平线（水平线）
+    triggerLine = new QCPItemStraightLine(customPlot);
+    
+    // 设置线的两个端点（水平线，Y坐标相同）
+    triggerLine->point1->setCoords(0, 0);  // 左端点
+    triggerLine->point2->setCoords(1, 0);  // 右端点
+    
+    // 设置线的样式
+    QPen triggerPen;
+    triggerPen.setColor(QColor(255, 100, 0, 200));  // 橙红色，半透明
+    triggerPen.setWidth(2);
+    triggerPen.setStyle(Qt::DashLine);
+    triggerLine->setPen(triggerPen);
+    
+    // 创建触发电平文本标签
+    triggerLevelText = new QCPItemText(customPlot);
+    triggerLevelText->setPositionAlignment(Qt::AlignLeft | Qt::AlignVCenter);
+    triggerLevelText->position->setType(QCPItemPosition::ptAxisRectRatio);
+    triggerLevelText->position->setCoords(0.02, 0.5);  // 左侧，垂直居中
+    triggerLevelText->setText("0.00 V");
+    triggerLevelText->setFont(QFont(font().family(), 10, QFont::Bold));
+    triggerLevelText->setColor(QColor(255, 100, 0));
+    triggerLevelText->setPadding(QMargins(5, 2, 5, 2));
+    triggerLevelText->setBrush(QBrush(QColor(255, 255, 255, 200)));
+    triggerLevelText->setPen(QPen(QColor(255, 100, 0)));
+    
+    // 默认隐藏触发线（只有在启用触发且开始监听后才显示）
+    triggerLine->setVisible(false);
+    triggerLevelText->setVisible(false);
+}
+
+/**
+ * @brief 更新触发电平线的位置
+ */
+void shiboqi_remake::updateTriggerLine(double level)
+{
+    if (!customPlot || !triggerLine || !triggerLevelText) return;
+    
+    currentTriggerLevel = level;
+    
+    // 更新触发线位置
+    triggerLine->point1->setCoords(customPlot->xAxis->range().lower, level);
+    triggerLine->point2->setCoords(customPlot->xAxis->range().upper, level);
+    
+    // 计算标签的垂直位置比例（0=底部，1=顶部）
+    double yRange = customPlot->yAxis->range().size();
+    double yMin = customPlot->yAxis->range().lower;
+    double yRatio = 1.0 - (level - yMin) / yRange;  // Y轴坐标是反的
+    
+    // 限制在合理范围内
+    yRatio = qBound(0.0, yRatio, 1.0);
+    
+    // 更新文本位置
+    triggerLevelText->position->setCoords(0.02, yRatio);
+    triggerLevelText->setText(QString("%1 V").arg(level, 0, 'f', 2));
+    
+    // 更新到触发处理器（使用队列连接确保线程安全）
+    if (triggerProcessor) {
+        qDebug() << "[UI] 更新触发电平到:" << level << "V";
+        QMetaObject::invokeMethod(triggerProcessor, "setTriggerLevel",
+                                Qt::QueuedConnection,
+                                Q_ARG(double, level));
+    }
+    
+    // 更新UI标签
+    if (ui->triggerLevelLabel) {
+        ui->triggerLevelLabel->setText(QString("触发电平: %1 V").arg(level, 0, 'f', 2));
+    }
+    
+    customPlot->replot();
+}
+
+/**
+ * @brief 处理示波器的鼠标按下事件
+ */
+void shiboqi_remake::handlePlotMousePress(QMouseEvent *event)
+{
+    if (!customPlot || !triggerLine || !triggerLine->visible()) return;
+    
+    if (event->button() == Qt::LeftButton) {
+        // 检查是否点击在触发线附近
+        double yCoord = customPlot->yAxis->pixelToCoord(event->pos().y());
+        double tolerance = customPlot->yAxis->range().size() * 0.02;  // 2%的容差
+        
+        if (qAbs(yCoord - currentTriggerLevel) < tolerance) {
+            isDraggingTrigger = true;
+            customPlot->setCursor(Qt::SizeVerCursor);
+            event->accept();
+        }
+    }
+}
+
+/**
+ * @brief 处理示波器的鼠标移动事件
+ */
+void shiboqi_remake::handlePlotMouseMove(QMouseEvent *event)
+{
+    if (!customPlot || !triggerLine || !triggerLine->visible()) return;
+    
+    if (isDraggingTrigger) {
+        // 拖动触发线
+        double yCoord = customPlot->yAxis->pixelToCoord(event->pos().y());
+        
+        // 限制在Y轴范围内
+        yCoord = qBound(customPlot->yAxis->range().lower, yCoord, customPlot->yAxis->range().upper);
+        
+        updateTriggerLine(yCoord);
+        event->accept();
+    } else {
+        // 检查鼠标是否悬停在触发线附近
+        double yCoord = customPlot->yAxis->pixelToCoord(event->pos().y());
+        double tolerance = customPlot->yAxis->range().size() * 0.02;
+        
+        if (qAbs(yCoord - currentTriggerLevel) < tolerance) {
+            customPlot->setCursor(Qt::SizeVerCursor);
+        } else {
+            customPlot->setCursor(Qt::ArrowCursor);
+        }
+    }
+}
+
+/**
+ * @brief 处理示波器的鼠标释放事件
+ */
+void shiboqi_remake::handlePlotMouseRelease(QMouseEvent *event)
+{
+    if (event->button() == Qt::LeftButton && isDraggingTrigger) {
+        isDraggingTrigger = false;
+        customPlot->setCursor(Qt::ArrowCursor);
+        event->accept();
+    }
+}
+
+// ==================== PWM控制相关实现 ====================
+
+/**
+ * @brief PWM串口列表刷新槽函数（每秒自动调用）
+ */
+void shiboqi_remake::refreshPWMSerialPorts()
+{
+    if (!ui->pwmSerialPortCombo) return;
+    
+    // 获取当前选中的串口
+    QString currentPort = ui->pwmSerialPortCombo->currentText();
+    
+    // 获取所有可用串口
+    auto ports = QSerialPortInfo::availablePorts();
+    QStringList portNames;
+    for (const QSerialPortInfo &info : ports) {
+        portNames << info.portName();
+    }
+    
+    // 检查列表是否发生变化
+    QStringList existingPorts;
+    for (int i = 0; i < ui->pwmSerialPortCombo->count(); ++i) {
+        existingPorts << ui->pwmSerialPortCombo->itemText(i);
+    }
+    
+    if (portNames != existingPorts) {
+        // 列表发生变化，更新下拉框
+        ui->pwmSerialPortCombo->clear();
+        ui->pwmSerialPortCombo->addItems(portNames);
+        
+        // 尝试恢复之前选中的串口
+        int index = ui->pwmSerialPortCombo->findText(currentPort);
+        if (index >= 0) {
+            ui->pwmSerialPortCombo->setCurrentIndex(index);
+        }
+        
+        // 如果之前打开的串口已经消失，自动关闭连接
+        if (!pwmOpenPortName.isEmpty() && !portNames.contains(pwmOpenPortName)) {
+            qDebug() << "[PWM] 串口" << pwmOpenPortName << "已断开";
+            if (ui->pwmOpenSerialButton && ui->pwmOpenSerialButton->isChecked()) {
+                ui->pwmOpenSerialButton->setChecked(false);
+            }
+        }
+    }
+}
+
+/**
+ * @brief PWM串口打开/关闭按钮切换槽函数
+ * @param checked true表示打开串口，false表示关闭串口
+ */
+void shiboqi_remake::on_pwmOpenSerialButton_toggled(bool checked)
+{
+    if (checked) {
+        // 打开串口
+        QString portName = ui->pwmSerialPortCombo->currentText();
+        if (portName.isEmpty()) {
+            QMessageBox::warning(this, "错误", "请选择一个串口");
+            ui->pwmOpenSerialButton->setChecked(false);
+            return;
+        }
+        
+        // 获取波特率
+        int baudrate = ui->pwmSerialBaudCombo->currentText().toInt();
+        
+        // 创建PWM控制器
+        if (pwmController) {
+            delete pwmController;
+        }
+        
+        pwmController = new PWMControllerQt(this);
+        
+        if (pwmController->open(portName, baudrate)) {
+            pwmOpenPortName = portName;
+            ui->pwmOpenSerialButton->setText("🔌 关闭串口");
+            qDebug() << "[PWM] 串口" << portName << "打开成功";
+            
+            // 发送当前PWM参数
+            updatePWMParameters();
+        } else {
+            delete pwmController;
+            pwmController = nullptr;
+            ui->pwmOpenSerialButton->setChecked(false);
+            QMessageBox::critical(this, "错误", QString("无法打开串口 %1").arg(portName));
+        }
+    } else {
+        // 关闭串口
+        if (pwmController) {
+            pwmController->close();
+            delete pwmController;
+            pwmController = nullptr;
+        }
+        pwmOpenPortName.clear();
+        ui->pwmOpenSerialButton->setText("🔌 打开串口");
+        qDebug() << "[PWM] 串口已关闭";
+    }
+}
+
+/**
+ * @brief 更新PWM参数到下位机
+ */
+void shiboqi_remake::updatePWMParameters()
+{
+    if (!pwmController || !pwmController->isOpen()) {
+        return;
+    }
+    
+    // 获取目标频率和占空比
+    double targetFreq = ui->pwmFreqSpinBox->value();
+    int dutyCyclePercent = ui->pwmDutySpinBox->value();
+    
+    qDebug() << "";
+    qDebug() << "==================== PWM参数更新 ====================";
+    qDebug() << "[PWM] 目标频率:" << targetFreq << "Hz";
+    qDebug() << "[PWM] 目标占空比:" << dutyCyclePercent << "%";
+    
+    // 选择合适的分辨率（1000对应0.1%精度）
+    uint16_t resolution = 1000;
+    uint16_t div, period;
+    
+    // 计算div和period
+    if (!PWMControllerQt::calculateParams(targetFreq, resolution, div, period)) {
+        qDebug() << "[PWM] 参数计算失败：频率超出范围";
+        qDebug() << "====================================================";
+        return;
+    }
+    
+    qDebug() << "[PWM] 计算结果: div =" << div << ", period =" << period;
+    
+    // 计算duty值
+    uint16_t duty = static_cast<uint16_t>((dutyCyclePercent * period) / 100.0);
+    qDebug() << "[PWM] 计算duty =" << duty;
+    
+    // 获取选中的通道号
+    uint8_t channel = ui->pwmChannelComboBox ? ui->pwmChannelComboBox->currentIndex() : 0;
+    qDebug() << "[PWM] 目标通道:" << channel;
+    
+    // 配置PWM
+    if (pwmController->configurePWM(div, period, channel, duty)) {
+        // 计算实际频率和占空比
+        double actualFreq = PWMControllerQt::calculateFrequency(div, period);
+        double actualDuty = PWMControllerQt::calculateDutyCycle(duty, period);
+        
+        qDebug() << QString("[PWM] ✅ 配置成功");
+        qDebug() << QString("    目标: %1 Hz, %2%").arg(targetFreq).arg(dutyCyclePercent);
+        qDebug() << QString("    实际: %1 Hz, %2%").arg(actualFreq, 0, 'f', 2).arg(actualDuty, 0, 'f', 2);
+    } else {
+        qDebug() << "[PWM] ❌ 配置失败";
+    }
+    qDebug() << "====================================================\n";
+}
+
+// ==================== 音乐播放器相关实现 ====================
+
+/**
+ * @brief 加载音乐文件按钮点击槽函数
+ */
+void shiboqi_remake::on_pwmLoadMusicButton_clicked()
+{
+    QString fileName = QFileDialog::getOpenFileName(
+        this,
+        "选择音乐文件",
+        "",
+        "文本文件 (*.txt);;所有文件 (*.*)"
+    );
+    
+    if (fileName.isEmpty()) {
+        return;
+    }
+    
+    if (musicPlayer->loadMusicFile(fileName)) {
+        currentMusicFile = fileName;
+        QFileInfo fileInfo(fileName);
+        ui->pwmMusicFileLabel->setText(fileInfo.fileName());
+        QMessageBox::information(this, "成功", "音乐文件加载成功！");
+    } else {
+        QMessageBox::critical(this, "错误", "无法加载音乐文件，请检查文件格式。");
+    }
+}
+
+/**
+ * @brief 播放/暂停音乐按钮切换槽函数
+ */
+void shiboqi_remake::on_pwmPlayMusicButton_toggled(bool checked)
+{
+    if (checked) {
+        // 开始播放
+        if (!pwmController || !pwmController->isOpen()) {
+            QMessageBox::warning(this, "警告", "请先打开串口！");
+            ui->pwmPlayMusicButton->setChecked(false);
+            return;
+        }
+        
+        if (currentMusicFile.isEmpty()) {
+            QMessageBox::warning(this, "警告", "请先加载音乐文件！");
+            ui->pwmPlayMusicButton->setChecked(false);
+            return;
+        }
+        
+        // 禁用PWM控制界面
+        setPWMControlsEnabled(false);
+        
+        // 开始播放
+        musicPlayer->play();
+        ui->pwmPlayMusicButton->setText("⏸️ 暂停");
+        
+        qDebug() << "[音乐播放] 开始播放";
+    } else {
+        // 暂停播放
+        musicPlayer->pause();
+        ui->pwmPlayMusicButton->setText("▶️ 播放");
+        
+        // 启用PWM控制界面
+        setPWMControlsEnabled(true);
+        
+        qDebug() << "[音乐播放] 暂停播放";
+    }
+}
+
+/**
+ * @brief 停止音乐按钮点击槽函数
+ */
+void shiboqi_remake::on_pwmStopMusicButton_clicked()
+{
+    musicPlayer->stop();
+    
+    if (ui->pwmPlayMusicButton->isChecked()) {
+        ui->pwmPlayMusicButton->setChecked(false);
+    }
+    
+    ui->pwmPlayMusicButton->setText("▶️ 播放");
+    ui->pwmMusicProgressLabel->setText("进度: 0/0");
+    
+    // 启用PWM控制界面
+    setPWMControlsEnabled(true);
+    
+    qDebug() << "[音乐播放] 停止播放";
+}
+
+/**
+ * @brief 音乐播放器请求设置频率槽函数
+ */
+void shiboqi_remake::onMusicRequestFrequency(int frequency)
+{
+    setPWMFrequencyForMusic(frequency);
+}
+
+/**
+ * @brief 音乐播放进度更新槽函数
+ */
+void shiboqi_remake::onMusicProgressUpdated(int current, int total)
+{
+    ui->pwmMusicProgressLabel->setText(QString("进度: %1/%2").arg(current).arg(total));
+}
+
+/**
+ * @brief 设置PWM频率（由音乐播放器调用）
+ */
+void shiboqi_remake::setPWMFrequencyForMusic(int frequency)
+{
+    if (!pwmController || !pwmController->isOpen()) {
+        return;
+    }
+    
+    // 获取选中的通道号
+    uint8_t channel = ui->pwmChannelComboBox ? ui->pwmChannelComboBox->currentIndex() : 0;
+    
+    if (frequency == 0) {
+        // 静音：设置占空比为0
+        uint16_t div, period;
+        if (PWMControllerQt::calculateParams(1000, 1000, div, period)) {
+            pwmController->configurePWM(div, period, channel, 0);
+        }
+        return;
+    }
+    
+    // 设置目标频率，占空比50%
+    uint16_t resolution = 1000;
+    uint16_t div, period;
+    
+    if (!PWMControllerQt::calculateParams(frequency, resolution, div, period)) {
+        qDebug() << "[音乐播放] 频率" << frequency << "Hz 超出范围";
+        return;
+    }
+    
+    uint16_t duty = period / 2; // 50%占空比
+    
+    pwmController->configurePWM(div, period, channel, duty);
+}
+
+/**
+ * @brief 启用/禁用PWM控制界面（播放音乐时禁用）
+ */
+void shiboqi_remake::setPWMControlsEnabled(bool enabled)
+{
+    // 禁用/启用旋钮和输入框
+    if (ui->pwmFreqDial) ui->pwmFreqDial->setEnabled(enabled);
+    if (ui->pwmFreqSpinBox) ui->pwmFreqSpinBox->setEnabled(enabled);
+    if (ui->pwmDutyDial) ui->pwmDutyDial->setEnabled(enabled);
+    if (ui->pwmDutySpinBox) ui->pwmDutySpinBox->setEnabled(enabled);
+    if (ui->pwmChannelComboBox) ui->pwmChannelComboBox->setEnabled(enabled);
+    
+    // 禁用/启用串口设置（播放时不允许切换串口）
+    if (ui->pwmOpenSerialButton) ui->pwmOpenSerialButton->setEnabled(enabled);
+    if (ui->pwmSerialPortCombo) ui->pwmSerialPortCombo->setEnabled(enabled);
+    if (ui->pwmSerialBaudCombo) ui->pwmSerialBaudCombo->setEnabled(enabled);
 }

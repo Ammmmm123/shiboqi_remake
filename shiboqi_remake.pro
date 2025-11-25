@@ -22,7 +22,8 @@ INCLUDEPATH += src/thirdparty/qcustomplot-source \
                src/network \
                src/data_processing \
                src/analysis \
-               src/widgets
+               src/widgets \
+               src/pwm_controller
 
 SOURCES += \
     main.cpp \
@@ -35,9 +36,13 @@ SOURCES += \
     src/data_processing/data_processor_thread.cpp \
     src/data_processing/fft_processor.cpp \
     src/data_processing/frequency_detector.cpp \
+    src/data_processing/trigger_processor.cpp \
+    src/data_processing/trigger_processor_thread.cpp \
     src/analysis/spectrum_analyzer.cpp \
     src/widgets/siprefixticker.cpp \
-    src/widgets/waveform_sender_thread.cpp
+    src/widgets/waveform_sender_thread.cpp \
+    src/pwm_controller/PWMControllerQt.cpp \
+    src/pwm_controller/MusicPlayer.cpp
 
 HEADERS += \
     src/thirdparty/qcustomplot-source/qcustomplot.h \
@@ -49,9 +54,13 @@ HEADERS += \
     src/data_processing/data_processor_thread.h \
     src/data_processing/fft_processor.h \
     src/data_processing/frequency_detector.h \
+    src/data_processing/trigger_processor.h \
+    src/data_processing/trigger_processor_thread.h \
     src/analysis/spectrum_analyzer.h \
     src/widgets/siprefixticker.h \
-    src/widgets/waveform_sender_thread.h
+    src/widgets/waveform_sender_thread.h \
+    src/pwm_controller/PWMControllerQt.h \
+    src/pwm_controller/MusicPlayer.h
 
 FORMS += \
     src/ui/shiboqi_remake.ui

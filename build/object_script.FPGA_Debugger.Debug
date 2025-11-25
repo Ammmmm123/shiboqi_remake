@@ -8,9 +8,13 @@ debug/data_processor.o
 debug/data_processor_thread.o
 debug/fft_processor.o
 debug/frequency_detector.o
+debug/trigger_processor.o
+debug/trigger_processor_thread.o
 debug/spectrum_analyzer.o
 debug/siprefixticker.o
 debug/waveform_sender_thread.o
+debug/PWMControllerQt.o
+debug/MusicPlayer.o
 debug/qrc_resources.o
 debug/moc_qcustomplot.o
 debug/moc_shiboqi_remake.o
@@ -19,5 +23,9 @@ debug/moc_udp_receive.o
 debug/moc_udp_send.o
 debug/moc_data_processor.o
 debug/moc_data_processor_thread.o
+debug/moc_trigger_processor.o
+debug/moc_trigger_processor_thread.o
 debug/moc_spectrum_analyzer.o
 debug/moc_waveform_sender_thread.o
+debug/moc_PWMControllerQt.o
+debug/moc_MusicPlayer.o

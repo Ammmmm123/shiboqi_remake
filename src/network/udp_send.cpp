@@ -19,6 +19,7 @@ UdpSender::UdpSender(QObject *parent)
     defaultDivider = 0;
     channel = 0;
     waveformType = 0;  // 默认锯齿波
+    protocol = 0;      // 默认UART协议
 }
 
 /**
@@ -270,4 +271,29 @@ void UdpSender::sendUdpPacket(quint8 cmdAddr, quint32 cmdData)
 qint64 UdpSender::sendRawDatagram(const QByteArray &datagram)
 {
     return socket->writeDatagram(datagram, targetAddress, targetPort);
+}
+
+/**
+ * @brief 设置下位机协议类型
+ * @param protocol 协议类型
+ */
+void UdpSender::setProtocol(ProtocolType protocol)
+{
+    this->protocol = static_cast<quint8>(protocol) & 0x07;
+}
+
+/**
+ * @brief 发送协议选择命令
+ * 
+ * 发送命令地址7，设置下位机协议类型。
+ * 参数低字节对应关系：
+ * - 0b000 (0): UART
+ * - 0b001 (1): PWM
+ * - 0b010 (2): SUMP
+ * - 0b011 (3): I2C
+ * - 0b100 (4): SPI
+ */
+void UdpSender::sendProtocolSelectCommand()
+{
+    sendUdpPacket(7, protocol);
 }

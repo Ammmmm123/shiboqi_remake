@@ -11,7 +11,10 @@
 
 #include <QtCore/QVariant>
 #include <QtWidgets/QApplication>
+#include <QtWidgets/QCheckBox>
 #include <QtWidgets/QComboBox>
+#include <QtWidgets/QDial>
+#include <QtWidgets/QGridLayout>
 #include <QtWidgets/QGroupBox>
 #include <QtWidgets/QHBoxLayout>
 #include <QtWidgets/QLabel>
@@ -40,6 +43,8 @@ public:
     QPushButton *navButton_dds;
     QPushButton *navButton_digital;
     QPushButton *navButton_spectrum;
+    QPushButton *navButton_pwm;
+    QPushButton *navButton_protocol;
     QSpacerItem *verticalSpacer;
     QStackedWidget *stackedWidget;
     QWidget *page_5;
@@ -74,6 +79,14 @@ public:
     QLabel *Vmax_in;
     QLabel *Vmin;
     QLabel *Vmin_in;
+    QHBoxLayout *horizontalLayout_trigger;
+    QCheckBox *triggerEnableCheckBox;
+    QLabel *label_trigger_mode;
+    QComboBox *triggerModeComboBox;
+    QLabel *label_trigger_edge;
+    QComboBox *triggerEdgeComboBox;
+    QLabel *label_trigger_level;
+    QLabel *triggerLevelLabel;
     QGroupBox *groupBox;
     QVBoxLayout *verticalLayout_10;
     QVBoxLayout *verticalLayout_11;
@@ -131,6 +144,50 @@ public:
     QHBoxLayout *horizontalLayout_2;
     QPushButton *pushButton_2;
     QComboBox *comboBox;
+    QWidget *page_pwm;
+    QHBoxLayout *horizontalLayout_pwm;
+    QVBoxLayout *verticalLayout_pwm_left;
+    QGroupBox *groupBox_pwm_wave;
+    QVBoxLayout *verticalLayout_pwm_wave;
+    QHBoxLayout *horizontalLayout_knobs;
+    QVBoxLayout *verticalLayout_pwmFreq;
+    QLabel *label_pwm_freq;
+    QDial *pwmFreqDial;
+    QSpinBox *pwmFreqSpinBox;
+    QVBoxLayout *verticalLayout_pwmDuty;
+    QLabel *label_pwm_duty;
+    QDial *pwmDutyDial;
+    QSpinBox *pwmDutySpinBox;
+    QHBoxLayout *horizontalLayout_pwm_channel;
+    QLabel *label_pwm_channel;
+    QComboBox *pwmChannelComboBox;
+    QHBoxLayout *horizontalLayout_pwm_values;
+    QLabel *label_pwm_freq_value;
+    QLabel *pwmFreqValue;
+    QLabel *label_pwm_duty_value;
+    QLabel *pwmDutyValue;
+    QGroupBox *groupBox_pwm_music;
+    QVBoxLayout *verticalLayout_pwm_music;
+    QPushButton *pwmLoadMusicButton;
+    QLabel *pwmMusicFileLabel;
+    QHBoxLayout *horizontalLayout_pwm_music_ctrl;
+    QPushButton *pwmPlayMusicButton;
+    QPushButton *pwmStopMusicButton;
+    QLabel *pwmMusicProgressLabel;
+    QGroupBox *groupBox_pwm_serial;
+    QVBoxLayout *verticalLayout_pwm_serial;
+    QPushButton *pwmOpenSerialButton;
+    QComboBox *pwmSerialPortCombo;
+    QComboBox *pwmSerialBaudCombo;
+    QWidget *page_protocol;
+    QVBoxLayout *verticalLayout_protocol;
+    QLabel *label_protocol_title;
+    QGridLayout *gridLayout_protocol;
+    QPushButton *protocolUartButton;
+    QPushButton *protocolSumpButton;
+    QPushButton *protocolI2cButton;
+    QPushButton *protocolSpiButton;
+    QSpacerItem *verticalSpacer_protocol;
 
     void setupUi(QMainWindow *shiboqi_remake)
     {
@@ -224,6 +281,18 @@ public:
         navButton_spectrum->setCheckable(true);
 
         verticalLayout_sidebar->addWidget(navButton_spectrum);
+
+        navButton_pwm = new QPushButton(sidebarWidget);
+        navButton_pwm->setObjectName(QString::fromUtf8("navButton_pwm"));
+        navButton_pwm->setCheckable(true);
+
+        verticalLayout_sidebar->addWidget(navButton_pwm);
+
+        navButton_protocol = new QPushButton(sidebarWidget);
+        navButton_protocol->setObjectName(QString::fromUtf8("navButton_protocol"));
+        navButton_protocol->setCheckable(true);
+
+        verticalLayout_sidebar->addWidget(navButton_protocol);
 
         verticalSpacer = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
 
@@ -401,8 +470,9 @@ public:
 "    background-color: #ecf0f1;\n"
 "    border-radius: 4px;\n"
 "}"));
+        Frequency_4->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_7->addWidget(Frequency_4);
+        horizontalLayout_7->addWidget(Frequency_4, 0, Qt::AlignRight);
 
         Frequency_4_in = new QLabel(displayStackedWidget);
         Frequency_4_in->setObjectName(QString::fromUtf8("Frequency_4_in"));
@@ -416,7 +486,7 @@ public:
 "    border-radius: 4px;\n"
 "}"));
 
-        horizontalLayout_7->addWidget(Frequency_4_in);
+        horizontalLayout_7->addWidget(Frequency_4_in, 0, Qt::AlignLeft);
 
         Amplitude_4 = new QLabel(displayStackedWidget);
         Amplitude_4->setObjectName(QString::fromUtf8("Amplitude_4"));
@@ -428,8 +498,9 @@ public:
 "    background-color: #ecf0f1;\n"
 "    border-radius: 4px;\n"
 "}"));
+        Amplitude_4->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_7->addWidget(Amplitude_4);
+        horizontalLayout_7->addWidget(Amplitude_4, 0, Qt::AlignRight);
 
         Amplitude_4_in = new QLabel(displayStackedWidget);
         Amplitude_4_in->setObjectName(QString::fromUtf8("Amplitude_4_in"));
@@ -443,7 +514,7 @@ public:
 "    border-radius: 4px;\n"
 "}"));
 
-        horizontalLayout_7->addWidget(Amplitude_4_in);
+        horizontalLayout_7->addWidget(Amplitude_4_in, 0, Qt::AlignLeft);
 
         Vpp = new QLabel(displayStackedWidget);
         Vpp->setObjectName(QString::fromUtf8("Vpp"));
@@ -455,8 +526,9 @@ public:
 "    background-color: #ecf0f1;\n"
 "    border-radius: 4px;\n"
 "}"));
+        Vpp->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_7->addWidget(Vpp);
+        horizontalLayout_7->addWidget(Vpp, 0, Qt::AlignRight);
 
         Vpp_in = new QLabel(displayStackedWidget);
         Vpp_in->setObjectName(QString::fromUtf8("Vpp_in"));
@@ -470,7 +542,7 @@ public:
 "    border-radius: 4px;\n"
 "}"));
 
-        horizontalLayout_7->addWidget(Vpp_in);
+        horizontalLayout_7->addWidget(Vpp_in, 0, Qt::AlignLeft);
 
         Vmax = new QLabel(displayStackedWidget);
         Vmax->setObjectName(QString::fromUtf8("Vmax"));
@@ -482,8 +554,9 @@ public:
 "    background-color: #ecf0f1;\n"
 "    border-radius: 4px;\n"
 "}"));
+        Vmax->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_7->addWidget(Vmax);
+        horizontalLayout_7->addWidget(Vmax, 0, Qt::AlignRight);
 
         Vmax_in = new QLabel(displayStackedWidget);
         Vmax_in->setObjectName(QString::fromUtf8("Vmax_in"));
@@ -497,10 +570,11 @@ public:
 "    border-radius: 4px;\n"
 "}"));
 
-        horizontalLayout_7->addWidget(Vmax_in);
+        horizontalLayout_7->addWidget(Vmax_in, 0, Qt::AlignLeft);
 
         Vmin = new QLabel(displayStackedWidget);
         Vmin->setObjectName(QString::fromUtf8("Vmin"));
+        Vmin->setLayoutDirection(Qt::LeftToRight);
         Vmin->setStyleSheet(QString::fromUtf8("QLabel {\n"
 "    color: #2c3e50;\n"
 "    font-size: 13px;\n"
@@ -509,8 +583,9 @@ public:
 "    background-color: #ecf0f1;\n"
 "    border-radius: 4px;\n"
 "}"));
+        Vmin->setAlignment(Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter);
 
-        horizontalLayout_7->addWidget(Vmin);
+        horizontalLayout_7->addWidget(Vmin, 0, Qt::AlignRight);
 
         Vmin_in = new QLabel(displayStackedWidget);
         Vmin_in->setObjectName(QString::fromUtf8("Vmin_in"));
@@ -524,10 +599,173 @@ public:
 "    border-radius: 4px;\n"
 "}"));
 
-        horizontalLayout_7->addWidget(Vmin_in);
+        horizontalLayout_7->addWidget(Vmin_in, 0, Qt::AlignLeft);
 
 
         verticalLayout_2->addLayout(horizontalLayout_7);
+
+        horizontalLayout_trigger = new QHBoxLayout();
+        horizontalLayout_trigger->setSpacing(10);
+        horizontalLayout_trigger->setObjectName(QString::fromUtf8("horizontalLayout_trigger"));
+        triggerEnableCheckBox = new QCheckBox(displayStackedWidget);
+        triggerEnableCheckBox->setObjectName(QString::fromUtf8("triggerEnableCheckBox"));
+        triggerEnableCheckBox->setStyleSheet(QString::fromUtf8("QCheckBox {\n"
+"    spacing: 5px;\n"
+"    color: #2c3e50;\n"
+"}\n"
+"\n"
+"QCheckBox::indicator {\n"
+"    width: 18px;\n"
+"    height: 18px;\n"
+"    border-radius: 4px;\n"
+"    background-color: #ecf0f1;\n"
+"    border: 1px solid #bdc3c7;\n"
+"}\n"
+"\n"
+"QCheckBox::indicator:hover {\n"
+"    border-color: #3498db;\n"
+"}\n"
+"\n"
+"QCheckBox::indicator:checked {\n"
+"    background-color: #3498db;\n"
+"    border-color: #3498db;\n"
+"    image: url(:/resources/check.png); /* You might need to add a checkmark icon to your resources */\n"
+"}\n"
+""));
+
+        horizontalLayout_trigger->addWidget(triggerEnableCheckBox);
+
+        label_trigger_mode = new QLabel(displayStackedWidget);
+        label_trigger_mode->setObjectName(QString::fromUtf8("label_trigger_mode"));
+        label_trigger_mode->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 13px;\n"
+"    padding-left: 5px;\n"
+"}"));
+
+        horizontalLayout_trigger->addWidget(label_trigger_mode, 0, Qt::AlignRight);
+
+        triggerModeComboBox = new QComboBox(displayStackedWidget);
+        triggerModeComboBox->addItem(QString());
+        triggerModeComboBox->addItem(QString());
+        triggerModeComboBox->setObjectName(QString::fromUtf8("triggerModeComboBox"));
+        triggerModeComboBox->setStyleSheet(QString::fromUtf8("QComboBox {\n"
+"    border: 1px solid #bdc3c7;\n"
+"    border-radius: 4px;\n"
+"    padding: 3px 8px;\n"
+"    min-width: 6em;\n"
+"    background: white;\n"
+"}\n"
+"\n"
+"QComboBox:hover {\n"
+"    border-color: #3498db;\n"
+"}\n"
+"\n"
+"QComboBox::drop-down {\n"
+"    subcontrol-origin: padding;\n"
+"    subcontrol-position: top right;\n"
+"    width: 20px;\n"
+"    border-left-width: 1px;\n"
+"    border-left-color: #bdc3c7;\n"
+"    border-left-style: solid;\n"
+"    border-top-right-radius: 3px;\n"
+"    border-bottom-right-radius: 3px;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow {\n"
+"    image: url(:/icons/down_arrow.png); /* You might need to add a down arrow icon */\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView {\n"
+"    border: 1px solid #3498db;\n"
+"    background: white;\n"
+"    selection-background-color: #eaf5ff;\n"
+"	selection-color: #2c3e50;\n"
+"}\n"
+""));
+
+        horizontalLayout_trigger->addWidget(triggerModeComboBox, 0, Qt::AlignLeft);
+
+        label_trigger_edge = new QLabel(displayStackedWidget);
+        label_trigger_edge->setObjectName(QString::fromUtf8("label_trigger_edge"));
+        label_trigger_edge->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 13px;\n"
+"    padding-left: 5px;\n"
+"}"));
+
+        horizontalLayout_trigger->addWidget(label_trigger_edge, 0, Qt::AlignRight);
+
+        triggerEdgeComboBox = new QComboBox(displayStackedWidget);
+        triggerEdgeComboBox->addItem(QString());
+        triggerEdgeComboBox->addItem(QString());
+        triggerEdgeComboBox->setObjectName(QString::fromUtf8("triggerEdgeComboBox"));
+        triggerEdgeComboBox->setStyleSheet(QString::fromUtf8("QComboBox {\n"
+"    border: 1px solid #bdc3c7;\n"
+"    border-radius: 4px;\n"
+"    padding: 3px 8px;\n"
+"    min-width: 6em;\n"
+"    background: white;\n"
+"}\n"
+"\n"
+"QComboBox:hover {\n"
+"    border-color: #3498db;\n"
+"}\n"
+"\n"
+"QComboBox::drop-down {\n"
+"    subcontrol-origin: padding;\n"
+"    subcontrol-position: top right;\n"
+"    width: 20px;\n"
+"    border-left-width: 1px;\n"
+"    border-left-color: #bdc3c7;\n"
+"    border-left-style: solid;\n"
+"    border-top-right-radius: 3px;\n"
+"    border-bottom-right-radius: 3px;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow {\n"
+"    image: url(:/resources/down_arrow.png); /* You might need to add a down arrow icon */\n"
+"}\n"
+"\n"
+"QComboBox QAbstractItemView {\n"
+"    border: 1px solid #3498db;\n"
+"    background: white;\n"
+"    selection-background-color: #eaf5ff;\n"
+"	selection-color: #2c3e50;\n"
+"}\n"
+""));
+
+        horizontalLayout_trigger->addWidget(triggerEdgeComboBox, 0, Qt::AlignLeft);
+
+        label_trigger_level = new QLabel(displayStackedWidget);
+        label_trigger_level->setObjectName(QString::fromUtf8("label_trigger_level"));
+        label_trigger_level->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-size: 13px;\n"
+"    padding-left: 5px;\n"
+"}"));
+
+        horizontalLayout_trigger->addWidget(label_trigger_level, 0, Qt::AlignRight);
+
+        triggerLevelLabel = new QLabel(displayStackedWidget);
+        triggerLevelLabel->setObjectName(QString::fromUtf8("triggerLevelLabel"));
+        triggerLevelLabel->setStyleSheet(QString::fromUtf8("QLabel {\n"
+"    color: #3498db;\n"
+"    font-size: 13px;\n"
+"    font-weight: 600;\n"
+"    padding: 4px 8px;\n"
+"    background-color: #eaf5ff;\n"
+"    border: 1px solid #3498db;\n"
+"    border-radius: 4px;\n"
+"    min-width: 5em;\n"
+"    text-align: center;\n"
+"}"));
+        triggerLevelLabel->setAlignment(Qt::AlignCenter);
+
+        horizontalLayout_trigger->addWidget(triggerLevelLabel, 0, Qt::AlignLeft);
+
+
+        verticalLayout_2->addLayout(horizontalLayout_trigger);
 
         verticalLayout_2->setStretch(0, 3);
 
@@ -1379,6 +1617,232 @@ public:
         horizontalLayout_5->addLayout(verticalLayout_13);
 
         stackedWidget->addWidget(page_7);
+        page_pwm = new QWidget();
+        page_pwm->setObjectName(QString::fromUtf8("page_pwm"));
+        horizontalLayout_pwm = new QHBoxLayout(page_pwm);
+        horizontalLayout_pwm->setObjectName(QString::fromUtf8("horizontalLayout_pwm"));
+        verticalLayout_pwm_left = new QVBoxLayout();
+        verticalLayout_pwm_left->setObjectName(QString::fromUtf8("verticalLayout_pwm_left"));
+        groupBox_pwm_wave = new QGroupBox(page_pwm);
+        groupBox_pwm_wave->setObjectName(QString::fromUtf8("groupBox_pwm_wave"));
+        verticalLayout_pwm_wave = new QVBoxLayout(groupBox_pwm_wave);
+        verticalLayout_pwm_wave->setObjectName(QString::fromUtf8("verticalLayout_pwm_wave"));
+        horizontalLayout_knobs = new QHBoxLayout();
+        horizontalLayout_knobs->setObjectName(QString::fromUtf8("horizontalLayout_knobs"));
+        verticalLayout_pwmFreq = new QVBoxLayout();
+        verticalLayout_pwmFreq->setObjectName(QString::fromUtf8("verticalLayout_pwmFreq"));
+        label_pwm_freq = new QLabel(groupBox_pwm_wave);
+        label_pwm_freq->setObjectName(QString::fromUtf8("label_pwm_freq"));
+
+        verticalLayout_pwmFreq->addWidget(label_pwm_freq);
+
+        pwmFreqDial = new QDial(groupBox_pwm_wave);
+        pwmFreqDial->setObjectName(QString::fromUtf8("pwmFreqDial"));
+
+        verticalLayout_pwmFreq->addWidget(pwmFreqDial);
+
+        pwmFreqSpinBox = new QSpinBox(groupBox_pwm_wave);
+        pwmFreqSpinBox->setObjectName(QString::fromUtf8("pwmFreqSpinBox"));
+        pwmFreqSpinBox->setMinimum(1);
+        pwmFreqSpinBox->setMaximum(2000000);
+
+        verticalLayout_pwmFreq->addWidget(pwmFreqSpinBox);
+
+
+        horizontalLayout_knobs->addLayout(verticalLayout_pwmFreq);
+
+        verticalLayout_pwmDuty = new QVBoxLayout();
+        verticalLayout_pwmDuty->setObjectName(QString::fromUtf8("verticalLayout_pwmDuty"));
+        label_pwm_duty = new QLabel(groupBox_pwm_wave);
+        label_pwm_duty->setObjectName(QString::fromUtf8("label_pwm_duty"));
+
+        verticalLayout_pwmDuty->addWidget(label_pwm_duty);
+
+        pwmDutyDial = new QDial(groupBox_pwm_wave);
+        pwmDutyDial->setObjectName(QString::fromUtf8("pwmDutyDial"));
+
+        verticalLayout_pwmDuty->addWidget(pwmDutyDial);
+
+        pwmDutySpinBox = new QSpinBox(groupBox_pwm_wave);
+        pwmDutySpinBox->setObjectName(QString::fromUtf8("pwmDutySpinBox"));
+        pwmDutySpinBox->setMinimum(0);
+        pwmDutySpinBox->setMaximum(100);
+
+        verticalLayout_pwmDuty->addWidget(pwmDutySpinBox);
+
+
+        horizontalLayout_knobs->addLayout(verticalLayout_pwmDuty);
+
+        horizontalLayout_knobs->setStretch(0, 1);
+        horizontalLayout_knobs->setStretch(1, 1);
+
+        verticalLayout_pwm_wave->addLayout(horizontalLayout_knobs);
+
+        horizontalLayout_pwm_channel = new QHBoxLayout();
+        horizontalLayout_pwm_channel->setObjectName(QString::fromUtf8("horizontalLayout_pwm_channel"));
+        label_pwm_channel = new QLabel(groupBox_pwm_wave);
+        label_pwm_channel->setObjectName(QString::fromUtf8("label_pwm_channel"));
+
+        horizontalLayout_pwm_channel->addWidget(label_pwm_channel, 0, Qt::AlignRight);
+
+        pwmChannelComboBox = new QComboBox(groupBox_pwm_wave);
+        pwmChannelComboBox->addItem(QString());
+        pwmChannelComboBox->addItem(QString());
+        pwmChannelComboBox->addItem(QString());
+        pwmChannelComboBox->addItem(QString());
+        pwmChannelComboBox->addItem(QString());
+        pwmChannelComboBox->addItem(QString());
+        pwmChannelComboBox->addItem(QString());
+        pwmChannelComboBox->addItem(QString());
+        pwmChannelComboBox->setObjectName(QString::fromUtf8("pwmChannelComboBox"));
+
+        horizontalLayout_pwm_channel->addWidget(pwmChannelComboBox, 0, Qt::AlignLeft);
+
+
+        verticalLayout_pwm_wave->addLayout(horizontalLayout_pwm_channel);
+
+        horizontalLayout_pwm_values = new QHBoxLayout();
+        horizontalLayout_pwm_values->setObjectName(QString::fromUtf8("horizontalLayout_pwm_values"));
+        label_pwm_freq_value = new QLabel(groupBox_pwm_wave);
+        label_pwm_freq_value->setObjectName(QString::fromUtf8("label_pwm_freq_value"));
+
+        horizontalLayout_pwm_values->addWidget(label_pwm_freq_value);
+
+        pwmFreqValue = new QLabel(groupBox_pwm_wave);
+        pwmFreqValue->setObjectName(QString::fromUtf8("pwmFreqValue"));
+
+        horizontalLayout_pwm_values->addWidget(pwmFreqValue);
+
+        label_pwm_duty_value = new QLabel(groupBox_pwm_wave);
+        label_pwm_duty_value->setObjectName(QString::fromUtf8("label_pwm_duty_value"));
+
+        horizontalLayout_pwm_values->addWidget(label_pwm_duty_value);
+
+        pwmDutyValue = new QLabel(groupBox_pwm_wave);
+        pwmDutyValue->setObjectName(QString::fromUtf8("pwmDutyValue"));
+
+        horizontalLayout_pwm_values->addWidget(pwmDutyValue);
+
+
+        verticalLayout_pwm_wave->addLayout(horizontalLayout_pwm_values);
+
+
+        verticalLayout_pwm_left->addWidget(groupBox_pwm_wave);
+
+        groupBox_pwm_music = new QGroupBox(page_pwm);
+        groupBox_pwm_music->setObjectName(QString::fromUtf8("groupBox_pwm_music"));
+        verticalLayout_pwm_music = new QVBoxLayout(groupBox_pwm_music);
+        verticalLayout_pwm_music->setObjectName(QString::fromUtf8("verticalLayout_pwm_music"));
+        pwmLoadMusicButton = new QPushButton(groupBox_pwm_music);
+        pwmLoadMusicButton->setObjectName(QString::fromUtf8("pwmLoadMusicButton"));
+
+        verticalLayout_pwm_music->addWidget(pwmLoadMusicButton);
+
+        pwmMusicFileLabel = new QLabel(groupBox_pwm_music);
+        pwmMusicFileLabel->setObjectName(QString::fromUtf8("pwmMusicFileLabel"));
+        pwmMusicFileLabel->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_pwm_music->addWidget(pwmMusicFileLabel);
+
+        horizontalLayout_pwm_music_ctrl = new QHBoxLayout();
+        horizontalLayout_pwm_music_ctrl->setObjectName(QString::fromUtf8("horizontalLayout_pwm_music_ctrl"));
+        pwmPlayMusicButton = new QPushButton(groupBox_pwm_music);
+        pwmPlayMusicButton->setObjectName(QString::fromUtf8("pwmPlayMusicButton"));
+        pwmPlayMusicButton->setCheckable(true);
+
+        horizontalLayout_pwm_music_ctrl->addWidget(pwmPlayMusicButton);
+
+        pwmStopMusicButton = new QPushButton(groupBox_pwm_music);
+        pwmStopMusicButton->setObjectName(QString::fromUtf8("pwmStopMusicButton"));
+
+        horizontalLayout_pwm_music_ctrl->addWidget(pwmStopMusicButton);
+
+
+        verticalLayout_pwm_music->addLayout(horizontalLayout_pwm_music_ctrl);
+
+        pwmMusicProgressLabel = new QLabel(groupBox_pwm_music);
+        pwmMusicProgressLabel->setObjectName(QString::fromUtf8("pwmMusicProgressLabel"));
+        pwmMusicProgressLabel->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_pwm_music->addWidget(pwmMusicProgressLabel);
+
+
+        verticalLayout_pwm_left->addWidget(groupBox_pwm_music);
+
+
+        horizontalLayout_pwm->addLayout(verticalLayout_pwm_left);
+
+        groupBox_pwm_serial = new QGroupBox(page_pwm);
+        groupBox_pwm_serial->setObjectName(QString::fromUtf8("groupBox_pwm_serial"));
+        verticalLayout_pwm_serial = new QVBoxLayout(groupBox_pwm_serial);
+        verticalLayout_pwm_serial->setObjectName(QString::fromUtf8("verticalLayout_pwm_serial"));
+        pwmOpenSerialButton = new QPushButton(groupBox_pwm_serial);
+        pwmOpenSerialButton->setObjectName(QString::fromUtf8("pwmOpenSerialButton"));
+        pwmOpenSerialButton->setCheckable(true);
+
+        verticalLayout_pwm_serial->addWidget(pwmOpenSerialButton);
+
+        pwmSerialPortCombo = new QComboBox(groupBox_pwm_serial);
+        pwmSerialPortCombo->setObjectName(QString::fromUtf8("pwmSerialPortCombo"));
+
+        verticalLayout_pwm_serial->addWidget(pwmSerialPortCombo);
+
+        pwmSerialBaudCombo = new QComboBox(groupBox_pwm_serial);
+        pwmSerialBaudCombo->addItem(QString());
+        pwmSerialBaudCombo->addItem(QString());
+        pwmSerialBaudCombo->setObjectName(QString::fromUtf8("pwmSerialBaudCombo"));
+
+        verticalLayout_pwm_serial->addWidget(pwmSerialBaudCombo);
+
+
+        horizontalLayout_pwm->addWidget(groupBox_pwm_serial);
+
+        stackedWidget->addWidget(page_pwm);
+        page_protocol = new QWidget();
+        page_protocol->setObjectName(QString::fromUtf8("page_protocol"));
+        verticalLayout_protocol = new QVBoxLayout(page_protocol);
+        verticalLayout_protocol->setObjectName(QString::fromUtf8("verticalLayout_protocol"));
+        label_protocol_title = new QLabel(page_protocol);
+        label_protocol_title->setObjectName(QString::fromUtf8("label_protocol_title"));
+        label_protocol_title->setAlignment(Qt::AlignCenter);
+
+        verticalLayout_protocol->addWidget(label_protocol_title);
+
+        gridLayout_protocol = new QGridLayout();
+        gridLayout_protocol->setSpacing(20);
+        gridLayout_protocol->setObjectName(QString::fromUtf8("gridLayout_protocol"));
+        protocolUartButton = new QPushButton(page_protocol);
+        protocolUartButton->setObjectName(QString::fromUtf8("protocolUartButton"));
+        protocolUartButton->setCheckable(true);
+
+        gridLayout_protocol->addWidget(protocolUartButton, 0, 0, 1, 1);
+
+        protocolSumpButton = new QPushButton(page_protocol);
+        protocolSumpButton->setObjectName(QString::fromUtf8("protocolSumpButton"));
+        protocolSumpButton->setCheckable(true);
+
+        gridLayout_protocol->addWidget(protocolSumpButton, 0, 1, 1, 1);
+
+        protocolI2cButton = new QPushButton(page_protocol);
+        protocolI2cButton->setObjectName(QString::fromUtf8("protocolI2cButton"));
+        protocolI2cButton->setCheckable(true);
+
+        gridLayout_protocol->addWidget(protocolI2cButton, 1, 0, 1, 1);
+
+        protocolSpiButton = new QPushButton(page_protocol);
+        protocolSpiButton->setObjectName(QString::fromUtf8("protocolSpiButton"));
+        protocolSpiButton->setCheckable(true);
+
+        gridLayout_protocol->addWidget(protocolSpiButton, 1, 1, 1, 1);
+
+
+        verticalLayout_protocol->addLayout(gridLayout_protocol);
+
+        verticalSpacer_protocol = new QSpacerItem(20, 40, QSizePolicy::Minimum, QSizePolicy::Expanding);
+
+        verticalLayout_protocol->addItem(verticalSpacer_protocol);
+
+        stackedWidget->addWidget(page_protocol);
 
         horizontalLayout_main->addWidget(stackedWidget);
 
@@ -1388,6 +1852,7 @@ public:
         retranslateUi(shiboqi_remake);
 
         stackedWidget->setCurrentIndex(0);
+        stackedWidget_2->setCurrentIndex(1);
         pushButton_2->setDefault(false);
 
 
@@ -1403,6 +1868,8 @@ public:
         navButton_dds->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\216\233\357\270\217  DDS\350\256\276\347\275\256", nullptr));
         navButton_digital->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\223\241  \346\225\260\345\255\227\344\277\241\345\217\267", nullptr));
         navButton_spectrum->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\223\210  \351\242\221\350\260\261\345\210\206\346\236\220", nullptr));
+        navButton_pwm->setText(QCoreApplication::translate("shiboqi_remake", "  \342\232\231\357\270\217  PWM\346\263\242\346\216\247\345\210\266", nullptr));
+        navButton_protocol->setText(QCoreApplication::translate("shiboqi_remake", "  \360\237\224\214  \345\215\217\350\256\256\351\200\211\346\213\251", nullptr));
         spectrum_freq_label->setText(QCoreApplication::translate("shiboqi_remake", "\344\270\273\351\242\221\347\216\207 \357\274\232", nullptr));
         label->setText(QCoreApplication::translate("shiboqi_remake", "0.00 Hz", nullptr));
         spectrum_amp_label->setText(QCoreApplication::translate("shiboqi_remake", "\344\270\273\345\271\205\345\272\246 \357\274\232", nullptr));
@@ -1421,6 +1888,17 @@ public:
         Vmax_in->setText(QCoreApplication::translate("shiboqi_remake", "0 V", nullptr));
         Vmin->setText(QCoreApplication::translate("shiboqi_remake", "Vmin \357\274\232", nullptr));
         Vmin_in->setText(QCoreApplication::translate("shiboqi_remake", "0 V", nullptr));
+        triggerEnableCheckBox->setText(QCoreApplication::translate("shiboqi_remake", "\345\220\257\347\224\250\350\247\246\345\217\221", nullptr));
+        label_trigger_mode->setText(QCoreApplication::translate("shiboqi_remake", "\346\250\241\345\274\217:", nullptr));
+        triggerModeComboBox->setItemText(0, QCoreApplication::translate("shiboqi_remake", "Auto", nullptr));
+        triggerModeComboBox->setItemText(1, QCoreApplication::translate("shiboqi_remake", "Normal", nullptr));
+
+        label_trigger_edge->setText(QCoreApplication::translate("shiboqi_remake", "\350\276\271\346\262\277:", nullptr));
+        triggerEdgeComboBox->setItemText(0, QCoreApplication::translate("shiboqi_remake", "\344\270\212\345\215\207\346\262\277", nullptr));
+        triggerEdgeComboBox->setItemText(1, QCoreApplication::translate("shiboqi_remake", "\344\270\213\351\231\215\346\262\277", nullptr));
+
+        label_trigger_level->setText(QCoreApplication::translate("shiboqi_remake", "\347\224\265\345\271\263:", nullptr));
+        triggerLevelLabel->setText(QCoreApplication::translate("shiboqi_remake", "0.00 V", nullptr));
         groupBox->setTitle(QCoreApplication::translate("shiboqi_remake", "UDP\350\256\276\347\275\256", nullptr));
         label_22->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "margin: 0px; padding: 0px;", nullptr));
         label_22->setText(QCoreApplication::translate("shiboqi_remake", " \347\253\257\345\217\243:", nullptr));
@@ -1460,6 +1938,197 @@ public:
         Lvolt_t->setText(QCoreApplication::translate("shiboqi_remake", "\344\275\216\347\224\265\345\271\263\346\227\266\351\227\264\357\274\232", nullptr));
         Lvolt_t_in->setText(QCoreApplication::translate("shiboqi_remake", "0 us", nullptr));
         pushButton_2->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\224\214 \345\274\200\345\220\257\350\277\236\346\216\245", nullptr));
+        page_pwm->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "\n"
+"QWidget#page_pwm {\n"
+"    background-color: #f8f9fa;\n"
+"}\n"
+"\n"
+"QGroupBox {\n"
+"    background-color: white;\n"
+"    border: 1px solid #e9ecef;\n"
+"    border-radius: 12px;\n"
+"    margin-top: 28px;\n"
+"    font-family: \"Microsoft YaHei\", \"Segoe UI\";\n"
+"    font-size: 14px;\n"
+"}\n"
+"\n"
+"QGroupBox::title {\n"
+"    subcontrol-origin: margin;\n"
+"    subcontrol-position: top left;\n"
+"    padding: 0 8px;\n"
+"    left: 12px;\n"
+"    color: #2c3e50;\n"
+"    font-weight: bold;\n"
+"    font-size: 16px;\n"
+"    background-color: transparent;\n"
+"}\n"
+"\n"
+"QDial {\n"
+"    background-color: transparent;\n"
+"}\n"
+"\n"
+"QSpinBox {\n"
+"    border: 1px solid #ced4da;\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 10px;\n"
+"    background-color: #ffffff;\n"
+"    selection-background-color: #3498db;\n"
+"    font-size: 14px;\n"
+"    color: #495057;\n"
+"    min-height: 20px;\n"
+"}\n"
+"\n"
+"QSpinBox:hover {\n"
+"    border-color: #3498db;\n"
+"    background-color: #f1f3f5;\n"
+"}\n"
+"\n"
+"QSpinBox:focus {\n"
+" "
+                        "   border-color: #3498db;\n"
+"    background-color: #ffffff;\n"
+"}\n"
+"\n"
+"QLabel {\n"
+"    color: #6c757d;\n"
+"    font-family: \"Microsoft YaHei\", \"Segoe UI\";\n"
+"    font-size: 14px;\n"
+"}\n"
+"\n"
+"QLabel#pwmFreqValue, QLabel#pwmDutyValue {\n"
+"    color: #3498db;\n"
+"    font-weight: bold;\n"
+"    font-size: 18px;\n"
+"}\n"
+"\n"
+"QPushButton {\n"
+"    background-color: #3498db;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 8px;\n"
+"    padding: 10px 20px;\n"
+"    font-family: \"Microsoft YaHei\", \"Segoe UI\";\n"
+"    font-weight: 600;\n"
+"    font-size: 14px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #2980b9;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #1f618d;\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: #e74c3c;\n"
+"}\n"
+"\n"
+"QPushButton:checked:hover {\n"
+"    background-color: #c0392b;\n"
+"}\n"
+"\n"
+"QComboBox {\n"
+"    border: 1px solid #ced4da;\n"
+"    border-radius: 6px;\n"
+"    padding: 6px 10px;\n"
+"    background-co"
+                        "lor: #ffffff;\n"
+"    selection-background-color: #3498db;\n"
+"    font-size: 14px;\n"
+"    color: #495057;\n"
+"    min-height: 20px;\n"
+"}\n"
+"\n"
+"QComboBox:hover {\n"
+"    border-color: #3498db;\n"
+"}\n"
+"\n"
+"QComboBox::drop-down {\n"
+"    border: none;\n"
+"    background: transparent;\n"
+"    width: 24px;\n"
+"}\n"
+"\n"
+"QComboBox::down-arrow {\n"
+"    image: none;\n"
+"    border-left: 2px solid #ced4da;\n"
+"    border-bottom: 2px solid #ced4da;\n"
+"    width: 8px;\n"
+"    height: 8px;\n"
+"    transform: rotate(-45deg);\n"
+"    margin-right: 8px;\n"
+"    margin-top: -2px;\n"
+"}\n"
+"        ", nullptr));
+        groupBox_pwm_wave->setTitle(QCoreApplication::translate("shiboqi_remake", "PWM \346\216\247\345\210\266", nullptr));
+        label_pwm_freq->setText(QCoreApplication::translate("shiboqi_remake", "\351\242\221\347\216\207 (Hz)", nullptr));
+        label_pwm_duty->setText(QCoreApplication::translate("shiboqi_remake", "\345\215\240\347\251\272\346\257\224 (%)", nullptr));
+        label_pwm_channel->setText(QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223:", nullptr));
+        pwmChannelComboBox->setItemText(0, QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223 0", nullptr));
+        pwmChannelComboBox->setItemText(1, QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223 1", nullptr));
+        pwmChannelComboBox->setItemText(2, QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223 2", nullptr));
+        pwmChannelComboBox->setItemText(3, QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223 3", nullptr));
+        pwmChannelComboBox->setItemText(4, QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223 4", nullptr));
+        pwmChannelComboBox->setItemText(5, QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223 5", nullptr));
+        pwmChannelComboBox->setItemText(6, QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223 6", nullptr));
+        pwmChannelComboBox->setItemText(7, QCoreApplication::translate("shiboqi_remake", "\351\200\232\351\201\223 7", nullptr));
+
+        label_pwm_freq_value->setText(QCoreApplication::translate("shiboqi_remake", "\351\242\221\347\216\207:", nullptr));
+        pwmFreqValue->setText(QCoreApplication::translate("shiboqi_remake", "0 Hz", nullptr));
+        label_pwm_duty_value->setText(QCoreApplication::translate("shiboqi_remake", "\345\215\240\347\251\272\346\257\224:", nullptr));
+        pwmDutyValue->setText(QCoreApplication::translate("shiboqi_remake", "0 %", nullptr));
+        groupBox_pwm_music->setTitle(QCoreApplication::translate("shiboqi_remake", "\351\237\263\344\271\220\346\222\255\346\224\276\345\231\250", nullptr));
+        pwmLoadMusicButton->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\216\265 \345\212\240\350\275\275\351\237\263\344\271\220\346\226\207\344\273\266", nullptr));
+        pwmMusicFileLabel->setText(QCoreApplication::translate("shiboqi_remake", "\346\234\252\345\212\240\350\275\275\346\226\207\344\273\266", nullptr));
+        pwmPlayMusicButton->setText(QCoreApplication::translate("shiboqi_remake", "\342\226\266\357\270\217 \346\222\255\346\224\276", nullptr));
+        pwmStopMusicButton->setText(QCoreApplication::translate("shiboqi_remake", "\342\217\271\357\270\217 \345\201\234\346\255\242", nullptr));
+        pwmMusicProgressLabel->setText(QCoreApplication::translate("shiboqi_remake", "\350\277\233\345\272\246: 0/0", nullptr));
+        groupBox_pwm_serial->setTitle(QCoreApplication::translate("shiboqi_remake", "\344\270\262\345\217\243\350\256\276\347\275\256", nullptr));
+        pwmOpenSerialButton->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\224\214 \346\211\223\345\274\200\344\270\262\345\217\243", nullptr));
+        pwmSerialBaudCombo->setItemText(0, QCoreApplication::translate("shiboqi_remake", "9600", nullptr));
+        pwmSerialBaudCombo->setItemText(1, QCoreApplication::translate("shiboqi_remake", "115200", nullptr));
+
+        page_protocol->setStyleSheet(QCoreApplication::translate("shiboqi_remake", "QWidget#page_protocol {\n"
+"    background-color: #f8f9fa;\n"
+"}\n"
+"\n"
+"QPushButton {\n"
+"    background-color: #3498db;\n"
+"    color: white;\n"
+"    border: none;\n"
+"    border-radius: 12px;\n"
+"    padding: 20px;\n"
+"    font-family: \"Microsoft YaHei\", \"Segoe UI\";\n"
+"    font-weight: 600;\n"
+"    font-size: 16px;\n"
+"    min-height: 80px;\n"
+"}\n"
+"\n"
+"QPushButton:hover {\n"
+"    background-color: #2980b9;\n"
+"}\n"
+"\n"
+"QPushButton:pressed {\n"
+"    background-color: #1f618d;\n"
+"}\n"
+"\n"
+"QPushButton:checked {\n"
+"    background-color: #27ae60;\n"
+"    border: 3px solid #229954;\n"
+"}\n"
+"\n"
+"QLabel {\n"
+"    color: #2c3e50;\n"
+"    font-family: \"Microsoft YaHei\", \"Segoe UI\";\n"
+"    font-size: 18px;\n"
+"    font-weight: bold;\n"
+"}", nullptr));
+        label_protocol_title->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\224\214 \345\215\217\350\256\256\351\200\211\346\213\251", nullptr));
+        protocolUartButton->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\223\235 UART\345\215\217\350\256\256", nullptr));
+        protocolSumpButton->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\224\215 SUMP\345\215\217\350\256\256", nullptr));
+        protocolI2cButton->setText(QCoreApplication::translate("shiboqi_remake", "\360\237\224\227 I2C\345\215\217\350\256\256", nullptr));
+        protocolSpiButton->setText(QCoreApplication::translate("shiboqi_remake", "\342\232\241 SPI\345\215\217\350\256\256", nullptr));
     } // retranslateUi
 
 };
